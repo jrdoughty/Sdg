@@ -1,0 +1,6 @@
+package sdg;
+
+class Sdg
+{
+	
+}
