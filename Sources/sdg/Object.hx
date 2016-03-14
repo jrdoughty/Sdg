@@ -5,18 +5,15 @@ import sdg.comp.Component;
 
 class Object
 {
+	/** Name of the object for debugging */
+	public var name:String;
+	
 	/** The x position */
 	public var x:Float;
-	
+		
 	/** the y position */
-	public var y:Float;
-	
-	/** The parent of this object */
-	public var parent:Object;
-	
-	/** The children moves and rotates automatically with the parent */
-	public var children:Array<Object>;
-	
+	public var y:Float;	
+		
 	/** If the object can update */
 	public var active:Bool;
 	
@@ -26,20 +23,26 @@ class Object
 	/** The screen this object belongs */
 	public var screen:Screen;
 	
-	public var renderers:Array<Graphics->Void>;
+	public var renderers:Array<Graphics->Float->Float->Void>;
 	
 	public var components:Array<Component>;
 	
-	public function new(x:Float = 0, y:Float = 0):Void
+	public var group:Group;
+	
+	/** Temp variable to set the position */
+	static var delta:Float;
+	
+	public function new(x:Float = 0, y:Float = 0, name:String = ''):Void
 	{
 		this.x = x;
 		this.y = y;
+		this.name = name;
 		
+		renderers = new Array<Graphics->Float->Float->Void>();
+		components = new Array<Component>();		
+		
+		active = true;
 		visible = true;
-		
-		children = new Array<Object>();
-		renderers = new Array<Graphics->Void>();
-		components = new Array<Component>();
 	}
 	
 	public function update()
@@ -53,12 +56,6 @@ class Object
 	
 	public function destroy()
 	{
-		for (ch in children)
-		{
-			ch.destroy();
-			ch = null;
-		}
-		
 		for (comp in components)
 		{
 			comp.destroy();
@@ -69,7 +66,7 @@ class Object
 	public function addComponent(comp:Component)
 	{
 		components.push(comp);
-		comp.parent = this;
+		comp.object = this;
 		comp.init();
 	}
 	
@@ -78,25 +75,13 @@ class Object
 		components.remove(comp);
 	}
 	
-	inline public function addRenderer(renderer:Graphics->Void)
+	inline public function addRenderer(renderer:Graphics->Float->Float->Void)
 	{
 		renderers.push(renderer);
 	}
 
-	inline public function removeRenderer(renderer:Graphics->Void)
+	inline public function removeRenderer(renderer:Graphics->Float->Float->Void)
 	{
 		renderers.remove(renderer);
-	}
-	
-	public function addChild(child:Object)
-	{
-		child.parent = this;
-		children.push(child);
-	}
-
-	public function removeChild(child:Object)
-	{
-		child.parent = null;
-		children.remove(child);
 	}
 }	

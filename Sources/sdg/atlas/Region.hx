@@ -1,4 +1,4 @@
-package sdg.util;
+package sdg.atlas;
 
 /**
  *	Represents a region inside a image

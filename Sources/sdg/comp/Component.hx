@@ -4,7 +4,7 @@ import sdg.Object;
 
 class Component
 {
-	public var parent:Object;
+	public var object:Object;
 	
 	public var active:Bool = true;
 	
