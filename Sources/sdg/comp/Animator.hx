@@ -18,9 +18,7 @@ class AnimData
 }
 
 class Animator extends Sprite
-{
-	var playing:Bool;
-	
+{	
 	/** positive = forward, negative = backwards */
 	var direction:Float; 
 	
@@ -41,7 +39,7 @@ class Animator extends Sprite
 	{
 		super(image);
 		
-		playing = false;
+		active = false;
 		direction = 1;
 		currIndex = 0;
 		loop = false;
@@ -53,42 +51,39 @@ class Animator extends Sprite
 	
 	override public function update():Void
 	{
-		if (playing)
+		elapsed += Sdg.dt * Math.abs(direction);
+
+		// next frame
+		if (elapsed >= 1 / currAnimation.fps)
 		{
-			elapsed += Sdg.dt * Math.abs(direction);
+			elapsed -= (1 / currAnimation.fps);
 
-			// next frame
-			if (elapsed >= 1 / currAnimation.fps)
+			currIndex += (direction >= 0) ? 1 : -1;
+
+			if (currIndex >= currAnimation.regions.length)
 			{
-				elapsed -= (1 / currAnimation.fps);
-
-				currIndex += (direction >= 0) ? 1 : -1;
-
-				if (currIndex >= currAnimation.regions.length)
+				if (!loop)
 				{
-					if (!loop)
-					{
-						stop();
-						return;
-					}
+					stop();
+					return;
+				}
+				
+				currIndex = 0;
+			}					
+			else if (currIndex < 0)
+			{
+				if (!loop)
+				{
+					stop();
+					return;
+				}						
 					
-					currIndex = 0;
-				}					
-				else if (currIndex < 0)
-				{
-					if (!loop)
-					{
-						stop();
-						return;
-					}						
-						
-					currIndex = currAnimation.regions.length - 1;
-				}					
-			}
-
-			// update region
-			region = currAnimation.regions[currIndex];
+				currIndex = currAnimation.regions.length - 1;
+			}					
 		}
+
+		// update region
+		region = currAnimation.regions[currIndex];		
 	}
 	
 	override public function destroy():Void
@@ -126,9 +121,8 @@ class Animator extends Sprite
 		{			
 			currAnimation = animData;
 			nameAnim = animData.name;
-			restart();			
 			this.loop = loop;
-			playing = true;
+			restart();			
 		}
 		else
 		{
@@ -137,20 +131,26 @@ class Animator extends Sprite
 		}	
 	}
 	
-	public function pause()
+	inline public function pause()
 	{
-		playing = false;
+		active = false;
+	}
+	
+	inline public function resume()
+	{
+		active = true;
 	}
 
 	public function stop()
 	{
-		playing = false;
+		active = false;
 		currIndex = 0;
 		elapsed = 0;
 	}
 	
 	public function restart()
 	{
+		active = true;
 		currIndex = 0;
 		elapsed = 0;
 	}

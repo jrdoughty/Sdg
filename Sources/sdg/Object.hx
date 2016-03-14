@@ -51,7 +51,10 @@ class Object
 			return;
 			
 		for (comp in components)
-			comp.update();	
+		{
+			if (comp.active)
+				comp.update();
+		}
 	}
 	
 	public function destroy()

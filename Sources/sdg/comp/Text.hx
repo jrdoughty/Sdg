@@ -12,7 +12,7 @@ enum TextAlign
 }
 
 typedef TextOptions = {	
-	@:optional var textAlign:TextAlign;
+	@:optional var align:TextAlign;
 	@:optional var lineSpacing:Int;
 }
 
@@ -33,15 +33,21 @@ class Text extends Renderable
 	
 	public var size:Int;
 	
-	public var textAlign:TextAlign;	
+	public var align:TextAlign;	
 	
 	public var lineSpacing(get, set):Int;
 	var _lineSpacing:Int;
 	
-	public var lineWidth(get, set):Int;
-	var _lineWidth:Int;
+	/** The width of the box that contain the text */
+	public var boxWidth(get, set):Int;
+	var _boxWidth:Int;
 	
-	public function new(text:String, font:Font, size:Int, lineWidth:Int, ?option:TextOptions):Void
+	// TODO: implement
+	/** The height of the box that contain the text. This is calculated 
+	 *  automatically based on the number of lines. */	
+	//public var boxHeight:Int;
+	
+	public function new(text:String, font:Font, size:Int, boxWidth:Int, ?option:TextOptions):Void
 	{
 		super();
 		
@@ -50,14 +56,14 @@ class Text extends Renderable
 		
 		this.font = font;
 		this.size = size;
-		_lineWidth = lineWidth;
+		_boxWidth = boxWidth;
 		
 		if (option != null)
 		{				
-			if (option.textAlign != null)
-				textAlign = option.textAlign;
+			if (option.align != null)
+				align = option.align;
 			else
-				textAlign = TextAlign.Left;
+				align = TextAlign.Left;
 				
 			if (option.lineSpacing != null)
 				_lineSpacing = option.lineSpacing;
@@ -66,8 +72,8 @@ class Text extends Renderable
 		}
 		else
 		{
-			color = 0xffffffff;
-			textAlign = TextAlign.Left;
+			align = TextAlign.Left;
+			_lineSpacing = 3;
 		}
 		
 		this.text = text;
@@ -105,17 +111,17 @@ class Text extends Renderable
 		return val;
 	}
 	
-	inline public function get_lineWidth():Int
+	inline public function get_boxWidth():Int
 	{
-		return _lineWidth;
+		return _boxWidth;
 	}
 	
-	public function set_lineWidth(value:Int):Int
+	public function set_boxWidth(value:Int):Int
 	{
-		_lineWidth = value;
+		_boxWidth = value;
 		calcTextPosition();
 		
-		return _lineWidth;
+		return _boxWidth;
 	}
 	
 	inline public function get_lineSpacing():Int
@@ -143,14 +149,14 @@ class Text extends Renderable
 		
 		for (i in 0...texts.length)
 		{
-			switch(textAlign)
+			switch(align)
 			{
 				case TextAlign.Left:
 					tx[i] = 0;
 				case TextAlign.Middle:
-					tx[i] = (_lineWidth / 2) - (font.width(size, texts[i]) / 2);
+					tx[i] = (_boxWidth / 2) - (font.width(size, texts[i]) / 2);
 				case TextAlign.Right:
-					tx[i] = _lineWidth - font.width(size, texts[i]);
+					tx[i] = _boxWidth - font.width(size, texts[i]);
 			}
 			
 			ty[i] = (fontHeight + _lineSpacing) * i;
