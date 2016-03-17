@@ -1,8 +1,9 @@
-package sdg.comp;
+package sdg.text;
 
 import kha.Font;
 import kha.Color;
 import kha.graphics2.Graphics;
+import sdg.Object;
 
 enum TextAlign
 {
@@ -16,7 +17,7 @@ typedef TextOptions = {
 	@:optional var lineSpacing:Int;
 }
 
-class Text extends Renderable
+class Text extends Object
 {
 	public var text(default, set):String;
 	
@@ -47,9 +48,11 @@ class Text extends Renderable
 	 *  automatically based on the number of lines. */	
 	//public var boxHeight:Int;
 	
-	public function new(text:String, font:Font, size:Int, boxWidth:Int, ?option:TextOptions):Void
+	public var shadow:TextShadow;
+	
+	public function new(x:Float, y:Float, text:String, font:Font, size:Int, boxWidth:Int, ?option:TextOptions):Void
 	{
-		super();
+		super(x, y);
 		
 		tx = new Array<Float>();
 		ty = new Array<Float>();
@@ -57,6 +60,7 @@ class Text extends Renderable
 		this.font = font;
 		this.size = size;
 		_boxWidth = boxWidth;
+		shadow = new TextShadow();
 		
 		if (option != null)
 		{				
@@ -86,13 +90,54 @@ class Text extends Renderable
 		super.destroy();
 	}
 	
-	override function innerRender(g:Graphics, px:Float, py:Float):Void
+	override public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
 	{
+		if (!visible)
+			return;
+			
+		if (angle != 0)
+			g.pushRotation(angle, x + pivot.x, y + pivot.y);		
+		
 		g.font = font;
 		g.fontSize = size;
 		
+		if (shadow.active)
+		{
+			g.color = shadow.color;
+			
+			if (shadow.alpha != 1)
+				g.pushOpacity(shadow.alpha);
+				
+			if (group != null)	
+				innerRender(g, group.x - cameraX + shadow.x, group.y - cameraY + shadow.y);
+			else
+				innerRender(g, -cameraX + shadow.x, -cameraY + shadow.y);
+				
+			if (shadow.alpha != 1) 
+				g.popOpacity();
+		}
+			
+		g.color = color;
+		
+		if (alpha != 1) 
+			g.pushOpacity(alpha);
+		
+		if (group != null)	
+			innerRender(g, group.x - cameraX, group.y - cameraY);
+		else
+			innerRender(g, -cameraX, -cameraY);
+		
+		if (alpha != 1)
+			g.popOpacity();
+			
+		if (angle != 0)		
+			g.popTransformation();
+	}
+	
+	override function innerRender(g:Graphics, px:Float, py:Float):Void
+	{	
 		for (i in 0...texts.length)
-			g.drawString(texts[i], object.x + offsetX + tx[i] + px, object.y + offsetY + ty[i] + py);
+			g.drawString(texts[i], x + tx[i] + px, y + ty[i] + py);
 	}
 	
 	public function set_text(val:String):String

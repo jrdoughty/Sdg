@@ -1,6 +1,6 @@
 package sdg.geom;
 
-class Rect
+class Rectangle
 {
 	public var x:Int;
 	public var y:Int;

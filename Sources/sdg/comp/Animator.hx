@@ -1,11 +1,13 @@
 package sdg.comp;
 
 import kha.Image;
+import sdg.Sprite;
 import sdg.atlas.Region;
+import sdg.comp.Component;
 
 class AnimData 
 {
-	public var name:String;
+	public var name:String;	
 	public var regions:Array<Region>;
 	public var fps:Int;
 	
@@ -17,9 +19,12 @@ class AnimData
 	}
 }
 
-class Animator extends Sprite
+class Animator extends Component
 {	
-	/** positive = forward, negative = backwards */
+	var sprite:Sprite;
+	/**
+	 * positive = forward, negative = backwards 
+	 */
 	var direction:Float; 
 	
 	var animations:Map<String, AnimData>;	
@@ -30,14 +35,15 @@ class Animator extends Sprite
 		
 	var loop:Bool;
 	
-	var elapsed:Float;
-	
-	/** The name of the current animation */
+	var elapsed:Float;	
+	/** 
+	 * The name of the current animation 
+	 */
 	public var nameAnim(default, null):String;
 	
-	public function new(image:Image):Void
+	public function new():Void
 	{
-		super(image);
+		super();
 		
 		active = false;
 		direction = 1;
@@ -47,6 +53,17 @@ class Animator extends Sprite
 		nameAnim = '';
 		
 		animations = new Map<String, AnimData>();
+	}
+	
+	override public function init():Void 
+	{
+		if (Std.is(object, Sprite))
+			sprite = cast object;
+		else
+		{
+			trace('Animator failed. The object ${object.name} is not a sprite');
+			sprite = null;
+		}
 	}
 	
 	override public function update():Void
@@ -83,7 +100,7 @@ class Animator extends Sprite
 		}
 
 		// update region
-		region = currAnimation.regions[currIndex];		
+		sprite.region = currAnimation.regions[currIndex];		
 	}
 	
 	override public function destroy():Void

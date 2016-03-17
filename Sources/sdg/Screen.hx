@@ -1,21 +1,24 @@
 package sdg;
 
-import kha.graphics2.Graphics;
 import kha.Color;
 import kha.math.Vector2;
-import sdg.geom.Rect;
+import kha.graphics2.Graphics;
+import sdg.geom.Rectangle;
 
 class Screen
 {
 	var objects:Array<Array<Object>>;
 	
-	/** The background color */
-	public var bgColor:Color;
-	
-	/** If the screen should be cleared before render */
+	/** 
+	 * The background color 
+	 */
+	public var bgColor:Color;	
+	/**
+	 * If the screen should be cleared before render 
+	 */
 	public var clearScreen:Bool;
 	
-	public var clipping:Rect;
+	public var clipping:Rectangle;
 	
 	public var camera:Vector2;
 	
@@ -47,13 +50,10 @@ class Screen
 		
 		for (layer in objects)
 		{
-			for (obj in layer)
+			for (object in layer)
 			{
-				if (obj.visible)
-				{
-					for (rnd in obj.renderers)
-						rnd(g, camera.x, camera.y);
-				}
+				if (object.visible)
+					object.render(g, camera.x, camera.y);				
 			}
 		}
 		
@@ -65,46 +65,66 @@ class Screen
 	{
 		for (layer in objects)
 		{
-			for (obj in layer)
-				obj.destroy();
-		}
-		
-		objects = new Array<Array<Object>>();
+			for (object in layer)
+				object.destroy();
+		}		
 	}
 	
-	public function add(object:Object):Void
+	public function add(object:Object):Object
 	{
 		if (objects.length == 0)
 			objects.push(new Array<Object>());
 		
 		object.screen = this;
 		objects[objects.length - 1].push(object);
+		
+		initObjectComponents(object);
+		
+		return object;
 	}
 	
-	public function addAt(obj:Object, index:Int, layer:Int=0):Void
+	public function addAt(object:Object, index:Int, layer:Int = 0):Object
 	{
 		if (objects[layer] == null)
 			objects[layer] = new Array<Object>();
 
-		obj.screen = this;
-		objects[layer].insert(index, obj);
+		object.screen = this;
+		objects[layer].insert(index, object);
+		
+		initObjectComponents(object);
+		
+		return object;
 	}
 	
-	public function addToFront(obj:Object, layer:Int=0):Void
+	public function addToFront(object:Object, layer:Int = 0):Object
 	{
 		if (objects[layer] == null)
 			objects[layer] = new Array<Object>();
 
-		obj.screen = this;
-		objects[layer].push(obj);
+		object.screen = this;
+		objects[layer].push(object);
+		
+		initObjectComponents(object);
+		
+		return object;
 	}
 
-	public function addToBack(obj:Object, layer:Int=0):Void
+	public function addToBack(object:Object, layer:Int = 0):Object
 	{
 		if (objects[layer] == null)
 			objects[layer] = new Array<Object>();
 
-		obj.screen = this;
-		objects[layer].unshift(obj);
+		object.screen = this;
+		objects[layer].unshift(object);
+		
+		initObjectComponents(object);
+		
+		return object;
+	}
+	
+	inline function initObjectComponents(object:Object):Void
+	{
+		for (comp in object.components)
+			comp.init();
 	}
 }

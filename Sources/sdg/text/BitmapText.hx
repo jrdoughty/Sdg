@@ -1,4 +1,4 @@
-package sdg.comp;
+package sdg.text;
 
 import haxe.xml.Fast;
 import haxe.Utf8;
@@ -6,11 +6,13 @@ import kha.Image;
 import kha.Color;
 import kha.Assets;
 import kha.Blob;
-import kha.graphics2.Graphics;
 import kha.math.FastVector2;
 import kha.math.FastMatrix3;
-import sdg.comp.Text.TextAlign;
-import sdg.comp.Text.TextOptions;
+import kha.graphics2.Graphics;
+import sdg.Object;
+import sdg.math.Vector2b;
+import sdg.text.Text.TextAlign;
+import sdg.text.Text.TextOptions;
 import sdg.atlas.Region;
 
 /**
@@ -59,7 +61,7 @@ typedef Line = {
 	var width:Int;
 }
 	
-class BitmapText extends Renderable
+class BitmapText extends Object
 {
 	static var spaceCharCode:Int = ' '.charCodeAt(0);
 
@@ -86,30 +88,36 @@ class BitmapText extends Renderable
 	//public var boxHeight:Int;
 	
 	public var scaleX:Float;
+	
 	public var scaleY:Float;
-	
-	public var flipX:Bool;
-	public var flipY:Bool;
-	
-	/** Trims trailing space characters */
+	/**
+	 * If the sprite should be rendered flipped
+	 */
+	public var flip:Vector2b;
+	/** 
+	 * Trims trailing space characters 
+	 */
 	public var trimEnds:Bool; 
-	
-	/** trims ALL space characters (including mid-sentence) */
+	/** 
+	 * Trims ALL space characters (including mid-sentence) 
+	 */
 	public var trimAll:Bool;
-	
-	/** Variable for rendering purposes */
+	/** 
+	 * Variable for rendering purposes 
+	 */
 	var letterWidthScaled:Float;
-	
-	/** Variable for rendering purposes */
+	/** 
+	 * Variable for rendering purposes 
+	 */
 	var letterHeightScaled:Float;
 	
 	/**
 	 * Loads the bitmap font from cache. Remember to call loadFont first before
 	 * creating new a BitmapText.
 	 */
-	public function new(text:String, fontName:String, boxWidth:Int, ?option:TextOptions):Void
+	public function new(x:Float, y:Float, text:String, fontName:String, boxWidth:Int, ?option:TextOptions):Void
 	{
-		super();
+		super(x, y);
 		
 		_cursor = new FastVector2();
 		//_lines = new Array<Line>;
@@ -124,6 +132,10 @@ class BitmapText extends Renderable
 			
 			trimEnds = true;
 			trimAll = true;
+			
+			scaleX = 1;
+			scaleY = 1;
+			flip = new Vector2b();
 
 			font = fontCache.get(fontName);
 
@@ -155,7 +167,7 @@ class BitmapText extends Renderable
 			return;
 
 		// Array of lines that will be returned.
-		_lines = new Array<Line>;
+		_lines = new Array<Line>();
 
 		// Test the regex here: https://regex101.com/
 		var trim1 = ~/^ +| +$/g; // removes all spaces at beginning and end
@@ -184,7 +196,7 @@ class BitmapText extends Renderable
 		{
 			if (i != (wordsLen - 1))
 			{
-				words.insert(i+j, ' ');
+				words.insert(i + j, ' ');
 				j++;
 			}
 		}
@@ -274,7 +286,7 @@ class BitmapText extends Renderable
 			// After adding current word to the line, did it pass
 			// the text width? If yes, flag to break. Otherwise,
 			// just update the current line.
-			if (currLineWidth + currWordWidth < width)
+			if (currLineWidth + currWordWidth < boxWidth)
 			{
 				currLineText += currWord; // Add the word to the full line
 				currLineWidth += currWordWidth; // Update the full width of the line
@@ -420,10 +432,10 @@ class BitmapText extends Renderable
 							letter.y,
 							letter.width,
 							letter.height,
-							object.x + offsetX + _cursor.x + letter.xoffset * scaleX + (flipX ? letterWidthScaled : 0) + px,
-							object.y + offsetY + _cursor.y + letter.yoffset * scaleX + (flipY ? letterHeightScaled : 0) + py,
-							flipX ? -letterWidthScaled : letterWidthScaled,
-							flipY ? -letterHeightScaled : letterHeightScaled);
+							x + _cursor.x + letter.xoffset * scaleX + (flip.x ? letterWidthScaled : 0) + px,
+							y + _cursor.y + letter.yoffset * scaleX + (flip.y ? letterHeightScaled : 0) + py,
+							flip.x ? -letterWidthScaled : letterWidthScaled,
+							flip.y ? -letterHeightScaled : letterHeightScaled);
 
 						// Add kerning if it exists. Also, we don't have to
 						// do this if we're already at the last character.
@@ -435,17 +447,17 @@ class BitmapText extends Renderable
 
 							// If kerning data exists, adjust the cursor position.
 							if (letter.kernings.exists(charCodeNext))							
-								_cursor.x += letter.kernings.get(charCodeNext) * scale;							
+								_cursor.x += letter.kernings.get(charCodeNext) * scaleX;							
 						}
 
 						// Move cursor to next position, with padding.
-						_cursor.x += (letter.xadvance + font.outline) * scale;
+						_cursor.x += (letter.xadvance + font.outline) * scaleX;
 					}
 					else
 					{
 						// If this is a space character, move cursor
 						// without rendering anything.
-						_cursor.x += font.spaceWidth * scale;
+						_cursor.x += font.spaceWidth * scaleX;
 					}
 				}
 				else
@@ -455,7 +467,7 @@ class BitmapText extends Renderable
 
 			// After we finish rendering this line,
 			// move on to the next line.
-			_cursor.y += font.lineHeight * scale;
+			_cursor.y += font.lineHeight * scaleY;
 		}		
 	}
 	
@@ -486,8 +498,8 @@ class BitmapText extends Renderable
 		{
 			var letter:Letter = {
 				id: Std.parseInt(char.att.id),
-				x: Std.parseInt(char.att.x) + region.sx,
-				y: Std.parseInt(char.att.y) + region.sy,
+				x: Std.int(Std.parseInt(char.att.x) + region.sx),
+				y: Std.int(Std.parseInt(char.att.y) + region.sy),
 				width: Std.parseInt(char.att.width),
 				height: Std.parseInt(char.att.height),
 				xoffset: Std.parseInt(char.att.xoffset),
@@ -530,10 +542,10 @@ class BitmapText extends Renderable
 
 		// Create the dictionary if it doesn't exist yet
 		if (fontCache == null)
-			fontCache = new Map<String, Font>();
+			fontCache = new Map<String, BitmapFont>();
 
 		// Create new font data
-		var font:Font = {
+		var font:BitmapFont = {
 			size: Std.parseInt(data.node.info.att.size), // this original size this font's image was exported as
 			outline: Std.parseInt(data.node.info.att.outline), // outlines are considered padding too
 			lineHeight: Std.parseInt(data.node.common.att.lineHeight), // original vertical padding between texts
@@ -544,6 +556,12 @@ class BitmapText extends Renderable
 
 		// Add this font data to dictionary, finally.
 		fontCache.set(fontName, font);
+	}
+	
+	public function setScale(value:Float):Void
+	{
+		scaleX = value;
+		scaleY = value;
 	}
 	
 	inline public function get_text():String

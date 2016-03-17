@@ -1,48 +1,94 @@
 package sdg;
 
+import kha.Image;
+import kha.Color;
+import kha.FastFloat;
+import kha.math.Vector2;
 import kha.graphics2.Graphics;
 import sdg.comp.Component;
 
 class Object
 {
-	/** Name of the object for debugging */
-	public var name:String;
-	
-	/** The x position */
+	/** 
+	 * A name for identification and debugging
+	 */
+	public var name:String;		
+	/**
+	 * The x position 
+	 */
 	public var x:Float;
-		
-	/** the y position */
+	/** 
+	 * the y position 
+	 */
 	public var y:Float;	
-		
-	/** If the object can update */
-	public var active:Bool;
-	
-	/** If the object can render */
+	/**
+	 * The hitbox width. You need to set this manually to use physics
+	 */
+	public var width:Int;
+	/**
+	 * The hitbox height. You need to set this manually to use physics
+	 */
+	public var height:Int;	
+	/** 
+	 * Tint color 
+	 */
+	public var color:Color;	
+	/**
+	 * Alpha amount
+	 */
+	public var alpha:Float;
+	/**
+	 * If the object can update 
+	 */ 
+	public var active:Bool;		
+	/**
+	 * If the object can render  
+	 */
 	public var visible:Bool;
-	
-	/** The screen this object belongs */
+	/**
+	 * The angle of the rotation in radians 
+	 */
+	public var angle:FastFloat;	
+	/**
+	 * The pivot point of the rotation 
+	 */
+	public var pivot:Vector2;	
+	/**
+	 * The screen this object belongs 
+	 */
 	public var screen:Screen;
-	
-	public var renderers:Array<Graphics->Float->Float->Void>;
-	
+	/**
+	 * Components that updates and affect the object
+	 */
 	public var components:Array<Component>;
 	
 	public var group:Group;
 	
-	/** Temp variable to set the position */
-	static var delta:Float;
-	
-	public function new(x:Float = 0, y:Float = 0, name:String = ''):Void
+	public function new(x:Float = 0, y:Float = 0):Void
 	{
+		this.name = '';	
 		this.x = x;
 		this.y = y;
-		this.name = name;
 		
-		renderers = new Array<Graphics->Float->Float->Void>();
-		components = new Array<Component>();		
-		
+		color = 0xffffffff;
+		alpha = 1;
 		active = true;
-		visible = true;
+		visible = true;		
+		angle = 0;		
+		pivot = new Vector2();
+		
+		components = new Array<Component>();
+	}
+	
+	public function destroy()
+	{
+		for (comp in components)		
+			comp.destroy();		
+	}
+	
+	inline public function setName(value:String):Void
+	{
+		name = value;
 	}
 	
 	public function update()
@@ -57,34 +103,82 @@ class Object
 		}
 	}
 	
-	public function destroy()
+	public function setPosition(x:Float, y:Float):Void
 	{
-		for (comp in components)
-		{
-			comp.destroy();
-			comp = null;
-		}
+		this.x = x;
+		this.y = y;
 	}
 	
+	/**
+	 * Sets the size of the object. 
+	 * The size affects the physics of the object.
+	 */
+	public function setSize(width:Int, height:Int):Void
+	{
+		this.width = width;
+		this.height = height;
+	}
+	
+	public function setPivot(pivotX:Float, pivotY:Float):Void
+	{
+		pivot.x = pivotX;
+		pivot.y = pivotY;
+	}
+	
+	/**
+	 * The position of the object relative to the screen.
+	 * If the object wasn't added to a screen, the world position is returned.
+	 * @return
+	 */
+	public function getScreenPosition():Vector2
+	{
+		if (screen != null)
+			return new Vector2(x - screen.camera.x, y - screen.camera.y);
+		else
+			return new Vector2(x, y);
+	}
+	
+	/**
+	 * Add a component and initialize it
+	 */
 	public function addComponent(comp:Component)
 	{
 		components.push(comp);
 		comp.object = this;
-		comp.init();
 	}
 	
+	/**
+	 * Removes a component
+	 */
 	inline public function removeComponent(comp:Component)
 	{
 		components.remove(comp);
 	}
 	
-	inline public function addRenderer(renderer:Graphics->Float->Float->Void)
+	public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
 	{
-		renderers.push(renderer);
+		if (!visible)
+			return;
+			
+		if (angle != 0)
+			g.pushRotation(angle, x + pivot.x, y + pivot.y);		
+			
+		if (alpha != 1) 
+			g.pushOpacity(alpha);
+		
+		g.color = color;
+		
+		if (group != null)	
+			innerRender(g, group.x - cameraX, group.y - cameraY);
+		else
+			innerRender(g, -cameraX, -cameraY);
+		
+		if (alpha != 1)
+			g.popOpacity();
+			
+		if (angle != 0)		
+			g.popTransformation();
 	}
-
-	inline public function removeRenderer(renderer:Graphics->Float->Float->Void)
-	{
-		renderers.remove(renderer);
-	}
-}	
+	
+	function innerRender(g:Graphics, cx:Float, cy:Float):Void {}	
+}

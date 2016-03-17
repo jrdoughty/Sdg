@@ -5,7 +5,6 @@ import haxe.Json;
 import kha.Assets;
 import kha.Image;
 import kha.Blob;
-import sdg.geom.Rect;
 
 typedef TexturePackerFrame = {
 	var x:Int;
