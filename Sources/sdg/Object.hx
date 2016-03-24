@@ -7,6 +7,7 @@ import kha.math.Vector2;
 import kha.graphics2.Graphics;
 import sdg.comp.Component;
 
+@:allow(sdg.Screen)
 class Object
 {
 	/** 
@@ -56,7 +57,15 @@ class Object
 	/**
 	 * The screen this object belongs 
 	 */
-	public var screen:Screen;
+	public var screen(default, null):Screen;
+	/**
+	 * The rendering layer of this Entity. Higher layers are rendered first.
+	 */
+	public var layer(default, set):Int;
+	/**
+	 * The collision type, used for collision checking.
+	 */
+	public var type(default, set):String;
 	/**
 	 * Components that updates and affect the object
 	 */
@@ -80,15 +89,20 @@ class Object
 		components = new Array<Component>();
 	}
 	
+	/**
+	 * Override this, called when the Entity is added to a Screen.
+	 */
+	public function added():Void {}
+
+	/**
+	 * Override this, called when the Entity is removed from a Screen.
+	 */
+	public function removed():Void {}
+	
 	public function destroy()
 	{
 		for (comp in components)		
 			comp.destroy();		
-	}
-	
-	inline public function setName(value:String):Void
-	{
-		name = value;
 	}
 	
 	public function update()
@@ -155,6 +169,12 @@ class Object
 		components.remove(comp);
 	}
 	
+	function initComponents()
+	{
+		for (comp in components)
+			comp.init();
+	}
+	
 	public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
 	{
 		if (!visible)
@@ -168,10 +188,11 @@ class Object
 		
 		g.color = color;
 		
-		if (group != null)	
+		// TODO: test with a group later
+		/*if (group != null)	
 			innerRender(g, group.x - cameraX, group.y - cameraY);
-		else
-			innerRender(g, -cameraX, -cameraY);
+		else*/
+			innerRender(g, cameraX, cameraY);
 		
 		if (alpha != 1)
 			g.popOpacity();
@@ -180,5 +201,34 @@ class Object
 			g.popTransformation();
 	}
 	
-	function innerRender(g:Graphics, cx:Float, cy:Float):Void {}	
+	function innerRender(g:Graphics, cx:Float, cy:Float):Void {}
+	
+	private function set_layer(value:Int):Int
+	{
+		if (layer == value) return layer;
+		if (screen == null)
+		{
+			layer = value;
+			return layer;
+		}
+		screen.removeRender(this);
+		layer = value;
+		screen.addRender(this);
+		
+		return layer;
+	}
+	
+	private function set_type(value:String):String
+	{
+		if (type == value) return type;
+		if (screen == null)
+		{
+			type = value;
+			return type;
+		}
+		if (type != "") screen.removeType(this);
+		type = value;
+		if (value != "") screen.addType(this);
+		return type;
+	}
 }

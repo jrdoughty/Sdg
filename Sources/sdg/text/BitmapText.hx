@@ -385,7 +385,7 @@ class BitmapText extends Object
 		super.destroy();
 	}
 	
-	override function innerRender(g:Graphics, px:Float, py:Float):Void 
+	override function innerRender(g:Graphics, cx:Float, cy:Float):Void 
 	{
 		// For every letter in the text, render directly on buffer.
 		// In best case scenario where text doesn't change, it may be better to
@@ -432,8 +432,8 @@ class BitmapText extends Object
 							letter.y,
 							letter.width,
 							letter.height,
-							x + _cursor.x + letter.xoffset * scaleX + (flip.x ? letterWidthScaled : 0) + px,
-							y + _cursor.y + letter.yoffset * scaleX + (flip.y ? letterHeightScaled : 0) + py,
+							x + _cursor.x + letter.xoffset * scaleX + (flip.x ? letterWidthScaled : 0) - cx,
+							y + _cursor.y + letter.yoffset * scaleX + (flip.y ? letterHeightScaled : 0) - cy,
 							flip.x ? -letterWidthScaled : letterWidthScaled,
 							flip.y ? -letterHeightScaled : letterHeightScaled);
 

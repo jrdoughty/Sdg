@@ -7,7 +7,16 @@ import sdg.geom.Rectangle;
 
 class Screen
 {
-	var objects:Array<Array<Object>>;
+	var layerList:Array<Int>;
+	
+	var addList:Array<Object>;
+	var removeList:Array<Object>;
+	
+	var updateList:List<Object>;
+	var layerDisplay:Map<Int,Bool>;
+	var layers:Map<Int,List<Object>>;
+	var types:Map<String,List<Object>>;
+	var entityNames:Map<String,Object>;
 	
 	/** 
 	 * The background color 
@@ -24,33 +33,72 @@ class Screen
 	
 	public function new():Void
 	{
-		objects = new Array<Array<Object>>();
+		layerList = new Array<Int>();
+	
+		addList = new Array<Object>();
+		removeList = new Array<Object>();
+		
+		updateList = new List<Object>();
+		layerDisplay = new Map<Int,Bool>();
+		layers = new Map<Int,List<Object>>();
+		types = new Map<String,List<Object>>();
+		entityNames = new Map<String,Object>();
+		
 		bgColor = Color.White;
 		clearScreen = true;
 		clipping = null;
 		camera = new Vector2();
 	}
 	
+	/**
+	 * Performed by the game loop, updates all contained Entities.
+	 * If you override this to give your Scene update code, remember
+	 * to call super.update() or your Entities will not be updated.
+	 */
 	public function update():Void
 	{
-		for (layer in objects)
+		for (object in updateList)
 		{
-			for (obj in layer)
-			{
-				if (obj.active)
-					obj.update();
-			}
+			if (object.active)
+				object.update();
 		}
 	}
 	
+	/**
+	 * Toggles the visibility of a layer
+	 * @param layer the layer to show/hide
+	 * @param show whether to show the layer (default: true)
+	 */
+	public inline function showLayer(layer:Int, show:Bool = true):Void
+	{
+		layerDisplay.set(layer, show);
+	}
+	
+	/**
+	 * Checks if a layer is visible or not
+	 */
+	public inline function layerVisible(layer:Int):Bool
+	{
+		return !layerDisplay.exists(layer) || layerDisplay.get(layer);
+	}	
+	
+	/**
+	 * Performed by the game loop, renders all contained Entities.
+	 * If you override this to give your Scene render code, remember
+	 * to call super.render() or your Entities will not be rendered.
+	 */
 	public function render(g:Graphics):Void
 	{
 		if (clipping != null)
 			g.scissor(clipping.x, clipping.y, clipping.w, clipping.h);
 		
-		for (layer in objects)
+		// render the entities in order of depth
+		for (layer in layerList)
 		{
-			for (object in layer)
+			if (!layerVisible(layer)) 
+				continue;
+			
+			for (object in layers.get(layer))
 			{
 				if (object.visible)
 					object.render(g, camera.x, camera.y);				
@@ -63,68 +111,329 @@ class Screen
 	
 	public function destroy():Void
 	{
-		for (layer in objects)
+		layerList = null;
+		addList = null;
+		removeList = null;
+		layerDisplay = null;
+		layers = null;
+		types = null;
+		entityNames = null;
+		
+		for (object in updateList)
+			object.destroy();
+			
+		updateList = null;
+	}	
+	
+	/**
+	 * Adds the object to the screen at the end of the frame.
+	 * @param	object		Object you want to add.
+	 * @return	The added object.
+	 */
+	public function add(object:Object):Object
+	{
+		addList[addList.length] = object;
+		return object;
+	}
+	
+	/**
+	 * Removes the object from the screen at the end of the frame.
+	 * @param	e		Object you want to remove.
+	 * @return	The removed object.
+	 */
+	public function remove(object:Object):Object
+	{
+		removeList[removeList.length] = object;
+		return object;
+	}
+	
+	/**
+	 * Adds multiple objects to the screen.
+	 * @param	list		Several objects (as arguments) or an Array/Vector of objects.
+	 */
+	public function addObjects<Obj:Object>(list:Iterable<Obj>)
+	{
+		for (object in list) 
+			add(object);
+	}
+	
+	/**
+	 * Removes multiple objects to the screen.
+	 * @param	list		Several objects (as arguments) or an Array/Vector of objects.
+	 */
+	public function removeObjects<Obj:Object>(list:Iterable<Obj>)
+	{
+		for (object in list) 
+			remove(object);
+	}
+	
+	/**
+	 * Brings the object to the front of its contained layer.
+	 * @param	object		The object to shift.
+	 * @return	If the object changed position.
+	 */
+	public function bringToFront(object:Object):Bool
+	{
+		if (object.screen != this) 
+			return false;
+			
+		var list = layers.get(object.layer);
+		list.remove(object);
+		list.push(object);
+		return true;
+	}
+	
+	/**
+	 * Sends the object to the back of its contained layer.
+	 * @param	object		The object to shift.
+	 * @return	If the object changed position.
+	 */
+	public function sendToBack(object:Object):Bool
+	{
+		if (object.screen != this) 
+			return false;
+			
+		var list = layers.get(object.layer);
+		list.remove(object);
+		list.add(object);
+		return true;
+	}
+	
+	/**
+	 * If the object as at the front of its layer.
+	 * @param	object		The object to check.
+	 * @return	True or false.
+	 */
+	public inline function isAtFront(object:Object):Bool
+	{
+		return object == layers.get(object.layer).first();
+	}
+
+	/**
+	 * If the object as at the back of its layer.
+	 * @param	object		The object to check.
+	 * @return	True or false.
+	 */
+	public inline function isAtBack(object:Object):Bool
+	{
+		return object == layers.get(object.layer).last();
+	}
+	
+	/**
+	 * A list of objects of the type.
+	 * @param	type 		The type to check.
+	 * @return 	The object list.
+	 */
+	public inline function objectsForType(type:String):List<Object>
+	{
+		return types.exists(type) ? types.get(type) : null;
+	}
+	
+	/**
+	 * Pushes all objects in the screen of the type into the Array or Vector. This
+	 * function does not empty the array, that responsibility is left to the user.
+	 * @param	type		The type to check.
+	 * @param	into		The Array or Vector to populate.
+	 */
+	public function getType<Object>(type:String, into:Array<Object>):Void
+	{
+		if (!types.exists(type))
+			return;
+			
+		var n:Int = into.length;
+		for (object in types.get(type))
 		{
-			for (object in layer)
-				object.destroy();
+			into[n++] = cast object;
+		}
+	}
+	
+	/**
+	 * Returns the object with the instance name, or null if none exists
+	 * @param	name
+	 * @return	The object.
+	 */
+	public function getInstance(name:String):Object
+	{
+		return entityNames.get(name);
+	}
+	
+	/**
+	 * Updates the add/remove lists at the end of the frame.
+	 * @param	shouldAdd	If new objects should be added to the screen.
+	 */
+	public function updateLists(shouldAdd:Bool = true):Void
+	{
+		var object:Object;
+
+		// remove objects
+		if (removeList.length > 0)
+		{
+			for (object in removeList)
+			{
+				if (object.screen == null)
+				{
+					var idx = addList.indexOf(object);
+					if (idx >= 0)
+						addList.splice(idx, 1);
+					continue;
+				}
+				
+				if (object.screen != this)
+					continue;
+					
+				object.removed();
+				
+				object.screen = null;
+				removeUpdate(object);
+				removeRender(object);
+				
+				if (object.type != "") removeType(object);
+				if (object.name != "") unregisterName(object);				
+			}
+			Sdg.clear(removeList);
+		}
+
+		// add objects
+		if (shouldAdd && addList.length > 0)
+		{
+			for (object in addList)
+			{
+				if (object.screen != null)
+					continue;
+					
+				object.screen = this;
+				addUpdate(object);
+				addRender(object);
+				
+				if (object.type != "")
+					addType(object);
+				if (object.name != "") 
+					registerName(object);
+					
+				object.added();
+				object.initComponents();
+			}
+			Sdg.clear(addList);
 		}		
 	}
 	
-	public function add(object:Object):Object
+	/** 
+	 * Adds object to the update list. 
+	 */
+	inline private function addUpdate(object:Object):Void
 	{
-		if (objects.length == 0)
-			objects.push(new Array<Object>());
-		
-		object.screen = this;
-		objects[objects.length - 1].push(object);
-		
-		initObjectComponents(object);
-		
-		return object;
+		// add to update list
+		updateList.add(object);		
+	}
+
+	/** 
+	 * Removes object from the update list. 
+	 */
+	inline private function removeUpdate(object:Object):Void
+	{
+		updateList.remove(object);		
 	}
 	
-	public function addAt(object:Object, index:Int, layer:Int = 0):Object
+	/** 
+	 * Adds object to the render list. 
+	 */
+	@:allow(sdg.Object)
+	private function addRender(object:Object):Void
 	{
-		if (objects[layer] == null)
-			objects[layer] = new Array<Object>();
+		var list:List<Object>;
+		
+		if (layers.exists(object.layer))		
+			list = layers.get(object.layer);		
+		else
+		{
+			// Create new layer with entity.
+			list = new List<Object>();
+			layers.set(object.layer, list);
 
-		object.screen = this;
-		objects[layer].insert(index, object);
+			if (layerList.length == 0)			
+				layerList[0] = object.layer;			
+			else			
+				Sdg.insertSortedKey(layerList, object.layer, layerSort);			
+		}
 		
-		initObjectComponents(object);
-		
-		return object;
+		list.add(object);
 	}
 	
-	public function addToFront(object:Object, layer:Int = 0):Object
+	/**
+	 * Sorts layer from highest value to lowest
+	 */
+	private function layerSort(a:Int, b:Int):Int
 	{
-		if (objects[layer] == null)
-			objects[layer] = new Array<Object>();
-
-		object.screen = this;
-		objects[layer].push(object);
-		
-		initObjectComponents(object);
-		
-		return object;
+		return b - a;
 	}
 
-	public function addToBack(object:Object, layer:Int = 0):Object
+	/** 
+	 * Removes object from the render list. 
+	 */
+	@:allow(sdg.Object)
+	private function removeRender(object:Object):Void
 	{
-		if (objects[layer] == null)
-			objects[layer] = new Array<Object>();
-
-		object.screen = this;
-		objects[layer].unshift(object);
+		var list = layers.get(object.layer);
+		list.remove(object);
 		
-		initObjectComponents(object);
-		
-		return object;
+		if (list.length == 0)
+		{
+			layerList.remove(object.layer);
+			layers.remove(object.layer);
+		}
 	}
 	
-	inline function initObjectComponents(object:Object):Void
+	/** 
+	 * Adds object to the type list. 
+	 */
+	@:allow(sdg.Object)
+	private function addType(object:Object):Void
 	{
-		for (comp in object.components)
-			comp.init();
+		var list:List<Object>;
+		
+		// add to type list
+		if (types.exists(object.type))		
+			list = types.get(object.type);		
+		else
+		{
+			list = new List<Object>();
+			types.set(object.type, list);
+		}
+		
+		list.push(object);
+	}
+
+	/** 
+	 * Removes object from the type list. 
+	 */
+	@:allow(sdg.Object)
+	private function removeType(object:Object):Void
+	{
+		if (!types.exists(object.type))
+			return;
+			
+		var list = types.get(object.type);
+		list.remove(object);
+		
+		if (list.length == 0)
+			types.remove(object.type);		
+	}
+	
+	/** 
+	 * Register the entities instance name. 
+	 */
+	@:allow(sdg.Object)
+	inline private function registerName(object:Object):Void
+	{
+		entityNames.set(object.name, object);
+	}
+
+	/** 
+	 * Unregister the entities instance name. 
+	 */
+	@:allow(sdg.Object)
+	inline private function unregisterName(object:Object):Void
+	{
+		entityNames.remove(object.name);
 	}
 }
