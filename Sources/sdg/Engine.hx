@@ -5,6 +5,7 @@ import kha.Image;
 import kha.Scheduler;
 import kha.System;
 import kha.graphics2.Graphics;
+import sdg.manager.Manager;
 
 class Engine
 {
@@ -14,6 +15,8 @@ class Engine
 	var currTime:Float = 0;
 	var prevTime:Float = 0;
 	var active:Bool;
+	
+	var managers:Array<Manager>;
 	
 	public var backgrounRender:Graphics->Void;	
 	
@@ -28,6 +31,8 @@ class Engine
 		
 		Sdg.windowWidth = System.windowWidth();
 		Sdg.windowHeight = System.windowHeight();
+		
+		managers = new Array<Manager>(); 
 		
 		System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
 	}
@@ -62,23 +67,35 @@ class Engine
 		
 		Sdg.dt = currTime - prevTime;
 		
-		if (active && Sdg.screen != null)
+		if (active)
 		{
-			Sdg.screen.updateLists();
-			Sdg.screen.update();
-			Sdg.screen.updateLists(false);
+			if (Sdg.screen != null)
+			{
+				Sdg.screen.updateLists();
+				Sdg.screen.update();
+				Sdg.screen.updateLists(false);
+			}
+			
+			// Events will always trigger first, and we want the active screen
+			// to react to the changes before the manager processes them.
+			for (m in managers)
+			{
+				if (m.active)
+					m.update();
+			}
 		}		
+	}
+	
+	public function addManager(manager:Manager):Void
+	{
+		managers.push(manager);
 	}
 	
 	public function render():Void
 	{
 		if (Sdg.screen != null)
-		{
-			if (Sdg.screen.clearScreen)
-				g2.begin(true, Sdg.screen.bgColor);
-			else
-				g2.begin(false);
-					
+		{			
+			g2.begin(true, Sdg.screen.bgColor);
 			Sdg.screen.render(g2);
 		}
 		else

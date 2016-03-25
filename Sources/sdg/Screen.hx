@@ -22,10 +22,6 @@ class Screen
 	 * The background color 
 	 */
 	public var bgColor:Color;	
-	/**
-	 * If the screen should be cleared before render 
-	 */
-	public var clearScreen:Bool;
 	
 	public var clipping:Rectangle;
 	
@@ -44,8 +40,7 @@ class Screen
 		types = new Map<String,List<Object>>();
 		entityNames = new Map<String,Object>();
 				
-		bgColor = Color.White;
-		clearScreen = true;
+		bgColor = Color.Black;		
 		clipping = null;
 		camera = new Vector2();
 	}
