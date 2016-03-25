@@ -6,7 +6,7 @@ import kha.graphics2.Graphics;
 import sdg.geom.Rectangle;
 
 class Screen
-{
+{	
 	var layerList:Array<Int>;
 	
 	var addList:Array<Object>;
@@ -43,7 +43,7 @@ class Screen
 		layers = new Map<Int,List<Object>>();
 		types = new Map<String,List<Object>>();
 		entityNames = new Map<String,Object>();
-		
+				
 		bgColor = Color.White;
 		clearScreen = true;
 		clipping = null;

@@ -3,30 +3,33 @@ package sdg;
 import kha.Scheduler;
 import kha.System;
 
+@:allow(sdg.Engine)
 class Sdg
 {
 	public static var dt(default, null):Float = 0;	
-	static var currTime:Float = 0;
-	static var prevTime:Float = 0;
+	public static var windowWidth(default, null):Int;
+	public static var windowHeight(default, null):Int;
+	public static var screen:Screen;
 	
-	public static var windowWidth:Int;
-	public static var windowHeight:Int;
+	static var timeTasks:Array<Int>;
 	
-	public static function init():Void
+	public static function addTimeTask(task: Void -> Void, start: Float, period: Float = 0, duration: Float = 0):Int
 	{
-		currTime = Scheduler.time();
+		if (timeTasks == null)
+			timeTasks = new Array<Int>();
 		
-		windowWidth = System.windowWidth();
-		windowHeight = System.windowHeight();
+		timeTasks.push(Scheduler.addTimeTask(task, start, period, duration));
+		
+		return timeTasks[timeTasks.length - 1];
 	}
 	
-	public static function update():Void
+	public static function removeTimeTasks(id:Int):Void
 	{
-		// Make sure prev/curr time is updated to prevent time skips
-		prevTime = currTime;
-		currTime = Scheduler.time();
-		
-		dt = currTime - prevTime;
+		if (timeTasks != null)
+		{
+			timeTasks.remove(id);
+			Scheduler.removeTimeTask(id);
+		}
 	}
 	
 	/**
