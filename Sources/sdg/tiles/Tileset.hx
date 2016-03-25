@@ -52,6 +52,6 @@ class Tileset
 	{
 		_x = index % widthInTiles;
 		_y = Std.int(index / widthInTiles);		
-		g.drawScaledSubImage(image, region.sx + _x, region.sy + _y, tileWidth, tileHeight, x, y, tileWidth, tileHeight);
+		g.drawScaledSubImage(image, region.sx + (_x * tileWidth), region.sy + (_y * tileHeight), tileWidth, tileHeight, x, y, tileWidth, tileHeight);
 	}
 }

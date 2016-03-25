@@ -5,8 +5,9 @@ import kha.graphics2.Graphics;
 import kha.math.Vector2i;
 import sdg.Object;
 
-// Adapted from:
-// https://developer.mozilla.org/en-US/docs/Games/Techniques/Tilemaps/Square_tilemaps_implementation%3A_Scrolling_maps
+/**
+ * Represents a tilemap. Empty tiles have a index of -1.
+ */
 class Tilemap extends Object
 {
 	public var tileset:Tileset;
@@ -15,24 +16,40 @@ class Tilemap extends Object
 	public var widthInPixels:Int;
 	public var heightInPixels:Int;
 	
-	private var map:Array<Array<Int>>;
+	var map:Array<Array<Int>>;
+	
+	// temp variables
+	var _startCol:Int;
+	var _endCol:Int;
+	var _startRow:Int;
+	var _endRow:Int;
+	var _px:Float;
+	var _py:Float;
 	
 	public function new(x:Float, y:Float, tileset:Tileset):Void
 	{
 		super(x, y);
 		
-		this.tileset = tileset;	
-		map = new Array<Array<Int>>();
+		this.tileset = tileset;			
 	}
 	
 	inline public function setTile(x:Int, y:Int, value:Int):Void
 	{
-		map[y][x] = value;
+		if (map != null)
+			map[y][x] = value;
+		else
+			trace('tilemap is empty');
 	}
 	
 	inline public function getTile(x:Int, y:Int):Int
 	{
-		return map[y][x];
+		if (map != null)
+			return map[y][x];
+		else
+		{
+			trace('tilemap is empty');
+			return -1;			
+		}
 	}
 	
 	public function index(x:Float, y:Float): Vector2i
@@ -51,12 +68,14 @@ class Tilemap extends Object
 	 */
 	public function loadFrom2DArray(array:Array<Array<Int>>):Void
 	{
+		map = new Array<Array<Int>>();
+		
 		for (y in 0...array.length)
 		{
-			for (x in 0...array[y].length)
-			{
-				setTile(x, y, array[y][x]);
-			}
+			map.push(new Array<Int>());
+			
+			for (x in 0...array[y].length)			
+				map[y].push(array[y][x]);			
 		}
 		
 		heightInTiles = map.length;
@@ -75,21 +94,29 @@ class Tilemap extends Object
 	*/
 	public function loadFromString(str:String, columnSep:String = ",", rowSep:String = "\n"):Void
 	{
-		var row:Array<String> = str.split(rowSep),
-			rows:Int = row.length,
-			col:Array<String>, cols:Int, x:Int, y:Int;
+		map = new Array<Array<Int>>();
+		
+		var row:Array<String> = str.split(rowSep);
+		var	rows:Int = row.length;
+		var	col:Array<String>;
+		var cols:Int;
+		var x:Int;
+		var y:Int;
 			
 		for (y in 0...rows)
 		{
-			if (row[y] == '') continue;
+			map.push(new Array<Int>());
+			
+			if (row[y] == '') 
+				continue;
 			
 			col = row[y].split(columnSep);
 			cols = col.length;
 			
 			for (x in 0...cols)
 			{
-				if (col[x] != '')				
-					setTile(x, y, Std.parseInt(col[x]));				
+				if (col[x] != '')		
+					map[y].push(Std.parseInt(col[x]));
 			}
 		}
 		
@@ -159,25 +186,29 @@ class Tilemap extends Object
 	
 	override function innerRender(g:Graphics, cx:Float, cy:Float):Void 
 	{
-		var startCol = Math.floor(cx / tileset.tileWidth);
-		var endCol = startCol + Std.int(Sdg.windowWidth / tileset.tileWidth);
-		var startRow = Math.floor(cy / tileset.tileHeight);
-		var endRow = startRow + Std.int(Sdg.windowHeight / tileset.tileHeight);
+		if 	(((x + widthInPixels) < cx) || (x > (cx + Sdg.windowWidth)) ||
+			((y + heightInPixels) < cy) || (y > (cy + Sdg.windowHeight)))
+				return;		   
 		
-		var offsetX = -cx + startCol * tileset.tileWidth;
-		var offsetY = -cy + startRow * tileset.tileHeight;
+		_startCol = Math.floor((x > cx ? 0 : (cx - x)) / tileset.tileWidth);
+		_endCol = Std.int(((x + widthInPixels) > (cx + Sdg.windowWidth) ? (cx + Sdg.windowWidth - x) : widthInPixels) / tileset.tileWidth);
+		_startRow = Math.floor((y > cy ? 0 : (cy - y)) / tileset.tileHeight);
+		_endRow = Std.int(((y + heightInPixels) > (cy + Sdg.windowHeight) ? (cy + Sdg.windowHeight - y) : heightInPixels) / tileset.tileHeight);
 		
-		for (r in startRow...(endRow + 1))		
+		//var offsetX = -cx + startCol * tileset.tileWidth;
+		//var offsetY = -cy + startRow * tileset.tileHeight;
+		
+		for (r in _startRow...(_endRow))
 		{
-			for (c in startCol...(endCol + 1))
+			for (c in _startCol...(_endCol))
 			{
 				var tile = map[r][c];
 				if (tile != -1)
 				{
-					var x = (c - startCol) * tileset.tileWidth + offsetX;
-					var y = (r - startRow) * tileset.tileHeight + offsetY;
+					_px = x + (c * tileset.tileWidth) - cx;// + offsetX;
+					_py = y + (r * tileset.tileHeight) - cy; //+ offsetY;
 					
-					tileset.render(g, tile, x, y);
+					tileset.render(g, tile, _px, _py);
 				}
 			}
 		}
