@@ -10,6 +10,7 @@ class Sdg
 	public static var windowWidth(default, null):Int;
 	public static var windowHeight(default, null):Int;
 	public static var screen:Screen;
+	public static var gameScale:Float = 1;
 	
 	static var timeTasks:Array<Int>;
 	
