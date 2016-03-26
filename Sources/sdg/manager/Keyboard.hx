@@ -80,7 +80,7 @@ class Keyboard extends Manager
 		keysCount--;
 	}
 
-	inline public static function isDown(key:String):Bool
+	inline public static function isPressed(key:String):Bool
 	{
 		return keysPressed.exists(key);
 	}
