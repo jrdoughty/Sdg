@@ -413,6 +413,16 @@ class Screen
 		if (list.length == 0)
 			types.remove(object.type);		
 	}
+    
+    /**
+	 * A list of Entity objects of the type.
+	 * @param	type 		The type to check.
+	 * @return 	The Entity list.
+	 */
+	public inline function entitiesForType(type:String):List<Object>
+	{
+		return types.exists(type) ? types.get(type) : null;
+	}
 	
 	/** 
 	 * Register the entities instance name. 

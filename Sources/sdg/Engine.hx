@@ -31,6 +31,8 @@ class Engine
 		
 		Sdg.windowWidth = System.windowWidth();
 		Sdg.windowHeight = System.windowHeight();
+        
+        Sdg.object = new Object();
 		
 		managers = new Array<Manager>(); 
 		
