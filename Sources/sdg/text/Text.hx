@@ -207,4 +207,14 @@ class Text extends Object
 			ty[i] = (fontHeight + _lineSpacing) * i;
 		}
 	}
+    
+    public function setHitboxAuto():Void
+    {
+        var fontHeight = font.height(size);              
+        
+        originX = 0;
+        originY = 0;
+        width = _boxWidth;
+        height = Std.int((fontHeight + _lineSpacing) * texts.length);
+    }
 }

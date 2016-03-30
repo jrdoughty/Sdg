@@ -25,7 +25,7 @@ class Grid extends Hitbox
 	 */
 	public var usePositions:Bool;
 	
-/**
+    /**
 	 * Constructor. The actual size of the grid is determined by dividing the width/height by
 	 * tileWidth/tileHeight, and stored in the properties columns/rows.
 	 * @param	width			Width of the grid, in pixels.
@@ -500,7 +500,7 @@ class Grid extends Hitbox
 
 		return false;
 	}
-	#if debug
+	/*#if debug
 	override public function debugDraw(buffer:Canvas):Void
 	{
 		
@@ -516,8 +516,8 @@ class Grid extends Hitbox
 		// determine start and end tiles to draw (optimization)
 		var startx = Math.floor( -px / tileWidth),
 			starty = Math.floor( -py / tileHeight),
-			destx = startx + 1 + Math.ceil(KP.width / tileWidth),
-			desty = starty + 1 + Math.ceil(KP.height / tileHeight);
+			destx = startx + 1 + Math.ceil(Sdg.windowWidth / tileWidth),
+			desty = starty + 1 + Math.ceil(Sdg.windowHeight / tileHeight);
 
 		// nothing will render if we're completely off screen
 		if (startx > columns || starty > rows || destx < 0 || desty < 0)
@@ -575,7 +575,7 @@ class Grid extends Hitbox
 			buffer.g2.set_color(Color.White);
 		
 	}
-	#end
+	#end*/
 	
 	public function squareProjection(axis:Vector2, point:Vector2):Void
 	{
@@ -591,4 +591,34 @@ class Grid extends Hitbox
 		}
 	}
 	
+    #if debug
+    public function print():Void
+    {
+        var line = '';
+        for (row in 0...data.length)
+        {
+            line = 'row $row ';
+            for (col in 0...data[row].length)
+            {
+                if (data[row][col])
+                    line += 'T';
+                else
+                    line += 'F';
+            }
+                
+            
+            #if js
+            js.Browser.console.log(line);
+            #else
+            trace(line);
+            #end
+        }
+        
+        #if js
+        js.Browser.console.log('');
+        #else
+        trace('');
+        #end
+    }
+    #end
 }

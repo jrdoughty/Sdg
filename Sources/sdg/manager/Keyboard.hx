@@ -49,12 +49,12 @@ class Keyboard extends Manager
 	function onKeyDown(key:Key, char:String):Void
 	{
 		if (key == Key.CHAR)
-		{
+		{                     
 			keysPressed.set(char, true);
 			keysHeld.set(char, true);
 		}
 		else
-		{
+		{                     
 			keysPressed.set(key.getName().toLowerCase(), true);
 			keysHeld.set(key.getName().toLowerCase(), true);
 		}

@@ -213,4 +213,29 @@ class Tilemap extends Object
 			}
 		}
 	}
+    
+    #if debug
+    public function print():Void
+    {
+        var line = '';
+        for (row in 0...map.length)
+        {
+            line = 'row $row ';
+            for (col in 0...map[row].length)
+                line += '${map[row][col]}, ';
+            
+            #if js
+            js.Browser.console.log(line);
+            #else
+            trace(line);
+            #end
+        }
+        
+        #if js
+        js.Browser.console.log('');
+        #else
+        trace('');
+        #end
+    }
+    #end
 }

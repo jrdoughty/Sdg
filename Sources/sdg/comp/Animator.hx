@@ -5,6 +5,8 @@ import sdg.Sprite;
 import sdg.atlas.Region;
 import sdg.comp.Component;
 
+// TODO: Optimize for animations of one frame
+
 class AnimData 
 {
 	public var name:String;	
@@ -61,7 +63,7 @@ class Animator extends Component
 			sprite = cast object;
 		else
 		{
-			trace('Animator failed. The object ${object.name} is not a sprite');
+			trace('Animator failed. The object \'${object.name}\' is not a sprite');
 			sprite = null;
 		}
 	}

@@ -91,6 +91,14 @@ class Sprite extends Object
 		offset.x = offsetX;
 		offset.y = offsetY;
 	}	
+    
+    public function setHitboxAuto():Void
+    {
+        originX = 0;
+        originY = 0;
+        width = region.w;
+        height = region.h;
+    }    
 	
 	public function set_region(value:Region):Region
 	{

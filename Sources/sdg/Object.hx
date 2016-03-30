@@ -141,6 +141,7 @@ class Object
         
         collidable = true;
         HITBOX = new Mask();
+        HITBOX.parent = this;
         _moveX = _moveY = 0;
         _point = Sdg.point;
 		
@@ -187,17 +188,7 @@ class Object
 		this.x = x;
 		this.y = y;
 	}
-	
-	/**
-	 * Sets the size of the object. 
-	 * The size affects the physics of the object.
-	 */
-	public function setSize(width:Int, height:Int):Void
-	{
-		this.width = width;
-		this.height = height;
-	}
-    
+	    
     /**
 	 * Sets the Object's hitbox properties.
 	 * @param	width		Width of the hitbox.
