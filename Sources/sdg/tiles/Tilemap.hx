@@ -212,7 +212,7 @@ class Tilemap extends Object
 				}
 			}
 		}
-	}
+	}       
     
     #if debug
     public function print():Void

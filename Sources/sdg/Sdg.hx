@@ -9,9 +9,18 @@ import sdg.math.Rectangle;
 @:allow(sdg.Engine)
 class Sdg
 {
-	public static var dt(default, null):Float = 0;	
+	public static var dt(default, null):Float = 0;
+    	
 	public static var windowWidth(default, null):Int;
+    public static var halfWinWidth(default, null):Int;
 	public static var windowHeight(default, null):Int;
+    public static var halfWinHeight(default, null):Int;
+    
+    public static var gameWidth(default, null):Int;
+    public static var halfGameWidth(default, null):Int;
+	public static var gameHeight(default, null):Int;
+    public static var halfGameHeight(default, null):Int;
+    
 	public static var screen:Screen;
 	public static var gameScale:Float = 1;
     
@@ -39,8 +48,7 @@ class Sdg
     @:dox(hide) public static var object:Object;
     @:dox(hide) public static var point:Point = new Point();
     @:dox(hide) public static var point2:Vector2 = new Vector2();
-    @:dox(hide) public static var rect:Rectangle = new Rectangle();
-    
+    @:dox(hide) public static var rect:Rectangle = new Rectangle();    
 	
 	public static function addTimeTask(task: Void -> Void, start: Float, period: Float = 0, duration: Float = 0):Int
 	{
@@ -60,8 +68,6 @@ class Sdg
 			Scheduler.removeTimeTask(id);
 		}
 	}
-    
-    
 	
 	/**
 	 * Empties an array of its' contents

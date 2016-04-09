@@ -3,19 +3,25 @@ package sdg;
 import kha.Color;
 import kha.math.Vector2;
 import kha.graphics2.Graphics;
-import sdg.geom.Rectangle;
+import sdg.math.Rectangle;
+import sdg.util.Camera;
 
 class Screen
 {	
+    public var active:Bool;
+    
 	var layerList:Array<Int>;
 	
 	var addList:Array<Object>;
 	var removeList:Array<Object>;
+    var destroyList:Array<Object>;
 	
 	var updateList:List<Object>;
 	var layerDisplay:Map<Int,Bool>;
 	var layers:Map<Int,List<Object>>;
 	var types:Map<String,List<Object>>;
+    
+    // TODO: fix name
 	var entityNames:Map<String,Object>;
 	
 	/** 
@@ -25,14 +31,17 @@ class Screen
 	
 	public var clipping:Rectangle;
 	
-	public var camera:Vector2;
+	public var camera:Camera;
 	
 	public function new():Void
 	{
+        active = true;
+        
 		layerList = new Array<Int>();
 	
 		addList = new Array<Object>();
 		removeList = new Array<Object>();
+        destroyList = new Array<Object>();
 		
 		updateList = new List<Object>();
 		layerDisplay = new Map<Int,Bool>();
@@ -42,8 +51,12 @@ class Screen
 				
 		bgColor = Color.Black;		
 		clipping = null;
-		camera = new Vector2();
+		camera = new Camera();
 	}
+    
+    public function init():Void {}
+    
+    public function close():Void {}
 	
 	/**
 	 * Performed by the game loop, updates all contained Entities.
@@ -85,7 +98,7 @@ class Screen
 	public function render(g:Graphics):Void
 	{
 		if (clipping != null)
-			g.scissor(clipping.x, clipping.y, clipping.w, clipping.h);
+			g.scissor(Std.int(clipping.x), Std.int(clipping.y), Std.int(clipping.width), Std.int(clipping.height));
 		
 		// render the entities in order of depth
 		for (layer in layerList)
@@ -136,9 +149,13 @@ class Screen
 	 * @param	e		Object you want to remove.
 	 * @return	The removed object.
 	 */
-	public function remove(object:Object):Object
+	public function remove(object:Object, destroy:Bool = false):Object
 	{
 		removeList[removeList.length] = object;
+        
+        if (destroy)
+            destroyList[destroyList.length] = object;
+        
 		return object;
 	}
 	
@@ -283,10 +300,18 @@ class Screen
 				removeRender(object);
 				
 				if (object.type != "") removeType(object);
-				if (object.name != "") unregisterName(object);				
+				if (object.name != "") unregisterName(object);
 			}
 			Sdg.clear(removeList);
 		}
+        
+        if (destroyList.length > 0)
+        {
+            for (object in destroyList)
+                object = null;
+                
+            Sdg.clear(destroyList);
+        }
 
 		// add objects
 		if (shouldAdd && addList.length > 0)

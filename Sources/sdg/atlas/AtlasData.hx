@@ -7,22 +7,22 @@ class AtlasData
 	public var name:String;
 	public var image:Image;	
 	public var regions:Map<String, Region>;
-	
-	public function new(name:String, image:Image, regions:Map<String, Region>):Void
+    
+    public function new(name:String, image:Image, regions:Map<String, Region>):Void
 	{
 		this.name = name;
 		this.image = image;
 		this.regions = regions;
 	}
-	
-	public function getRegionsByNameIndex(subTextureName:String, startIndex:Int, endIndex:Int):Array<Region>
+    
+    public function getRegionsByNameIndex(regionName:String, startIndex:Int, endIndex:Int):Array<Region>
 	{
 		var arrayRegions = new Array<Region>();		
 		endIndex++;
 		
 		for (i in startIndex...endIndex)
 		{			
-			var region = regions.get('$subTextureName${i}');
+			var region = regions.get('$regionName$i');
 			if (region != null)
 				arrayRegions.push(region);
 			else

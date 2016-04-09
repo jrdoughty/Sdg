@@ -8,6 +8,7 @@ import kha.graphics2.Graphics;
 import sdg.comp.Component;
 import sdg.masks.Mask;
 import sdg.math.Point;
+import sdg.math.Vector2b;
 import sdg.ds.Either;
 
 /**
@@ -96,6 +97,8 @@ class Object
 	 * The collision type, used for collision checking.
 	 */
 	public var type(default, set):String;
+    
+    public var fixed:Vector2b;
 	/**
 	 * Components that updates and affect the object
 	 */
@@ -139,6 +142,7 @@ class Object
         originX = originY = 0;
         width = height = 0;
         
+        type = '';
         collidable = true;
         HITBOX = new Mask();
         HITBOX.parent = this;
@@ -151,6 +155,7 @@ class Object
 		visible = true;		
 		angle = 0;		
 		pivot = new Vector2();
+        fixed = new Vector2b();
 		
 		components = new Array<Component>();
 	}
@@ -274,7 +279,7 @@ class Object
 		/*if (group != null)	
 			innerRender(g, group.x - cameraX, group.y - cameraY);
 		else*/
-			innerRender(g, cameraX, cameraY);
+			innerRender(g, !fixed.x ? cameraX : 0, !fixed.y ? cameraY : 0);
 		
 		if (alpha != 1)
 			g.popOpacity();

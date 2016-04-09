@@ -24,7 +24,7 @@ typedef TexturePackerData = {
 
 class Atlas
 {
-	static var atlasCache:Map<String, AtlasData> = new Map<String, AtlasData>();
+	static var atlasCache = new Map<String, AtlasData>();	      
 
 	public static function loadAtlasShoebox(atlasName:String, atlasImage:Image, xml:Blob):Void
 	{
@@ -61,22 +61,22 @@ class Atlas
 		atlasCache.set(atlasName, atlasData);
 	}
 
-	public static function getRegionByName(atlasName:String, subTextureName:String):Region
+	public static function getRegionByName(atlasName:String, regionName:String):Region
 	{
 		var atlasData = atlasCache.get(atlasName);
 		
 		if (atlasData != null)
 		{
-			var region = atlasData.regions.get(subTextureName);
+			var region = atlasData.regions.get(regionName);
 			if (region != null)
 				return region; 
 		}
 
-		trace('getRegionByName not found: $atlasName $subTextureName');
+		trace('getRegionByName not found: $atlasName $regionName');
 		return null;
 	}
 
-	public static function getRegionsByName(atlasName:String, subTextureNames:Array<String>):Array<Region>
+	public static function getRegionsByName(atlasName:String, regionNames:Array<String>):Array<Region>
 	{
 		var atlasData = atlasCache.get(atlasName);
 		var region:Region;
@@ -85,7 +85,7 @@ class Atlas
 		{		
 			var regions = new Array<Region>();
 
-			for (name in subTextureNames)
+			for (name in regionNames)
 			{
 				region = atlasData.regions.get(name);
 				if (region != null)
@@ -101,13 +101,13 @@ class Atlas
 		return null;
 	}
 	
-	public static function getRegionsByNameIndex(atlasName:String, subTextureName:String, startIndex:Int, endIndex:Int):Array<Region>
+	public static function getRegionsByNameIndex(atlasName:String, regionName:String, startIndex:Int, endIndex:Int):Array<Region>
 	{
 		var names = new Array<String>();
 		endIndex++;
 		
 		for (i in startIndex...endIndex)
-			names.push('$subTextureName${i}');
+			names.push('$regionName${i}');
 			
 		return getRegionsByName(atlasName, names);
 	}
@@ -124,8 +124,58 @@ class Atlas
 			return null;
 		}
 	}
+    
+    public static function createAtlasDataFromImage(name:String, image:Image, rows:Int, cols:Int, saveInCache:Bool = false):AtlasData
+    {
+        var regions = new Map<String,Region>();        
+        var width = Std.int(image.width / cols);
+        var height = Std.int(image.height / rows);
+        var i = 1;
+        
+        for (r in 0...rows)
+        {
+            for (c in 0...cols)
+            {
+                var region = new Region(c * width, r * height, width, height);
+                regions.set('$name$i', region);
+                i++;
+            }
+        }
+        
+        var atlasData = new AtlasData(name, image, regions);
+        
+        if (saveInCache)
+            atlasCache.set(name, atlasData); 
+        
+        return atlasData;
+    }
+    
+    public static function createAtlasDataFromRegion(name:String, image:Image, region:Region, rows:Int, cols:Int, saveInCache:Bool = false):AtlasData
+    {
+        var regions = new Map<String,Region>();        
+        var width = Std.int(region.w / cols);
+        var height = Std.int(region.h / rows);
+        var i = 1;
+        
+        for (r in 0...rows)
+        {
+            for (c in 0...cols)
+            {
+                var newRegion = new Region(region.sx + (c * width), region.sy + (r * height), width, height);
+                regions.set('$name$i', newRegion);
+                i++;
+            }
+        }
+        
+        var atlasData = new AtlasData(name, image, regions);
+        
+        if (saveInCache)
+            atlasCache.set(name, atlasData); 
+        
+        return atlasData;
+    }
 	
-	public static function getImageByAtlas(atlasName:String):Image
+	public static function getImageByAtlasData(atlasName:String):Image
 	{
 		var atlasData = atlasCache.get(atlasName);
 		
@@ -133,7 +183,7 @@ class Atlas
 			return atlasData.image;
 		else
 		{
-			trace('getImageByName not found: $atlasName ');
+			trace('getImageByAtlas not found: $atlasName ');
 			return null;
 		}		
 	}

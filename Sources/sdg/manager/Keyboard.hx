@@ -50,11 +50,13 @@ class Keyboard extends Manager
 	{
 		if (key == Key.CHAR)
 		{                     
+            //trace(char);
 			keysPressed.set(char, true);
 			keysHeld.set(char, true);
 		}
 		else
-		{                     
+		{   
+            //trace(key.getName().toLowerCase());      
 			keysPressed.set(key.getName().toLowerCase(), true);
 			keysHeld.set(key.getName().toLowerCase(), true);
 		}

@@ -18,7 +18,11 @@ class Engine
 	
 	var managers:Array<Manager>;
 	
-	public var backgrounRender:Graphics->Void;	
+	public var backgroundRender:Graphics->Void;
+    
+    #if debug
+    public var editor:Editor;
+    #end
 	
 	public function new(width:Int, height:Int):Void
 	{
@@ -30,14 +34,29 @@ class Engine
 		currTime = Scheduler.time();
 		
 		Sdg.windowWidth = System.windowWidth();
+        Sdg.halfWinWidth = Std.int(Sdg.windowWidth / 2);
 		Sdg.windowHeight = System.windowHeight();
+        Sdg.halfWinHeight = Std.int(Sdg.windowHeight / 2);
+        
+        Sdg.gameWidth = backbuffer.width;
+        Sdg.halfGameWidth = Std.int(backbuffer.width / 2);
+		Sdg.gameHeight = backbuffer.height;
+        Sdg.halfGameHeight = Std.int(backbuffer.height / 2);
+        
+        calcGameScale();
         
         Sdg.object = new Object();
 		
 		managers = new Array<Manager>(); 
 		
-		System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
+		//System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
 	}
+    
+    function calcGameScale()
+    {
+        // TODO
+        Sdg.gameScale = Sdg.windowWidth / Sdg.gameWidth;
+    }
 	
 	function onForeground()
 	{
@@ -71,13 +90,27 @@ class Engine
 		
 		if (active)
 		{
-			if (Sdg.screen != null)
+			if (Sdg.screen != null && Sdg.screen.active)
 			{
 				Sdg.screen.updateLists();
 				Sdg.screen.update();
 				Sdg.screen.updateLists(false);
 			}
-			
+            
+            #if debug
+            if (editor != null)
+            {
+                editor.checkMode();
+                
+                if (editor.active)
+                {
+                    Sdg.screen.updateLists();
+                    editor.update();
+                }
+                    
+            }
+            #end
+            			
 			// Events will always trigger first, and we want the active screen
 			// to react to the changes before the manager processes them.
 			for (m in managers)
@@ -103,9 +136,14 @@ class Engine
 		else
 			g2.begin(true, Color.Black);
 		
-		if (!active && backgrounRender != null)
-			backgrounRender(g2);
-			
+		if (!active && backgroundRender != null)
+			backgroundRender(g2);
+            
+		#if debug
+        else if (editor != null && editor.active)
+            editor.render(g2);
+        #end
+        	
 		g2.end();
 	}
 }

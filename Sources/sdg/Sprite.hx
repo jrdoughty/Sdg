@@ -62,7 +62,7 @@ class Sprite extends Object
 	
 	override public function destroy():Void
 	{
-		image = null;
+		image = null;                
 		region = null;
 	}
 	
@@ -102,9 +102,12 @@ class Sprite extends Object
 	
 	public function set_region(value:Region):Region
 	{
-		widthRegScaled = Std.int(value.w * scaleX);
-		heightRegScaled = Std.int(value.h * scaleY);
-		
+		if (value != null)
+        {
+            widthRegScaled = Std.int(value.w * scaleX);
+		    heightRegScaled = Std.int(value.h * scaleY);    
+        }
+        		
 		return region = value;
 	}
 		

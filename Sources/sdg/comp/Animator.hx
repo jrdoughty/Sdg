@@ -141,7 +141,7 @@ class Animator extends Component
 			currAnimation = animData;
 			nameAnim = animData.name;
 			this.loop = loop;
-			restart();			
+			restart();
 		}
 		else
 		{
