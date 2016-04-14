@@ -14,7 +14,7 @@ class FixedBitmapText extends Object
     var letterWidth:Int;
 	var letterHeight:Int;
     
-    public function new(text:String, x:Float, y:Float, letterWidth:Int, letterHeight:Int, image:Image, ?region:Region):Void
+    public function new(x:Float, y:Float, text:String, letterWidth:Int, letterHeight:Int, image:Image, ?region:Region):Void
     {
         super(x, y);
         

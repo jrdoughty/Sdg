@@ -97,8 +97,7 @@ class Screen
 	 */
 	public function render(g:Graphics):Void
 	{
-		if (clipping != null)
-			g.scissor(Std.int(clipping.x), Std.int(clipping.y), Std.int(clipping.width), Std.int(clipping.height));
+		enableClipping(g);
 		
 		// render the entities in order of depth
 		for (layer in layerList)
@@ -113,9 +112,20 @@ class Screen
 			}
 		}
 		
-		if (clipping != null)
-			g.disableScissor();
+		disableClipping(g);
 	}
+    
+    inline public function enableClipping(g:Graphics):Void
+    {
+        if (clipping != null)
+            g.scissor(Std.int(clipping.x), Std.int(clipping.y), Std.int(clipping.width), Std.int(clipping.height));
+    }
+    
+    inline public function disableClipping(g:Graphics):Void
+    {
+        if (clipping != null)
+            g.disableScissor();
+    }
 	
 	public function destroy():Void
 	{

@@ -7,20 +7,23 @@ import sdg.manager.Keyboard;
 class Editor
 {
     public var active:Bool;
+    var activationKey:String;
     
-    public function new():Void
+    public function new(activationKey:String):Void
     {
         active = false;
+        this.activationKey = activationKey;
     }
     
     public function checkMode():Void
     {
-        if (Keyboard.isPressed('tab'))
+        if (Keyboard.isPressed(activationKey))
         {
             if (!active)
             {
                 Sdg.screen.active = false;
                 active = true;
+                run();
             }
             else
             {
@@ -29,6 +32,8 @@ class Editor
             }
         }
     }
+    
+    public function run():Void {}
     
     public function update():Void {}
     

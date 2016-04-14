@@ -16,7 +16,7 @@ class Tilemap extends Object
 	public var widthInPixels:Int;
 	public var heightInPixels:Int;
 	
-	var map:Array<Array<Int>>;
+	public var map:Array<Array<Int>>;
 	
 	// temp variables
 	var _startCol:Int;
@@ -134,7 +134,7 @@ class Tilemap extends Object
 	 * @param	file	the pyxel edit file
 	 * @param	tileset	A tileset to draw the tilemaps
 	 */
-	public static function loadFromPyxelEdit(x:Float, y:Float, file:Blob, tileset:Tileset):Array<Tilemap>
+	public static function createFromPyxelEdit(x:Float, y:Float, file:Blob, tileset:Tileset):Array<Tilemap>
 	{
 		var width:Int = 0;
 		var height:Int = 0;

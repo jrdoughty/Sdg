@@ -73,6 +73,18 @@ class Sprite extends Object
 							 y + offset.y + (flip.y ? heightRegScaled : 0) - cy, 
 							 flip.x ? -widthRegScaled : widthRegScaled, flip.y ? -heightRegScaled : heightRegScaled);		
 	}
+    
+    public function onCamera():Bool
+    {
+        if (screen != null)
+        {
+            if (x > screen.camera.x && (x + region.w) < (screen.camera.x + screen.camera.width)
+                && y > screen.camera.y && (y + region.h) < (screen.camera.y + screen.camera.height))
+                    return true;
+        }
+        
+        return false;
+    }
 	
 	public function setScale(value:Float):Void
 	{

@@ -16,14 +16,35 @@ class Grid extends Hitbox
 	private var _tile:Rectangle;
 	private var _rect:Rectangle;
 	private var _point:Vector2;
-	private var _point2:Vector2;
-	
+	private var _point2:Vector2;	
 	/**
 	 * If x/y positions should be used instead of columns/rows (the default). Columns/rows means
 	 * screen coordinates relative to the width/height specified in the constructor. X/y means
 	 * grid coordinates, relative to the grid size.
 	 */
-	public var usePositions:Bool;
+	public var usePositions:Bool;    
+    /**
+	 * The tile width.
+	 */
+	public var tileWidth(get, never):Int;
+	private inline function get_tileWidth():Int { return Std.int(_tile.width); }	
+	/**
+	 * The tile height.
+	 */
+	public var tileHeight(get, never):Int;
+	private inline function get_tileHeight():Int { return Std.int(_tile.height); }
+	/**
+	 * How many columns the grid has
+	 */
+	public var columns(default, null):Int;
+	/**
+	 * How many rows the grid has.
+	 */
+	public var rows(default, null):Int;
+	/**
+	 * The grid data.
+	 */
+	public var data(default, null):Array<Array<Bool>>;
 	
     /**
 	 * Constructor. The actual size of the grid is determined by dividing the width/height by
@@ -281,33 +302,6 @@ class Grid extends Hitbox
 		}
 		return cloneGrid;
 	}
-
-	/**
-	 * The tile width.
-	 */
-	public var tileWidth(get, never):Int;
-	private inline function get_tileWidth():Int { return Std.int(_tile.width); }
-	
-	/**
-	 * The tile height.
-	 */
-	public var tileHeight(get, never):Int;
-	private inline function get_tileHeight():Int { return Std.int(_tile.height); }
-
-	/**
-	 * How many columns the grid has
-	 */
-	public var columns(default, null):Int;
-
-	/**
-	 * How many rows the grid has.
-	 */
-	public var rows(default, null):Int;
-
-	/**
-	 * The grid data.
-	 */
-	public var data(default, null):Array<Array<Bool>>;
 	
 	/** @private Collides against an Entity. */
 	override private function collideMask(other:Mask):Bool
