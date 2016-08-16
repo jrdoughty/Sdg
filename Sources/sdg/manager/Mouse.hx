@@ -6,12 +6,21 @@ class Mouse extends Manager
 {
 	public static var init:Bool = false;
 
+	// x and y not scaled
 	public static var rawX:Int = 0;
 	public static var rawY:Int = 0;
+
+	// x and y scaled to the backbuffer
 	public static var x:Int = 0;
 	public static var y:Int = 0;
+
+	// deltas of x and y
 	public static var dx:Int = 0;
 	public static var dy:Int = 0;
+
+	// x and y inside the world (adjusted with the camera)
+	public static var wx:Int = 0;
+	public static var wy:Int = 0;
 
 	static var mousePressed:Map<Int, Bool>;
 	static var mouseHeld:Map<Int, Bool>;
@@ -57,8 +66,6 @@ class Mouse extends Manager
 			mouseUp.remove(key);
 	}
 
-
-
 	function onMouseStart(index:Int, x:Int, y:Int):Void
 	{
 		// trace("onMouseStart : " + index + " , " + x + " , " + y);
@@ -96,6 +103,8 @@ class Mouse extends Manager
 		Mouse.y = Std.int(y / Sdg.gameScale);
 		Mouse.dx = Std.int(dx / Sdg.gameScale);
 		Mouse.dy = Std.int(dy / Sdg.gameScale);
+		Mouse.wx = Std.int((x + Sdg.screen.camera.x) / Sdg.gameScale);
+		Mouse.wy = Std.int((y + Sdg.screen.camera.y) / Sdg.gameScale);
 	}
 
 	function onMouseWheel(delta:Int):Void

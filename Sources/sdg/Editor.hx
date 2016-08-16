@@ -23,17 +23,20 @@ class Editor
             {
                 Sdg.screen.active = false;
                 active = true;
-                run();
+                open();
             }
             else
             {
                 Sdg.screen.active = true;
                 active = false;
+                close();
             }
         }
     }
     
-    public function run():Void {}
+    public function open():Void {}
+
+    public function close():Void {}
     
     public function update():Void {}
     

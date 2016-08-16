@@ -26,11 +26,11 @@ class Mask
 	public var parent(get,set):Object;
 	private inline function get_parent():Object
 	{
-		return _parent != Object._EMPTY ? _parent : null;
+		return _parent != Object._empty ? _parent : null;
 	}
 	private function set_parent(value:Object):Object
 	{
-		if (value == null) { _parent = Object._EMPTY; }
+		if (value == null) { _parent = Object._empty; }
 		else { _parent = value; update(); }
 		return value;
 	}
@@ -41,7 +41,7 @@ class Mask
 	public var list:Masklist;
 	
 	public function new() {
-		_parent = Object._EMPTY;
+		_parent = Object._empty;
 		_class = Type.getClassName(Type.getClass(this));
 		check = new Map<String,MaskCallback>();
 		check.set(Type.getClassName(Mask), collideMask);
@@ -76,8 +76,7 @@ class Mask
 	private function collideMasklist(other:Masklist):Bool
 	{
 		return other.collide(this);
-	}
-	
+	}	
 	
 	/**
 	 * Override this

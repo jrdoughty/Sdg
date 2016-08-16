@@ -18,11 +18,7 @@ class Engine
 	
 	var managers:Array<Manager>;
 	
-	public var backgroundRender:Graphics->Void;
-    
-    #if debug
-    public var editor:Editor;
-    #end
+	public var backgroundRender:Graphics->Void;    
 	
 	public function new(width:Int, height:Int):Void
 	{
@@ -98,14 +94,14 @@ class Engine
 			}
             
             #if debug
-            if (editor != null)
+            if (Sdg.editor != null)
             {
-                editor.checkMode();
+                Sdg.editor.checkMode();
                 
-                if (editor.active)
+                if (Sdg.editor.active)
                 {
                     Sdg.screen.updateLists();
-                    editor.update();
+                    Sdg.editor.update();
                 }
                     
             }
@@ -140,8 +136,8 @@ class Engine
 			backgroundRender(g2);
             
 		#if debug
-        else if (editor != null && editor.active)
-            editor.render(g2);
+        else if (Sdg.editor != null && Sdg.editor.active)
+            Sdg.editor.render(g2);
         #end
         	
 		g2.end();

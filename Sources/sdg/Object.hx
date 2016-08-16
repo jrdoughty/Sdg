@@ -13,12 +13,11 @@ import sdg.ds.Either;
 
 /**
  * Abstract representing either a `String` or a `Array<String>`.
- * 
  * Conversion is automatic, no need to use this.
  */
 abstract SolidType(Either<String, Array<String>>)
 {
-	@:dox(hide) public inline function new( e:Either<String, Array<String>> ) this = e;
+	@:dox(hide) public inline function new(e:Either<String, Array<String>>) this = e;
 	@:dox(hide) public var type(get,never):Either<String, Array<String>>;
 	@:to inline function get_type() return this;
 	@:from static function fromLeft(v:String) return new SolidType(Left(v));
@@ -97,14 +96,17 @@ class Object
 	 * The collision type, used for collision checking.
 	 */
 	public var type(default, set):String;
-    
+    /**
+	 * If the object should be fixed on screen. The camera position will be
+	 * ignored on the rendering
+	 */
     public var fixed:Vector2b;
 	/**
 	 * Components that updates and affect the object
 	 */
 	public var components:Array<Component>;
 	
-	public var group:Group;
+	//public var group:Group;
     
     /**
 	 * An optional Mask component, used for specialized collision. If this is
@@ -122,17 +124,14 @@ class Object
 	}
     
     // Collision information.
-	private var HITBOX:Mask;
+	private var hitbox:Mask;
 	private var _mask:Mask;
 	private var _x:Float;
 	private var _y:Float;
 	private var _moveX:Float;
-	private var _moveY:Float;
+	private var _moveY:Float;    
     
-    // Rendering information.
-    private var _point:Point;
-    
-    static private var _EMPTY = new Object();
+    static private var _empty = new Object();
 	
 	public function new(x:Float = 0, y:Float = 0):Void
 	{
@@ -144,12 +143,11 @@ class Object
         
         type = '';
         collidable = true;
-        HITBOX = new Mask();
-        HITBOX.parent = this;
-        _moveX = _moveY = 0;
-        _point = Sdg.point;
+        hitbox = new Mask();
+        hitbox.parent = this;
+        _moveX = _moveY = 0;        
 		
-		color = 0xffffffff;
+		color = Color.White;
 		alpha = 1;
 		active = true;
 		visible = true;		
@@ -268,7 +266,7 @@ class Object
 			return;
 			
 		if (angle != 0)
-			g.pushRotation(angle, x + pivot.x, y + pivot.y);		
+			g.pushRotation(angle, x + pivot.x - cameraX, y + pivot.y - cameraY);		
 			
 		if (alpha != 1) 
 			g.pushOpacity(alpha);
@@ -288,6 +286,10 @@ class Object
 			g.popTransformation();
 	}
 	
+	/**
+	 * Override this when creating a class for a new type of object
+	 * use x and y as x - cx and y - cy (the camera position)
+	 */
 	function innerRender(g:Graphics, cx:Float, cy:Float):Void {}
 	
 	private function set_layer(value:Int):Int
@@ -346,7 +348,7 @@ class Object
 					&& x - originX < e.x - e.originX + e.width
 					&& y - originY < e.y - e.originY + e.height)
 				{
-					if (e._mask == null || e._mask.collide(HITBOX))
+					if (e._mask == null || e._mask.collide(hitbox))
 					{
 						this.x = _x; this.y = _y;
 						return e;
@@ -364,7 +366,7 @@ class Object
 					&& x - originX < e.x - e.originX + e.width
 					&& y - originY < e.y - e.originY + e.height)
 				{
-					if (_mask.collide(e._mask != null ? e._mask : e.HITBOX))
+					if (_mask.collide(e._mask != null ? e._mask : e.hitbox))
 					{
 						this.x = _x; this.y = _y;
 						return e;
@@ -423,7 +425,7 @@ class Object
 		{
 			if (_mask == null)
 			{
-				if ((untyped e._mask) == null || (untyped e._mask).collide(HITBOX))
+				if ((untyped e._mask) == null || (untyped e._mask).collide(hitbox))
 				{
 					this.x = _x; this.y = _y;
 					return e;
@@ -465,7 +467,7 @@ class Object
 			Sdg.object.y = rY;
 			Sdg.object.width = Std.int(rWidth);
 			Sdg.object.height = Std.int(rHeight);
-			if (_mask.collide(Sdg.object.HITBOX))
+			if (_mask.collide(Sdg.object.hitbox))
 			{
 				this.x = _x; this.y = _y;
 				return true;
@@ -498,7 +500,7 @@ class Object
 			Sdg.object.y = pY;
 			Sdg.object.width = 1;
 			Sdg.object.height = 1;
-			if (_mask.collide(Sdg.object.HITBOX))
+			if (_mask.collide(Sdg.object.hitbox))
 			{
 				this.x = _x; this.y = _y;
 				return true;
@@ -539,7 +541,7 @@ class Object
 					&& x - originX < e.x - e.originX + e.width
 					&& y - originY < e.y - e.originY + e.height)
 				{
-					if ((untyped e._mask) == null || (untyped e._mask).collide(HITBOX)) array[n++] = cast e;
+					if ((untyped e._mask) == null || (untyped e._mask).collide(hitbox)) array[n++] = cast e;
 				}
 			}
 		}
@@ -703,13 +705,13 @@ class Object
 	 */
 	public inline function moveTowards(x:Float, y:Float, amount:Float, solidType:SolidType = null, sweep:Bool = false)
 	{
-		_point.x = x - this.x;
-		_point.y = y - this.y;
-		if (_point.x * _point.x + _point.y * _point.y > amount * amount)
+		var point = new Point(x - this.x, y - this.y);
+				
+		if (point.x * point.x + point.y * point.y > amount * amount)
 		{
-			_point.normalizeThickness(amount);
+			point.normalizeThickness(amount);
 		}
-		moveBy(_point.x, _point.y, solidType, sweep);
+		moveBy(point.x, point.y, solidType, sweep);
 	}
     
     	/**
