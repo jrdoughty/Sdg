@@ -2,7 +2,6 @@ package sdg.atlas;
 
 import haxe.xml.Fast;
 import haxe.Json;
-import kha.Assets;
 import kha.Image;
 import kha.Blob;
 
@@ -24,7 +23,136 @@ typedef TexturePackerData = {
 
 class Atlas
 {
-	static var atlasCache = new Map<String, AtlasData>();	      
+	static var atlasCache = new Map<String, Atlas>();
+
+	public var name:String;
+	public var image:Image;	
+	public var regions:Map<String, Region>;
+
+	public function new(atlasName:String, image:Image, regions:Map<String, Region>):Void
+	{
+		name = atlasName;
+		this.image = image;
+		this.regions = regions;
+	}
+
+	public function getRegion(regionName:String):Region
+	{		
+		var region = regions.get(regionName);
+		if (region != null)
+			return region;
+		else
+		{
+			trace('(getRegion) region "$name" not found in atlas "${this.name}"');
+			return null;
+		}		
+	}
+
+	public function getRegions(regionNames:Array<String>):Array<Region>
+	{
+		var region:Region;				
+		var listRegions = new Array<Region>();
+
+		for (name in regionNames)
+		{
+			region = regions.get(name);
+			if (region != null)
+				listRegions.push(region);
+			else
+				trace('(getRegions) region "$name" not found in atlas "${this.name}"');
+		}
+
+		return listRegions;		
+	}
+
+	public function getRegionsByIndex(regionName:String, startIndex:Int, endIndex:Int):Array<Region>
+	{
+		var listRegionNames = new Array<String>();
+		endIndex++;
+		
+		for (i in startIndex...endIndex)
+			listRegionNames.push('$regionName${i}');
+			
+		return getRegions(listRegionNames);
+	}
+
+	/* -------------------------------- static functions -------------------------------- */
+
+	public static function getAtlas(atlasName:String):Atlas
+	{
+		var atlas = atlasCache.get(atlasName);
+		
+		if (atlas != null)
+			return atlas;
+		else
+		{
+			trace('(getAtlas) atlas "$atlasName" not found');
+			return null;
+		}
+	}
+
+	public static function getImageFromAtlas(atlasName:String):Image
+	{
+		var atlas = atlasCache.get(atlasName);
+		
+		if (atlas != null)		
+			return atlas.image;
+		else
+		{
+			trace('(getImageFromAtlas) atlas "$atlasName" not found');
+			return null;
+		}		
+	}
+
+	public static function createAtlasFromImage(atlasName:String, image:Image, rows:Int, cols:Int, saveInCache:Bool = false):Atlas
+    {
+        var regions = new Map<String,Region>();        
+        var width = Std.int(image.width / cols);
+        var height = Std.int(image.height / rows);
+        var i = 1;
+        
+        for (r in 0...rows)
+        {
+            for (c in 0...cols)
+            {
+                var region = new Region(c * width, r * height, width, height);
+                regions.set('$atlasName$i', region);
+                i++;
+            }
+        }
+        
+        var atlas = new Atlas(atlasName, image, regions);
+        
+        if (saveInCache)
+            atlasCache.set(atlasName, atlas); 
+        
+        return atlas;
+    }
+
+	public static function createAtlasFromRegion(atlasName:String, image:Image, region:Region, rows:Int, cols:Int, saveInCache:Bool = false):Atlas
+    {
+        var regions = new Map<String,Region>();        
+        var width = Std.int(region.w / cols);
+        var height = Std.int(region.h / rows);
+        var i = 1;
+        
+        for (r in 0...rows)
+        {
+            for (c in 0...cols)
+            {
+                var newRegion = new Region(region.sx + (c * width), region.sy + (r * height), width, height);
+                regions.set('$atlasName$i', newRegion);
+                i++;
+            }
+        }
+        
+        var atlas = new Atlas(atlasName, image, regions);
+        
+        if (saveInCache)
+            atlasCache.set(atlasName, atlas); 
+        
+        return atlas;
+    }
 
 	public static function loadAtlasShoebox(atlasName:String, atlasImage:Image, xml:Blob):Void
 	{
@@ -41,14 +169,14 @@ class Atlas
 			regions.set(st.att.name, region);			
 		}
 
-		var atlasData = new AtlasData(atlasName, atlasImage, regions);
-		atlasCache.set(atlasName, atlasData);
+		var atlas = new Atlas(atlasName, atlasImage, regions);
+		atlasCache.set(atlasName, atlas);
 	}
 	
 	public static function loadAtlasTexturePacker(atlasName:String, atlasImage:Image, xml:Blob):Void
 	{
 		var regions = new Map<String, Region>();				
-		var data:TexturePackerData = haxe.Json.parse(xml.toString());		
+		var data:TexturePackerData = Json.parse(xml.toString());		
 		//var items = cast(data.frames, Array<TexturePackerItem>);
 		
 		for (item in data.frames)
@@ -57,134 +185,7 @@ class Atlas
 			regions.set(item.filename, region);			
 		}
 		
-		var atlasData = new AtlasData(atlasName, atlasImage, regions);
-		atlasCache.set(atlasName, atlasData);
-	}
-
-	public static function getRegionByName(atlasName:String, regionName:String):Region
-	{
-		var atlasData = atlasCache.get(atlasName);
-		
-		if (atlasData != null)
-		{
-			var region = atlasData.regions.get(regionName);
-			if (region != null)
-				return region; 
-		}
-
-		trace('getRegionByName not found: $atlasName $regionName');
-		return null;
-	}
-
-	public static function getRegionsByName(atlasName:String, regionNames:Array<String>):Array<Region>
-	{
-		var atlasData = atlasCache.get(atlasName);
-		var region:Region;
-		
-		if (atlasData != null)
-		{		
-			var regions = new Array<Region>();
-
-			for (name in regionNames)
-			{
-				region = atlasData.regions.get(name);
-				if (region != null)
-					regions.push(region);
-				else
-					trace('subTexture not found: $name');
-			}
-
-			return regions;
-		}
-
-		trace("getRegionByNames not found: $atlasName");
-		return null;
-	}
-	
-	public static function getRegionsByNameIndex(atlasName:String, regionName:String, startIndex:Int, endIndex:Int):Array<Region>
-	{
-		var names = new Array<String>();
-		endIndex++;
-		
-		for (i in startIndex...endIndex)
-			names.push('$regionName${i}');
-			
-		return getRegionsByName(atlasName, names);
-	}
-	
-	public static function getAtlasData(atlasName:String):AtlasData
-	{
-		var atlasData = atlasCache.get(atlasName);
-		
-		if (atlasData != null)
-			return atlasData;
-		else
-		{
-			trace('getAtlasData not found: $atlasName ');
-			return null;
-		}
-	}
-    
-    public static function createAtlasDataFromImage(name:String, image:Image, rows:Int, cols:Int, saveInCache:Bool = false):AtlasData
-    {
-        var regions = new Map<String,Region>();        
-        var width = Std.int(image.width / cols);
-        var height = Std.int(image.height / rows);
-        var i = 1;
-        
-        for (r in 0...rows)
-        {
-            for (c in 0...cols)
-            {
-                var region = new Region(c * width, r * height, width, height);
-                regions.set('$name$i', region);
-                i++;
-            }
-        }
-        
-        var atlasData = new AtlasData(name, image, regions);
-        
-        if (saveInCache)
-            atlasCache.set(name, atlasData); 
-        
-        return atlasData;
-    }
-    
-    public static function createAtlasDataFromRegion(name:String, image:Image, region:Region, rows:Int, cols:Int, saveInCache:Bool = false):AtlasData
-    {
-        var regions = new Map<String,Region>();        
-        var width = Std.int(region.w / cols);
-        var height = Std.int(region.h / rows);
-        var i = 1;
-        
-        for (r in 0...rows)
-        {
-            for (c in 0...cols)
-            {
-                var newRegion = new Region(region.sx + (c * width), region.sy + (r * height), width, height);
-                regions.set('$name$i', newRegion);
-                i++;
-            }
-        }
-        
-        var atlasData = new AtlasData(name, image, regions);
-        
-        if (saveInCache)
-            atlasCache.set(name, atlasData); 
-        
-        return atlasData;
-    }
-	
-	public static function getImageByAtlasData(atlasName:String):Image
-	{
-		var atlasData = atlasCache.get(atlasName);
-		
-		if (atlasData != null)		
-			return atlasData.image;
-		else
-		{
-			trace('getImageByAtlas not found: $atlasName ');
-			return null;
-		}		
+		var atlas = new Atlas(atlasName, atlasImage, regions);
+		atlasCache.set(atlasName, atlas);
 	}
 }

@@ -108,9 +108,9 @@ class Text extends Object
 			if (shadow.alpha != 1)
 				g.pushOpacity(shadow.alpha);
 				
-			if (group != null)	
-				innerRender(g, group.x - cameraX + shadow.x, group.y - cameraY + shadow.y);
-			else
+			//if (group != null)	
+			//	innerRender(g, group.x - cameraX + shadow.x, group.y - cameraY + shadow.y);
+			//else
 				innerRender(g, -cameraX + shadow.x, -cameraY + shadow.y);
 				
 			if (shadow.alpha != 1) 
@@ -122,9 +122,9 @@ class Text extends Object
 		if (alpha != 1) 
 			g.pushOpacity(alpha);
 		
-		if (group != null)	
-			innerRender(g, group.x - cameraX, group.y - cameraY);
-		else
+		//if (group != null)	
+		//	innerRender(g, group.x - cameraX, group.y - cameraY);
+		//else
 			innerRender(g, -cameraX, -cameraY);
 		
 		if (alpha != 1)

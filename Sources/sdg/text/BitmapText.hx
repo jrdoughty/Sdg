@@ -64,31 +64,45 @@ typedef Line = {
 class BitmapText extends Object
 {
 	static var spaceCharCode:Int = ' '.charCodeAt(0);
-
-	/** Stores a list of all bitmap fonts into a dictionary */
+	/** 
+	 * Stores a list of all bitmap fonts into a dictionary 
+	 */
 	static var fontCache:Map<String, BitmapFont>;
 	
-	public var text(get, set):String;
-	var _text:String = '';
-	var _cursor:FastVector2;
-	var _lines:Array<Line>;
-	
+	/**
+	 * Text that will be rendered. The text is divided
+	 * in lines according to the box width
+	 */
+	public var text(default, set):String;	
+	/**
+	 * Changing the text or the box width will put
+	 * textProcessed to false, this variable
+	 * is used in update to check if the text needs to be
+	 * divided in lines again
+	 */
 	var textProcessed:Bool;
 	
 	public var font(default, null):BitmapFont;
 	public var align:TextAlign;
 	public var lineSpacing:Int;
 	
-	/** The width of the box that contain the text */
+	/** 
+	 * The width of the box that contain the text
+	 */
 	public var boxWidth(default, set):Int;
-	
-	// TODO: implement
-	/** The height of the box that contain the text. This is calculated 
-	 *  automatically based on the number of lines. */	
-	//public var boxHeight:Int;
-	
+		
+	/** 
+	 * The height of the box that contain the text. This is calculated 
+	 *  automatically based on the number of lines. 
+	 */	
+	public var boxHeight(default, null):Int;
+	/**
+	 * Scaling factor in the x axis
+	 */
 	public var scaleX:Float;
-	
+	/**
+	 * Scaling factor in the y axis
+	 */
 	public var scaleY:Float;
 	/**
 	 * If the sprite should be rendered flipped
@@ -102,6 +116,11 @@ class BitmapText extends Object
 	 * Trims ALL space characters (including mid-sentence) 
 	 */
 	public var trimAll:Bool;
+	
+	var cursor:FastVector2;
+	
+	var lines:Array<Line>;
+	
 	/** 
 	 * Variable for rendering purposes 
 	 */
@@ -119,12 +138,11 @@ class BitmapText extends Object
 	{
 		super(x, y);
 		
-		_cursor = new FastVector2();
-		//_lines = new Array<Line>;
+		cursor = new FastVector2();		
 
 		if (fontCache != null && fontCache.exists(fontName))
 		{
-			this._text = text;
+			this.text = text;
 			
 			// this will automatically put
 			// textProcessed as false
@@ -136,6 +154,10 @@ class BitmapText extends Object
 			scaleX = 1;
 			scaleY = 1;
 			flip = new Vector2b();
+			
+			// As update is called before render
+			// the value for boxHeight will be available in render
+			boxHeight = 0;
 
 			font = fontCache.get(fontName);
 
@@ -167,12 +189,12 @@ class BitmapText extends Object
 			return;
 
 		// Array of lines that will be returned.
-		_lines = new Array<Line>();
+		lines = new Array<Line>();		
 
 		// Test the regex here: https://regex101.com/
 		var trim1 = ~/^ +| +$/g; // removes all spaces at beginning and end
 		var trim2 = ~/ +/g; // merges all spaces into one space
-		var fullText = _text;
+		var fullText = text;
 		
 		if (trimAll)
 		{
@@ -305,7 +327,7 @@ class BitmapText extends Object
 				currLineWidth += lastLetterPadding;
 
 				// Add current line (sans current word) to array
-				_lines.push({
+				lines.push({
 					text: currLineText,
 					width: currLineWidth
 				});
@@ -334,14 +356,14 @@ class BitmapText extends Object
 				{
 					// If this is the last word, then just push it
 					// to the next line and finish up.
-					_lines.push({
+					lines.push({
 						text: currWord,
 						width: currWordWidth
 					});
 				}
 
 				// trim the text at start and end of the last line
-				if (trimAll) trim1.replace(_lines[_lines.length-1].text, '');
+				if (trimAll) trim1.replace(lines[lines.length-1].text, '');
 			}
 
 			// If we need to break the line AFTER adding the current word
@@ -354,7 +376,7 @@ class BitmapText extends Object
 				// add current line to array, whether it has already
 				// previously been broken to new line or not.
 
-				_lines.push({
+				lines.push({
 					text: currLineText,
 					width: currLineWidth
 				});
@@ -375,12 +397,13 @@ class BitmapText extends Object
 		}
 		
 		textProcessed = true;
+		boxHeight = lines.length * ((font.lineHeight * scaleY) + lineSpacing);
 	}
 	
 	override public function destroy():Void
 	{
 		font = null;
-		_cursor = null;
+		cursor = null;
 		
 		super.destroy();
 	}
@@ -392,10 +415,10 @@ class BitmapText extends Object
 		// Robert says Kha can handle it.
 
 		// Reset cursor position
-		_cursor.x = 0;
-		_cursor.y = 0;		
+		cursor.x = 0;
+		cursor.y = 0;		
 
-		for (line in _lines)
+		for (line in lines)
 		{
 			// NOTE:
 			// Based on width and each line.width, we just
@@ -403,9 +426,9 @@ class BitmapText extends Object
 			// it's aligned to the correct side.
 			switch (align)
 			{
-				case TextAlign.Left: _cursor.x = 0;
-				case TextAlign.Right: _cursor.x = boxWidth - line.width;
-				case TextAlign.Middle: _cursor.x = (boxWidth / 2) - (line.width / 2);
+				case TextAlign.Left: cursor.x = 0;
+				case TextAlign.Right: cursor.x = boxWidth - line.width;
+				case TextAlign.Middle: cursor.x = (boxWidth / 2) - (line.width / 2);
 			}
 
 			var lineText:String = line.text;
@@ -432,8 +455,8 @@ class BitmapText extends Object
 							letter.y,
 							letter.width,
 							letter.height,
-							x + _cursor.x + letter.xoffset * scaleX + (flip.x ? letterWidthScaled : 0) - cx,
-							y + _cursor.y + letter.yoffset * scaleX + (flip.y ? letterHeightScaled : 0) - cy,
+							x + cursor.x + letter.xoffset * scaleX + (flip.x ? letterWidthScaled : 0) - cx,
+							y + cursor.y + letter.yoffset * scaleX + (flip.y ? letterHeightScaled : 0) - cy,
 							flip.x ? -letterWidthScaled : letterWidthScaled,
 							flip.y ? -letterHeightScaled : letterHeightScaled);
 
@@ -447,17 +470,17 @@ class BitmapText extends Object
 
 							// If kerning data exists, adjust the cursor position.
 							if (letter.kernings.exists(charCodeNext))							
-								_cursor.x += letter.kernings.get(charCodeNext) * scaleX;							
+								cursor.x += letter.kernings.get(charCodeNext) * scaleX;							
 						}
 
 						// Move cursor to next position, with padding.
-						_cursor.x += (letter.xadvance + font.outline) * scaleX;
+						cursor.x += (letter.xadvance + font.outline) * scaleX;
 					}
 					else
 					{
 						// If this is a space character, move cursor
 						// without rendering anything.
-						_cursor.x += font.spaceWidth * scaleX;
+						cursor.x += font.spaceWidth * scaleX;
 					}
 				}
 				else
@@ -467,7 +490,7 @@ class BitmapText extends Object
 
 			// After we finish rendering this line,
 			// move on to the next line.
-			_cursor.y += font.lineHeight * scaleY;
+			cursor.y += (font.lineHeight * scaleY) + lineSpacing;
 		}		
 	}
 	
@@ -562,12 +585,7 @@ class BitmapText extends Object
 	{
 		scaleX = value;
 		scaleY = value;
-	}
-	
-	inline public function get_text():String
-	{
-		return _text;
-	}
+	}	
 	
 	public function set_text(value:String):String
 	{
