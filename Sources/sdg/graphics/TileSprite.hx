@@ -1,8 +1,9 @@
-package sdg;
+package sdg.graphics;
 
 import kha.Image;
 import kha.math.Vector2;
 import kha.graphics2.Graphics;
+import kha.math.Vector2i;
 import sdg.atlas.Region;
 
 class TileSprite extends Sprite
@@ -18,9 +19,9 @@ class TileSprite extends Sprite
     
     var cursor:Vector2;
     
-    public function new(x:Float, y:Float, widthArea:Int, heightArea:Int, image:Image, ?region:Region):Void
+    public function new(widthArea:Int, heightArea:Int, image:Image, ?region:Region):Void
     {
-        super(x, y, image, region);
+        super(image, region);
         
         this.widthArea = widthArea;
         this.heightArea = heightArea;
@@ -33,11 +34,11 @@ class TileSprite extends Sprite
         var w = 0;
         var h = 0;
         
-        cursor.y = y + offset.y;
+        cursor.y = object.y + y;
         
         for (r in 0...rows)
         {                        
-            cursor.x = x + offset.x;
+            cursor.x = object.x + x;
             
             if (restHeight > 0 && r == (rows - 1))
                 h = restHeight;                
@@ -61,12 +62,9 @@ class TileSprite extends Sprite
         }               
 	}
     
-    override public function setHitboxAuto():Void
+    override public function getSize():Vector2i 
     {
-        originX = 0;
-        originY = 0;
-        width = widthArea;
-        height = heightArea;
+        return new Vector2i(widthArea, heightArea);
     }
     
     function set_widthArea(value:Int):Int

@@ -4,7 +4,7 @@ import kha.Color;
 import kha.FastFloat;
 import kha.math.Vector2;
 import kha.graphics2.Graphics;
-import sdg.component.Component;
+import sdg.components.Component;
 import sdg.masks.Mask;
 import sdg.math.Point;
 import sdg.math.Vector2b;
@@ -25,7 +25,6 @@ abstract SolidType(Either<String, Array<String>>)
 
 @:allow(sdg.masks.Mask)
 @:allow(sdg.Screen)
-@:allow(sdg.Group)
 class Object
 {	
 	/** 
@@ -59,31 +58,15 @@ class Object
     /**
 	 * If the Object should respond to collision checks.
 	 */
-	public var collidable:Bool;
-	/** 
-	 * Tint color 
-	 */
-	public var color:Color;	
-	/**
-	 * Alpha amount
-	 */
-	public var alpha:Float;
+	public var collidable:Bool;	
 	/**
 	 * If the object can update 
 	 */ 
 	public var active:Bool;		
 	/**
-	 * If the object can render  
+	 * If the object should render
 	 */
-	public var visible:Bool;
-	/**
-	 * The angle of the rotation in radians 
-	 */
-	public var angle:FastFloat;	
-	/**
-	 * The pivot point of the rotation 
-	 */
-	public var pivot:Vector2;	
+	public var visible:Bool;	
 	/**
 	 * The screen this object belongs 
 	 */
@@ -106,7 +89,7 @@ class Object
 	 */
 	public var components:Array<Component>;
 	
-	//public var group(default, null):Group;
+	public var graphic(default, set):Graphic;
     
     /**
 	 * An optional Mask component, used for specialized collision. If this is
@@ -145,14 +128,11 @@ class Object
         collidable = true;
         hitbox = new Mask();
         hitbox.parent = this;
-        _moveX = _moveY = 0;        
+        _moveX = _moveY = 0;		
 		
-		color = Color.White;
-		alpha = 1;
 		active = true;
 		visible = true;		
-		angle = 0;		
-		pivot = new Vector2();
+		
         fixed = new Vector2b();		
 		
 		components = new Array<Component>();
@@ -170,6 +150,9 @@ class Object
 	
 	public function destroy()
 	{
+		if (graphic != null)
+			graphic.destroy();
+		
 		for (comp in components)		
 			comp.destroy();		
 	}
@@ -178,6 +161,9 @@ class Object
 	{
 		if (!active)
 			return;
+			
+		if (graphic != null)
+			graphic.update();
 			
 		for (comp in components)
 		{
@@ -216,13 +202,7 @@ class Object
 	{
 		originX = x;
 		originY = y;
-	}
-	
-	public function setPivot(pivotX:Float, pivotY:Float):Void
-	{
-		pivot.x = pivotX;
-		pivot.y = pivotY;
-	}
+	}	
 	
 	/**
 	 * The position of the object relative to the screen.
@@ -262,35 +242,40 @@ class Object
 	
 	public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
 	{
-		if (!visible)
-			return;
-			
-		if (angle != 0)
-			g.pushRotation(angle, x + pivot.x - cameraX, y + pivot.y - cameraY);		
-			
-		if (alpha != 1) 
-			g.pushOpacity(alpha);
-		
-		g.color = color;
-		
-		// TODO: test with a group later
-		//if (group != null)	
-		//	innerRender(g, !fixed.x ? -group.x - cameraX : -group.x, !fixed.y ? -group.y - cameraY : -group.y);
-		//else
-			innerRender(g, !fixed.x ? cameraX : 0, !fixed.y ? cameraY : 0);
-		
-		if (alpha != 1)
-			g.popOpacity();
-			
-		if (angle != 0)		
-			g.popTransformation();
+		if (graphic != null && graphic.visible)
+			graphic.render(g, cameraX, cameraY);		
 	}
 	
-	/**
-	 * Override this when creating a class for a new type of object
-	 * use x and y as x - cx and y - cy (the camera position)
-	 */
-	function innerRender(g:Graphics, cx:Float, cy:Float):Void {}
+	public function setHitboxAuto():Void
+    {
+        originX = 0;
+        originY = 0;
+		
+		if (graphic != null)
+		{
+			var size = graphic.getSize();
+			width = size.x;
+			height = size.y;
+		}
+		else
+		{
+			width = 0;
+			height = 0;
+			trace('(setHitboxAuto) there isn\'t a graphic to get the size');			
+		}
+    }
+	
+	public function onCamera():Bool
+    {
+        if (screen != null)
+        {
+            if (x > screen.camera.x && (x + width) < (screen.camera.x + screen.camera.width)
+                && y > screen.camera.y && (y + height) < (screen.camera.y + screen.camera.height))
+                    return true;
+        }
+        
+        return false;
+    }
 	
 	private function set_layer(value:Int):Int
 	{
@@ -319,6 +304,13 @@ class Object
 		type = value;
 		if (value != "") screen.addType(this);
 		return type;
+	}
+	
+	private function set_graphic(value:Graphic):Graphic
+	{
+		value.object = this;
+		
+		return graphic = value;
 	}
 	
 	/**

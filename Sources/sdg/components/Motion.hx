@@ -1,4 +1,4 @@
-package sdg.component;
+package sdg.components;
 
 import kha.math.Vector2;
 

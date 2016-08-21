@@ -1,4 +1,4 @@
-package sdg.component;
+package sdg.components;
 
 import sdg.Object;
 

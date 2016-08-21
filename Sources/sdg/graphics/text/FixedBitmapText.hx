@@ -1,11 +1,12 @@
-package sdg.text;
+package sdg.graphics.text;
 
 import kha.Image;
 import kha.graphics2.Graphics;
+import kha.math.Vector2i;
 import sdg.Object;
 import sdg.atlas.Region;
 
-class FixedBitmapText extends Object
+class FixedBitmapText extends Graphic
 {
     public var image:Image;
     public var region:Region;
@@ -14,9 +15,9 @@ class FixedBitmapText extends Object
     var letterWidth:Int;
 	var letterHeight:Int;
     
-    public function new(x:Float, y:Float, text:String, letterWidth:Int, letterHeight:Int, image:Image, ?region:Region):Void
+    public function new(text:String, letterWidth:Int, letterHeight:Int, image:Image, ?region:Region):Void
     {
-        super(x, y);
+        super();
         
         this.image = image;
         this.letterWidth = letterWidth;
@@ -31,7 +32,7 @@ class FixedBitmapText extends Object
     override function innerRender(g:Graphics, cx:Float, cy:Float):Void 
 	{
         var code:Int;
-        var cursor = x;                
+        var cursor = object.x + x;                
             
         text = text.toUpperCase();
         
@@ -46,10 +47,15 @@ class FixedBitmapText extends Object
                     code -= 60;				
                 
                 g.drawScaledSubImage(image, region.sx + (code * letterWidth), region.sy, letterWidth, letterHeight,
-							 cursor - cx, y - cy, letterWidth, letterHeight);
+							 cursor - cx, object.y + y - cy, letterWidth, letterHeight);
             }
             
             cursor += letterWidth;
         }        				
 	}
+	
+	override public function getSize():Vector2i 
+    {
+        return new Vector2i(text.length * letterWidth, letterHeight);
+    }
 }

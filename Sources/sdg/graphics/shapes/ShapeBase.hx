@@ -1,15 +1,15 @@
-package sdg.shapes;
+package sdg.graphics.shapes;
 
 import kha.Color;
 
-class ShapeBase extends Object
+class ShapeBase extends Graphic
 {        
     public var filled:Bool;
     public var strength:Float;
     
-    public function new(x:Float, y:Float, color:Color, filled:Bool):Void
+    public function new(color:Color, filled:Bool):Void
     {
-        super(x, y);
+        super();
         
         this.color = color;
         this.filled = filled;
