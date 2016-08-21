@@ -89,8 +89,10 @@ class Engine
 			if (Sdg.screen != null && Sdg.screen.active)
 			{
 				Sdg.screen.updateLists();
+				
 				Sdg.screen.update();
 				Sdg.screen.updateLists(false);
+				Sdg.updateScreenShake();
 			}
             
             #if debug

@@ -7,12 +7,12 @@ import kha.Color;
 import kha.Assets;
 import kha.Blob;
 import kha.math.FastVector2;
-import kha.math.FastMatrix3;
 import kha.graphics2.Graphics;
 import sdg.Object;
 import sdg.math.Vector2b;
 import sdg.text.Text.TextAlign;
 import sdg.text.Text.TextOptions;
+import sdg.text.Text.Line;
 import sdg.atlas.Region;
 
 /**
@@ -41,10 +41,10 @@ import sdg.atlas.Region;
 	var lineHeight:Int;
 	var spaceWidth:Int;
 	var image:Image;
-	var letters:Map<Int, Letter>;
+	var letters:Map<Int, BitmapLetter>;
 }
 
-typedef Letter = {
+typedef BitmapLetter = {
 	var id:Int;
 	var x:Int;
 	var y:Int;
@@ -54,11 +54,6 @@ typedef Letter = {
 	var yoffset:Int;
 	var xadvance:Int;
 	var kernings:Map<Int, Int>;
-}
-
-typedef Line = {
-	var text:String;
-	var width:Int;
 }
 	
 class BitmapText extends Object
@@ -85,12 +80,11 @@ class BitmapText extends Object
 	public var font(default, null):BitmapFont;
 	public var align:TextAlign;
 	public var lineSpacing:Int;
-	
+		
 	/** 
 	 * The width of the box that contain the text
 	 */
-	public var boxWidth(default, set):Int;
-		
+	public var boxWidth(default, set):Int;		
 	/** 
 	 * The height of the box that contain the text. This is calculated 
 	 *  automatically based on the number of lines. 
@@ -134,7 +128,7 @@ class BitmapText extends Object
 	 * Loads the bitmap font from cache. Remember to call loadFont first before
 	 * creating new a BitmapText.
 	 */
-	public function new(x:Float, y:Float, text:String, fontName:String, boxWidth:Int, ?option:TextOptions):Void
+	public function new(x:Float, y:Float, text:String, fontName:String, boxWidth:Int = 0, ?option:TextOptions):Void
 	{
 		super(x, y);
 		
@@ -180,7 +174,10 @@ class BitmapText extends Object
 			}
 		}
 		else			
-			trace('Failed to init BitmapText with "${fontName}"');		
+			trace('Failed to init BitmapText with "${fontName}"');
+		
+		// process the text immediately to get the boxHeight
+		update();
 	}
 	
 	override public function update():Void
@@ -189,7 +186,13 @@ class BitmapText extends Object
 			return;
 
 		// Array of lines that will be returned.
-		lines = new Array<Line>();		
+		lines = new Array<Line>();
+
+		if (boxWidth <= 0)
+		{
+			lines.push({ text: text, width: 0 });
+			return;
+		}
 
 		// Test the regex here: https://regex101.com/
 		var trim1 = ~/^ +| +$/g; // removes all spaces at beginning and end
@@ -226,7 +229,7 @@ class BitmapText extends Object
 		// Reusable variables
 		var char:String;
 		var charCode:Int;
-		var letter:Letter;
+		var letter:BitmapLetter;
 		var currLineText = '';
 		var currLineWidth = 0;
 		var currWord = '';
@@ -397,7 +400,7 @@ class BitmapText extends Object
 		}
 		
 		textProcessed = true;
-		boxHeight = lines.length * ((font.lineHeight * scaleY) + lineSpacing);
+		boxHeight = Std.int(lines.length * ((font.lineHeight * scaleY) + lineSpacing));
 	}
 	
 	override public function destroy():Void
@@ -424,12 +427,15 @@ class BitmapText extends Object
 			// Based on width and each line.width, we just
 			// offset the starting cursor.x to make it look like
 			// it's aligned to the correct side.
-			switch (align)
+			if (boxWidth > 0)
 			{
-				case TextAlign.Left: cursor.x = 0;
-				case TextAlign.Right: cursor.x = boxWidth - line.width;
-				case TextAlign.Middle: cursor.x = (boxWidth / 2) - (line.width / 2);
-			}
+				switch (align)
+				{
+					case TextAlign.Left: cursor.x = 0;
+					case TextAlign.Right: cursor.x = boxWidth - line.width;
+					case TextAlign.Middle: cursor.x = (boxWidth / 2) - (line.width / 2);
+				}
+			}						
 
 			var lineText:String = line.text;
 			var lineTextLen:Int = lineText.length;
@@ -495,7 +501,7 @@ class BitmapText extends Object
 	}
 	
 	/**
-	 * Do this first before creating new WynBitmapText, because we
+	 * Do this first before creating a new BitmapText, because we
 	 * need to process the font data before using.
 	 */
 	public static function loadFont(fontName:String, fontImage:Image, fontData:Blob, ?region:Region):Void
@@ -504,7 +510,7 @@ class BitmapText extends Object
 			region = new Region(0, 0, fontImage.width, fontImage.height);
 		
 		// We'll store each letter's data into a dictionary here later.
-		var letters = new Map<Int, Letter>();
+		var letters = new Map<Int, BitmapLetter>();
 
 		var blobString:String = fontData.toString();
 		var fullXml:Xml = Xml.parse(blobString);
@@ -519,7 +525,7 @@ class BitmapText extends Object
 		var chars = data.node.chars;
 		for (char in chars.nodes.char)
 		{
-			var letter:Letter = {
+			var letter:BitmapLetter = {
 				id: Std.parseInt(char.att.id),
 				x: Std.int(Std.parseInt(char.att.x) + region.sx),
 				y: Std.int(Std.parseInt(char.att.y) + region.sy),
@@ -551,7 +557,7 @@ class BitmapText extends Object
 		if (data.hasNode.kernings)
 		{
 			var kernings = data.node.kernings;
-			var letter:Letter;
+			var letter:BitmapLetter;
 			for (kerning in kernings.nodes.kerning)
 			{
 				var firstId = Std.parseInt(kerning.att.first);
@@ -591,7 +597,7 @@ class BitmapText extends Object
 	{
 		textProcessed = false;
 		
-		return _text = value;
+		return text = value;
 	}
 	
 	public function set_boxWidth(value:Int):Int

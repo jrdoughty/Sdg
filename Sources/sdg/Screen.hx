@@ -22,7 +22,7 @@ class Screen
 	var types:Map<String,List<Object>>;
     
     // TODO: fix name
-	var entityNames:Map<String,Object>;
+	var entityNames:Map<String,Object>;	
 	
 	/** 
 	 * The background color 
@@ -64,7 +64,7 @@ class Screen
 	 * to call super.update() or your Entities will not be updated.
 	 */
 	public function update():Void
-	{
+	{		
 		for (object in updateList)
 		{
 			if (object.active)

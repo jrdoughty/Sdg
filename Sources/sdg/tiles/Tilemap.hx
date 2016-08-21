@@ -48,7 +48,7 @@ class Tilemap extends Object
 		else
 		{
 			trace('tilemap is empty');
-			return -1;			
+			return -1;
 		}
 	}
 	
@@ -186,17 +186,23 @@ class Tilemap extends Object
 	
 	override function innerRender(g:Graphics, cx:Float, cy:Float):Void 
 	{
-		if 	(((x + widthInPixels) < cx) || (x > (cx + Sdg.windowWidth)) ||
-			((y + heightInPixels) < cy) || (y > (cy + Sdg.windowHeight)))
+		if 	(((x + widthInPixels) < cx) || (x > (cx + Sdg.gameWidth)) ||
+			((y + heightInPixels) < cy) || (y > (cy + Sdg.gameHeight)))
 				return;		   
 		
 		_startCol = Math.floor((x > cx ? 0 : (cx - x)) / tileset.tileWidth);
-		_endCol = Std.int(((x + widthInPixels) > (cx + Sdg.windowWidth) ? (cx + Sdg.windowWidth - x) : widthInPixels) / tileset.tileWidth);
+		_endCol = Std.int(((x + widthInPixels) > (cx + Sdg.gameWidth) ? (cx + Sdg.gameWidth - x) : widthInPixels) / tileset.tileWidth);
 		_startRow = Math.floor((y > cy ? 0 : (cy - y)) / tileset.tileHeight);
-		_endRow = Std.int(((y + heightInPixels) > (cy + Sdg.windowHeight) ? (cy + Sdg.windowHeight - y) : heightInPixels) / tileset.tileHeight);
+		_endRow = Std.int(((y + heightInPixels) > (cy + Sdg.gameHeight) ? (cy + Sdg.gameHeight - y) : heightInPixels) / tileset.tileHeight);
 		
-		//var offsetX = -cx + startCol * tileset.tileWidth;
-		//var offsetY = -cy + startRow * tileset.tileHeight;
+		//var offsetX = -cx + _startCol * tileset.tileWidth;
+		//var offsetY = -cy + _startRow * tileset.tileHeight;
+		
+		if (_endCol < widthInTiles)
+			_endCol++;
+			
+		if (_endRow < heightInTiles)
+			_endRow++;
 		
 		for (r in _startRow...(_endRow))
 		{
@@ -205,8 +211,8 @@ class Tilemap extends Object
 				var tile = map[r][c];
 				if (tile != -1)
 				{
-					_px = x + (c * tileset.tileWidth) - cx;// + offsetX;
-					_py = y + (r * tileset.tileHeight) - cy; //+ offsetY;
+					_px = x + (c * tileset.tileWidth) - cx; // + offsetX;
+					_py = y + (r * tileset.tileHeight) - cy; // + offsetY;
 					
 					tileset.render(g, tile, _px, _py);
 				}

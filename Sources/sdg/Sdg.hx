@@ -4,6 +4,7 @@ import kha.Scheduler;
 import kha.math.Vector2;
 import sdg.math.Point;
 import sdg.math.Rectangle;
+import sdg.util.Camera;
 
 @:allow(sdg.Engine)
 class Sdg
@@ -20,7 +21,7 @@ class Sdg
 	public static var gameHeight(default, null):Int;
     public static var halfGameHeight(default, null):Int;
     
-	public static var screen:Screen;
+	public static var screen:Screen;	
 	public static var gameScale:Float = 1;
     
     /** Convert a radian value into a degree value. */
@@ -42,6 +43,11 @@ class Sdg
 	public static inline var INT_MAX_VALUE = 2147483647;
 	
 	static var timeTasks:Array<Int>;
+	
+	private static var shakeTime:Float = 0;
+	private static var shakeMagnitude:Int = 0;
+	private static var shakeX:Int = 0;
+	private static var shakeY:Int = 0;
 
 	#if debug
 	/**
@@ -272,8 +278,46 @@ class Sdg
 	 * @param	max2		The maximum range of the second scale.
 	 * @return	The scaled value.
 	 */
-	public static inline function scale(value:Float, min:Float, max:Float, min2:Float, max2:Float):Float
+	public inline static function scale(value:Float, min:Float, max:Float, min2:Float, max2:Float):Float
 	{
 		return min2 + ((value - min) / (max - min)) * (max2 - min2);
+	}
+	
+	public static function shake(magnitude:Int, duration:Float)
+	{
+		if (shakeTime < duration) shakeTime = duration;
+		shakeMagnitude = magnitude;
+	}
+
+	/**
+	 * Stop the screen from shaking immediately.
+	 */
+	public static function shakeStop()
+	{
+		shakeTime = 0;
+	}
+		
+	private inline static function updateScreenShake():Void
+	{
+		if (shakeTime > 0)
+		{
+			var sx:Int = Std.random(shakeMagnitude * 2 + 1) - shakeMagnitude;
+			var sy:Int = Std.random(shakeMagnitude * 2 + 1) - shakeMagnitude;
+
+			screen.camera.x += sx - shakeX;
+			screen.camera.y += sy - shakeY;
+
+			shakeX = sx;
+			shakeY = sy;
+
+			shakeTime -= dt;
+			if (shakeTime < 0) shakeTime = 0;
+		}
+		else if (shakeX != 0 || shakeY != 0)
+		{
+			screen.camera.x -= shakeX;
+			screen.camera.y -= shakeY;
+			shakeX = shakeY = 0;
+		}
 	}
 }

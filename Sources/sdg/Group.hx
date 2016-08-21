@@ -2,20 +2,22 @@ package sdg;
 
 class Group
 {
-	public var x:Float;
-	
+	public var x:Float;	
 	public var y:Float;
-	
-	public var members:Array<Object>;
 	
 	public function new():Void
 	{
-		members = new Array<Object>();
+		x = 0;
+		y = 0;		
 	}
 	
-	inline public function add(obj:Object):Void
+	inline public function add(object:Object):Void
 	{
-		obj.group = this;
-		members.push(obj);
+		
 	}
+	
+	inline public function remove(object:Object):Void
+	{
+		
+	}	
 }

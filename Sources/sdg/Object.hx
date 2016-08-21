@@ -1,11 +1,10 @@
 package sdg;
 
-import kha.Image;
 import kha.Color;
 import kha.FastFloat;
 import kha.math.Vector2;
 import kha.graphics2.Graphics;
-import sdg.comp.Component;
+import sdg.component.Component;
 import sdg.masks.Mask;
 import sdg.math.Point;
 import sdg.math.Vector2b;
@@ -26,8 +25,9 @@ abstract SolidType(Either<String, Array<String>>)
 
 @:allow(sdg.masks.Mask)
 @:allow(sdg.Screen)
+@:allow(sdg.Group)
 class Object
-{
+{	
 	/** 
 	 * A name for identification and debugging
 	 */
@@ -106,7 +106,7 @@ class Object
 	 */
 	public var components:Array<Component>;
 	
-	//public var group:Group;
+	//public var group(default, null):Group;
     
     /**
 	 * An optional Mask component, used for specialized collision. If this is
@@ -153,7 +153,7 @@ class Object
 		visible = true;		
 		angle = 0;		
 		pivot = new Vector2();
-        fixed = new Vector2b();
+        fixed = new Vector2b();		
 		
 		components = new Array<Component>();
 	}
@@ -274,9 +274,9 @@ class Object
 		g.color = color;
 		
 		// TODO: test with a group later
-		/*if (group != null)	
-			innerRender(g, group.x - cameraX, group.y - cameraY);
-		else*/
+		//if (group != null)	
+		//	innerRender(g, !fixed.x ? -group.x - cameraX : -group.x, !fixed.y ? -group.y - cameraY : -group.y);
+		//else
 			innerRender(g, !fixed.x ? cameraX : 0, !fixed.y ? cameraY : 0);
 		
 		if (alpha != 1)

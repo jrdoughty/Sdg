@@ -53,7 +53,7 @@ class TileSprite extends Sprite
                 
                 g.drawScaledSubImage(image, region.sx, region.sy, w, h,
                     cursor.x - cx, cursor.y - cy, w, h);
-                                
+                  
                 cursor.x += w;
             }
                         
