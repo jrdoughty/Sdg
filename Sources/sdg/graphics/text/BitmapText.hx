@@ -312,7 +312,7 @@ class BitmapText extends Graphic
 			// After adding current word to the line, did it pass
 			// the text width? If yes, flag to break. Otherwise,
 			// just update the current line.
-			if (currLineWidth + currWordWidth < boxWidth)
+			if ((currLineWidth + currWordWidth) <= boxWidth)
 			{
 				currLineText += currWord; // Add the word to the full line
 				currLineWidth += currWordWidth; // Update the full width of the line
@@ -367,7 +367,18 @@ class BitmapText extends Graphic
 				}
 
 				// trim the text at start and end of the last line
-				if (trimAll) trim1.replace(lines[lines.length-1].text, '');
+				if (trimAll)
+				{
+					var position = lines.length - 1;					
+					var lenghtBeforeTrim = lines[position].text.length;
+					
+					lines[position].text = trim1.replace(lines[position].text, '');
+					//lines[position].text = StringTools.trim(lines[position].text);
+					
+					// recalculating the size if spaces were removed
+					if (lines[position].text.length < lenghtBeforeTrim)					
+						lines[position].width -= (lenghtBeforeTrim - lines[position].text.length) * font.spaceWidth;					
+				}
 			}
 
 			// If we need to break the line AFTER adding the current word
@@ -412,7 +423,7 @@ class BitmapText extends Graphic
 		super.destroy();
 	}
 	
-	override function innerRender(g:Graphics, cx:Float, cy:Float):Void 
+	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
 		// For every letter in the text, render directly on buffer.
 		// In best case scenario where text doesn't change, it may be better to
@@ -434,7 +445,7 @@ class BitmapText extends Graphic
 				{
 					case TextAlign.Left: cursor.x = 0;
 					case TextAlign.Right: cursor.x = boxWidth - line.width;
-					case TextAlign.Middle: cursor.x = (boxWidth / 2) - (line.width / 2);
+					case TextAlign.Center: cursor.x = (boxWidth / 2) - (line.width / 2);
 				}
 			}						
 
@@ -462,8 +473,8 @@ class BitmapText extends Graphic
 							letter.y,
 							letter.width,
 							letter.height,
-							object.x + x + cursor.x + letter.xoffset * scaleX + (flip.x ? letterWidthScaled : 0) - cx,
-							object.y + y + cursor.y + letter.yoffset * scaleX + (flip.y ? letterHeightScaled : 0) - cy,
+							objectX + x + cursor.x + letter.xoffset * scaleX + (flip.x ? letterWidthScaled : 0) - cameraX,
+							objectY + y + cursor.y + letter.yoffset * scaleX + (flip.y ? letterHeightScaled : 0) - cameraY,
 							flip.x ? -letterWidthScaled : letterWidthScaled,
 							flip.y ? -letterHeightScaled : letterHeightScaled);
 

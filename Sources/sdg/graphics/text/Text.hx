@@ -9,7 +9,7 @@ import sdg.Object;
 enum TextAlign
 {
 	Left;
-	Middle;
+	Center;
 	Right;
 }
 
@@ -248,7 +248,7 @@ class Text extends Graphic
 			// After adding current word to the line, did it pass
 			// the text width? If yes, flag to break. Otherwise,
 			// just update the current line.
-			if (currLineWidth + currWordWidth < boxWidth)
+			if ((currLineWidth + currWordWidth) <= boxWidth)
 			{
 				currLineText += currWord; // Add the word to the full line
 				currLineWidth += currWordWidth; // Update the full width of the line
@@ -303,7 +303,15 @@ class Text extends Graphic
 				}
 
 				// trim the text at start and end of the last line
-				if (trimAll) trim1.replace(lines[lines.length-1].text, '');
+				//if (trimAll) trim1.replace(lines[lines.length-1].text, '');
+				if (trimAll) 
+				{
+					var position = lines.length - 1;
+					
+					//lines[position].text = StringTools.trim(lines[position].text);
+					lines[position].text = trim1.replace(lines[position].text, '');
+					lines[position].width = Std.int(font.width(fontSize, lines[position].text));
+				}
 			}
 
 			// If we need to break the line AFTER adding the current word
@@ -349,7 +357,7 @@ class Text extends Graphic
 		super.destroy();
 	}
 
-	override function innerRender(g:Graphics, cx:Float, cy:Float):Void 
+	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
 		// For every letter in the text, render directly on buffer.
 		// In best case scenario where text doesn't change, it may be better to
@@ -371,13 +379,13 @@ class Text extends Graphic
 				{
 					case TextAlign.Left: cursor.x = 0;
 					case TextAlign.Right: cursor.x = boxWidth - line.width;
-					case TextAlign.Middle: cursor.x = (boxWidth / 2) - (line.width / 2);
+					case TextAlign.Center: cursor.x = (boxWidth / 2) - (line.width / 2);
 				}
 			}						
 			
 			g.font = font;
 			g.fontSize = fontSize;
-			g.drawString(line.text, object.x + x + cursor.x - cx, object.y + y + cursor.y - cy);  
+			g.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);  
 
 			/*var lineText:String = line.text;
 			var lineTextLen:Int = lineText.length;

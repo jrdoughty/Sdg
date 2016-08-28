@@ -62,11 +62,11 @@ class Sprite extends Graphic
 		region = null;
 	}
 	
-	override function innerRender(g:Graphics, cx:Float, cy:Float):Void 
+	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{		
 		g.drawScaledSubImage(image, region.sx, region.sy, region.w, region.h,
-							 object.x + x + (flip.x ? widthRegScaled : 0) - cx,
-							 object.y + y + (flip.y ? heightRegScaled : 0) - cy, 
+							 objectX + x + (flip.x ? widthRegScaled : 0) - cameraX,
+							 objectY + y + (flip.y ? heightRegScaled : 0) - cameraY, 
 							 flip.x ? -widthRegScaled : widthRegScaled, flip.y ? -heightRegScaled : heightRegScaled);		
 	}    
 	

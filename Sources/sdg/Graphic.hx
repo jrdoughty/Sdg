@@ -51,22 +51,24 @@ class Graphic
 		pivot = new Vector2();
 	}
 	
+	function added():Void {}
+	
 	public function update():Void {}
 	
-	public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
+	public function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
 		if (!visible)
 			return;
 			
 		if (angle != 0)
-			g.pushRotation(angle, object.x + x + pivot.x - cameraX, object.y + y + pivot.y - cameraY);		
+			g.pushRotation(angle, objectX + x + pivot.x - cameraX, objectY + y + pivot.y - cameraY);		
 			
 		if (alpha != 1) 
 			g.pushOpacity(alpha);
 		
 		g.color = color;
 			
-		innerRender(g, !object.fixed.x ? cameraX : 0, !object.fixed.y ? cameraY : 0);
+		innerRender(g, objectX, objectY, !object.fixed.x ? cameraX : 0, !object.fixed.y ? cameraY : 0);
 		
 		if (alpha != 1)
 			g.popOpacity();
@@ -79,7 +81,7 @@ class Graphic
 	 * Override this when creating a class for a new type of object
 	 * use x and y as x - cx and y - cy (the camera position)
 	 */
-	function innerRender(g:Graphics, cx:Float, cy:Float):Void {}
+	function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void {}
 	
 	public function getSize():Vector2i 
 	{

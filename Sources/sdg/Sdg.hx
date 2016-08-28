@@ -1,6 +1,7 @@
 package sdg;
 
 import kha.Scheduler;
+import kha.graphics4.BlendingFactor;
 import kha.math.Vector2;
 import sdg.math.Point;
 import sdg.math.Rectangle;
@@ -320,4 +321,26 @@ class Sdg
 			shakeX = shakeY = 0;
 		}
 	}
+	
+	#if sys_g4
+	public static function getBlendingFactor(code:Int):BlendingFactor
+	{
+		switch(code)
+		{
+			case 0: 		return BlendingFactor.BlendZero;
+			case 1:			return BlendingFactor.BlendOne;
+			case 0x0300:	return BlendingFactor.SourceColor;
+			case 0x0301:	return BlendingFactor.InverseSourceColor;
+			case 0x0302:	return BlendingFactor.SourceAlpha;
+			case 0x0303:	return BlendingFactor.InverseSourceAlpha;
+			case 0x0304:	return BlendingFactor.DestinationAlpha;
+			case 0x0305:	return BlendingFactor.InverseDestinationAlpha;
+			case 0x0306:	return BlendingFactor.DestinationColor;
+			case 0x0307:	return BlendingFactor.InverseDestinationColor;
+			default:
+				trace('(getBlendingMode) BlendingFactor not found');
+				return null;
+		}
+	}
+	#end
 }

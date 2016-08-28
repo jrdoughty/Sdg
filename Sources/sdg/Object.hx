@@ -243,7 +243,7 @@ class Object
 	public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
 	{
 		if (graphic != null && graphic.visible)
-			graphic.render(g, cameraX, cameraY);		
+			graphic.render(g, x, y, cameraX, cameraY);
 	}
 	
 	public function setHitboxAuto():Void
@@ -308,7 +308,11 @@ class Object
 	
 	private function set_graphic(value:Graphic):Graphic
 	{
-		value.object = this;
+		if (value != null)
+		{
+			value.object = this;
+			value.added();
+		}
 		
 		return graphic = value;
 	}

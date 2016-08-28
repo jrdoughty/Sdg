@@ -1,7 +1,7 @@
 package sdg.manager;
 
 import kha.Scheduler;
-import tween.Delta;
+import sdg.tween.Delta;
 
 class TweenDelta extends Manager
 {	
