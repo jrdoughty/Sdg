@@ -4,24 +4,11 @@ import kha.Color;
 import kha.FastFloat;
 import kha.math.Vector2;
 import kha.graphics2.Graphics;
+import sdg.collision.Collision;
 import sdg.components.Component;
 import sdg.masks.Mask;
 import sdg.math.Point;
 import sdg.math.Vector2b;
-import sdg.ds.Either;
-
-/**
- * Abstract representing either a `String` or a `Array<String>`.
- * Conversion is automatic, no need to use this.
- */
-abstract SolidType(Either<String, Array<String>>)
-{
-	@:dox(hide) public inline function new(e:Either<String, Array<String>>) this = e;
-	@:dox(hide) public var type(get,never):Either<String, Array<String>>;
-	@:to inline function get_type() return this;
-	@:from static function fromLeft(v:String) return new SolidType(Left(v));
-	@:from static function fromRight(v:Array<String>) return new SolidType(Right(v));
-}
 
 @:allow(sdg.masks.Mask)
 @:allow(sdg.Screen)
@@ -58,7 +45,9 @@ class Object
     /**
 	 * If the Object should respond to collision checks.
 	 */
-	public var collidable:Bool;	
+	public var collidable:Bool;
+	
+	public var body:Collision;
 	/**
 	 * If the object can update 
 	 */ 
@@ -89,32 +78,13 @@ class Object
 	 */
 	public var components:Array<Component>;
 	
-	public var graphic(default, set):Graphic;
-    
-    /**
-	 * An optional Mask component, used for specialized collision. If this is
-	 * not assigned, collision checks will use the Object's hitbox by default.
-	 */
-	public var mask(get, set):Mask;
-	private inline function get_mask():Mask { return _mask; }
-	private function set_mask(value:Mask):Mask
-	{
-		if (_mask == value) return value;
-		if (_mask != null) _mask.parent = null;
-		_mask = value;
-		if (value != null) _mask.parent = this;
-		return _mask;
-	}
-    
-    // Collision information.
-	private var hitbox:Mask;
-	private var _mask:Mask;
-	private var _x:Float;
-	private var _y:Float;
-	private var _moveX:Float;
-	private var _moveY:Float;    
+	public var graphic(default, set):Graphic;	
     
     static private var _empty = new Object();
+	
+	// Collision information.
+	private var _moveX:Float;
+	private var _moveY:Float;
 	
 	public function new(x:Float = 0, y:Float = 0):Void
 	{
@@ -126,9 +96,8 @@ class Object
         
         type = '';
         collidable = true;
-        hitbox = new Mask();
-        hitbox.parent = this;
-        _moveX = _moveY = 0;		
+		
+		_moveX = _moveY = 0;
 		
 		active = true;
 		visible = true;		
@@ -316,262 +285,6 @@ class Object
 		
 		return graphic = value;
 	}
-	
-	/**
-	 * Checks for a collision against an Object type.
-	 * @param	type		The Object type to check for.
-	 * @param	x			Virtual x position to place this Object.
-	 * @param	y			Virtual y position to place this Object.
-	 * @return	The first Object collided with, or null if none were collided.
-	 */
-	public function collide(type:String, x:Float, y:Float):Object
-	{
-		if (screen == null) return null;
-
-		var objects = screen.entitiesForType(type);
-		if (!collidable || objects == null) return null;
-
-		_x = this.x; _y = this.y;
-		this.x = x; this.y = y;
-
-		if (_mask == null)
-		{
-			for (e in objects)
-			{
-				if (e.collidable && e != this
-					&& x - originX + width > e.x - e.originX
-					&& y - originY + height > e.y - e.originY
-					&& x - originX < e.x - e.originX + e.width
-					&& y - originY < e.y - e.originY + e.height)
-				{
-					if (e._mask == null || e._mask.collide(hitbox))
-					{
-						this.x = _x; this.y = _y;
-						return e;
-					}
-				}
-			}
-		}
-		else
-		{
-			for (e in objects)
-			{
-				if (e.collidable && e != this
-					&& x - originX + width > e.x - e.originX
-					&& y - originY + height > e.y - e.originY
-					&& x - originX < e.x - e.originX + e.width
-					&& y - originY < e.y - e.originY + e.height)
-				{
-					if (_mask.collide(e._mask != null ? e._mask : e.hitbox))
-					{
-						this.x = _x; this.y = _y;
-						return e;
-					}
-				}
-			}
-		}
-		this.x = _x; this.y = _y;
-		return null;
-	}
-    
-    /**
-	 * Checks for collision against multiple Object types.
-	 * @param	types		An Array or Vector of Object types to check for.
-	 * @param	x			Virtual x position to place this Object.
-	 * @param	y			Virtual y position to place this Object.
-	 * @return	The first Object collided with, or null if none were collided.
-	 */
-	public function collideTypes(types:SolidType, x:Float, y:Float):Object
-	{
-		if (screen == null) return null;
-
-		switch (types.type)
-		{
-			case Left(s):
-				return collide(s, x, y);
-			case Right(a):
-				var e:Object;
-				for (type in a)
-				{
-					e = collide(type, x, y);
-					if (e != null) return e;
-				}
-		}
-
-		return null;
-	}
-    
-    /**
-	 * Checks if this Object collides with a specific Object.
-	 * @param	e		The Object to collide against.
-	 * @param	x		Virtual x position to place this Object.
-	 * @param	y		Virtual y position to place this Object.
-	 * @return	The Object if they overlap, or null if they don't.
-	 */
-	public function collideWith<Obj:Object>(e:Obj, x:Float, y:Float):Obj
-	{
-		_x = this.x; _y = this.y;
-		this.x = x; this.y = y;
-
-		if (collidable && e.collidable
-			&& x - originX + width > e.x - e.originX
-			&& y - originY + height > e.y - e.originY
-			&& x - originX < e.x - e.originX + e.width
-			&& y - originY < e.y - e.originY + e.height)
-		{
-			if (_mask == null)
-			{
-				if ((untyped e._mask) == null || (untyped e._mask).collide(hitbox))
-				{
-					this.x = _x; this.y = _y;
-					return e;
-				}
-				this.x = _x; this.y = _y;
-				return null;
-			}
-			if (_mask.collide((untyped e._mask) != null ? (untyped e._mask) : (untyped e.HITBOX)))
-			{
-				this.x = _x; this.y = _y;
-				return e;
-			}
-		}
-		this.x = _x; this.y = _y;
-		return null;
-	}
-    
-    /**
-	 * Checks if this Object overlaps the specified rectangle.
-	 * @param	x			Virtual x position to place this Object.
-	 * @param	y			Virtual y position to place this Object.
-	 * @param	rX			X position of the rectangle.
-	 * @param	rY			Y position of the rectangle.
-	 * @param	rWidth		Width of the rectangle.
-	 * @param	rHeight		Height of the rectangle.
-	 * @return	If they overlap.
-	 */
-	public function collideRect(x:Float, y:Float, rX:Float, rY:Float, rWidth:Float, rHeight:Float):Bool
-	{
-		if (x - originX + width >= rX &&
-			y - originY + height >= rY &&
-			x - originX <= rX + rWidth &&
-			y - originY <= rY + rHeight)
-		{
-			if (_mask == null) return true;
-			_x = this.x; _y = this.y;
-			this.x = x; this.y = y;
-			Sdg.object.x = rX;
-			Sdg.object.y = rY;
-			Sdg.object.width = Std.int(rWidth);
-			Sdg.object.height = Std.int(rHeight);
-			if (_mask.collide(Sdg.object.hitbox))
-			{
-				this.x = _x; this.y = _y;
-				return true;
-			}
-			this.x = _x; this.y = _y;
-			return false;
-		}
-		return false;
-	}
-    
-    /**
-	 * Checks if this Object overlaps the specified position.
-	 * @param	x			Virtual x position to place this Object.
-	 * @param	y			Virtual y position to place this Object.
-	 * @param	pX			X position.
-	 * @param	pY			Y position.
-	 * @return	If the Object intersects with the position.
-	 */
-	public function collidePoint(x:Float, y:Float, pX:Float, pY:Float):Bool
-	{
-		if (pX >= x - originX &&
-			pY >= y - originY &&
-			pX < x - originX + width &&
-			pY < y - originY + height)
-		{
-			if (_mask == null) return true;
-			_x = this.x; _y = this.y;
-			this.x = x; this.y = y;
-			Sdg.object.x = pX;
-			Sdg.object.y = pY;
-			Sdg.object.width = 1;
-			Sdg.object.height = 1;
-			if (_mask.collide(Sdg.object.hitbox))
-			{
-				this.x = _x; this.y = _y;
-				return true;
-			}
-			this.x = _x; this.y = _y;
-			return false;
-		}
-		return false;
-	}
-    
-    /**
-	 * Populates an array with all collided Entities of a type. This
-	 * function does not empty the array, that responsibility is left to the user.
-	 * @param	type		The Object type to check for.
-	 * @param	x			Virtual x position to place this Object.
-	 * @param	y			Virtual y position to place this Object.
-	 * @param	array		The Array or Vector object to populate.
-	 */
-	public function collideInto<Obj:Object>(type:String, x:Float, y:Float, array:Array<Obj>):Void
-	{
-		if (screen == null) return;
-
-		var objects = screen.entitiesForType(type);
-		if (!collidable || objects == null) return;
-
-		_x = this.x; _y = this.y;
-		this.x = x; this.y = y;
-		var n:Int = array.length;
-
-		if (_mask == null)
-		{
-			for (e in objects)
-			{
-				e = cast e;
-				if (e.collidable && e != this
-					&& x - originX + width > e.x - e.originX
-					&& y - originY + height > e.y - e.originY
-					&& x - originX < e.x - e.originX + e.width
-					&& y - originY < e.y - e.originY + e.height)
-				{
-					if ((untyped e._mask) == null || (untyped e._mask).collide(hitbox)) array[n++] = cast e;
-				}
-			}
-		}
-		else
-		{
-			for (e in objects)
-			{
-				e = cast e;
-				if (e.collidable && e != this
-					&& x - originX + width > e.x - e.originX
-					&& y - originY + height > e.y - e.originY
-					&& x - originX < e.x - e.originX + e.width
-					&& y - originY < e.y - e.originY + e.height)
-				{
-					if (_mask.collide((untyped e._mask) != null ? (untyped e._mask) : (untyped e.HITBOX))) array[n++] = cast e;
-				}
-			}
-		}
-		this.x = _x; this.y = _y;
-	}
-    
-    /**
-	 * Populates an array with all collided Entities of multiple types. This
-	 * function does not empty the array, that responsibility is left to the user.
-	 * @param	types		An array of Object types to check for.
-	 * @param	x			Virtual x position to place this Object.
-	 * @param	y			Virtual y position to place this Object.
-	 * @param	array		The Array or Vector object to populate.
-	 */
-	public function collideTypesInto<Obj:Object>(types:Array<String>, x:Float, y:Float, array:Array<Obj>)
-	{
-		if (screen == null) return;
-		for (type in types) collideInto(type, x, y, array);
-	}
     
     /**
 	 * Calculates the distance from another Object.
@@ -631,12 +344,12 @@ class Object
 			var sign:Int, e:Object;
 			if (x != 0)
 			{
-				if (collidable && (sweep || collideTypes(solidType, this.x + x, this.y) != null))
+				if (collidable && (sweep || body.collideTypes(solidType, this.x + x, this.y) != null))
 				{
 					sign = x > 0 ? 1 : -1;
 					while (x != 0)
 					{
-						if ((e = collideTypes(solidType, this.x + sign, this.y)) != null)
+						if ((e = body.collideTypes(solidType, this.x + sign, this.y)) != null)
 						{
 							if (moveCollideX(e)) break;
 							else this.x += sign;
@@ -652,12 +365,12 @@ class Object
 			}
 			if (y != 0)
 			{
-				if (collidable && (sweep || collideTypes(solidType, this.x, this.y + y) != null))
+				if (collidable && (sweep || body.collideTypes(solidType, this.x, this.y + y) != null))
 				{
 					sign = y > 0 ? 1 : -1;
 					while (y != 0)
 					{
-						if ((e = collideTypes(solidType, this.x, this.y + sign)) != null)
+						if ((e = body.collideTypes(solidType, this.x, this.y + sign)) != null)
 						{
 							if (moveCollideY(e)) break;
 							else this.y += sign;

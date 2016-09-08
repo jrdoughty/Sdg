@@ -35,10 +35,17 @@ class Rectangle
     {
 		var a: Bool;
 		var b: Bool;
-		if (x < r.x) a = r.x < x + width;
-		else a = x < r.x + r.width;
-		if (y < r.y) b = r.y < y + height;
-		else b = y < r.y + r.height;
+
+		if (x < r.x) 
+			a = r.x < x + width;
+		else 
+			a = x < r.x + r.width;
+
+		if (y < r.y) 
+			b = r.y < y + height;
+		else 
+			b = y < r.y + r.height;
+
 		return a && b;
 	}
     
@@ -49,4 +56,73 @@ class Rectangle
         else
             return false;
     }
+
+	public function intersection(r:Rectangle):Rectangle
+	{
+		var nx:Float = 0; 
+		var ny:Float = 0;
+		var nw:Float = 0; 
+		var nh:Float = 0;
+
+		if (x < r.x)
+		{
+			nx = r.x;
+			nw = Std.int((x + width) - r.x);  
+		}
+		else
+		{
+			nx = x;
+			
+			if ((x + width) < (r.x + r.width))
+				nw = width;
+			else
+				nw = Std.int((r.x + r.width) - x);
+		}
+
+		if (y < r.y)
+		{
+			ny = r.y;
+			nh = Std.int((y + height) - r.y);
+		}
+		else
+		{
+			ny = y;
+
+			if ((y + height) < (r.y + r.height))
+				nh = height;
+			else
+				nh = Std.int((r.y + r.height) - y);
+		}
+
+		return new Rectangle(nx, ny, nw, nh);
+	}
+
+	public function separate(rect:Rectangle):Void
+	{
+		if (collision(rect))
+		{
+			var inter = intersection(rect);
+
+			// collided horizontally
+			if (inter.height > inter.width)
+			{
+				// collided from the right
+				if ((x + width) > rect.x && (x + width) < (rect.x + rect.width))
+					x = rect.x - width;
+				// collided from the left
+				else
+					x = rect.x + rect.width;
+			}
+			// collided vertically
+			else
+			{
+				// collided from the top
+				if ((y + height) > rect.y && (y + height) < (rect.y + rect.height))
+					y = rect.y - height;
+				// collided from the bottom
+				else
+					y = rect.y + rect.height;
+			}
+		}
+	}
 }
