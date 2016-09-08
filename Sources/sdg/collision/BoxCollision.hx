@@ -26,7 +26,8 @@ class BoxCollision extends Collision
 	 */
 	override public function collide(type:String, x:Float, y:Float):Object 
 	{
-		if (object.screen == null) return null;
+		if (object.screen == null) 
+			return null;
 
 		var objects = object.screen.entitiesForType(type);
 		if (!object.collidable || objects == null) 
@@ -36,37 +37,107 @@ class BoxCollision extends Collision
 		{
 			if (e.collidable && e != object)
 			{
-				_boxCollision = cast e.body;
-
-				if (_boxCollision.rects.length > 0)
-				{
-					for (rect in _boxCollision.rects)
-					{
-						if (x - object.originX + object.width > rect.x - e.originX						
-							&& y - object.originY + object.height > rect.y - e.originY
-							&& x - object.originX < rect.x - e.originX + rect.width
-							&& y - object.originY < rect.y - e.originY + rect.height)
-						{
-							separate(x - object.originX, y - object.originY, rect.x - e.originX, rect.y - e.originY, rect.width, rect.height);
-							return e;
-						}
-					}
-				}
-				else
-				{
-					if (x - object.originX + object.width > e.x - e.originX						
-						&& y - object.originY + object.height > e.y - e.originY
-						&& x - object.originX < e.x - e.originX + e.width
-						&& y - object.originY < e.y - e.originY + e.height)
-					{
-						separate(x - object.originX, y - object.originY, e.x - e.originX, e.y - e.originY, e.width, e.height);
-						return e;
-					}
-				}
+				if (checkCollision(e, x, y))
+					return e; 
 			}						
 		}
 
 		return null;
+	}
+
+	/**
+	 * Checks if this Object collides with a specific Object.
+	 * @param	e		The Object to collide against.
+	 * @param	x		Virtual x position to place this Object.
+	 * @param	y		Virtual y position to place this Object.
+	 * @return	The Object if they overlap, or null if they don't.
+	 */
+	override public function collideWith(e:Object, x:Float, y:Float):Object
+	{
+		if (object.collidable && e.collidable)
+		{
+			if (checkCollision(e, x, y))
+				return e;
+		}
+		
+		return null;		
+	}
+
+	/**
+	 * Checks if this Object overlaps the specified rectangle.
+	 * @param	x			Virtual x position to place this Object.
+	 * @param	y			Virtual y position to place this Object.
+	 * @param	rX			X position of the rectangle.
+	 * @param	rY			Y position of the rectangle.
+	 * @param	rWidth		Width of the rectangle.
+	 * @param	rHeight		Height of the rectangle.
+	 * @return	If they overlap.
+	 */
+	override public function collideRect(x:Float, y:Float, rX:Float, rY:Float, rWidth:Float, rHeight:Float):Bool
+	{
+		if (x - object.originX + object.width >= rX &&
+			y - object.originY + object.height >= rY &&
+			x - object.originX <= rX + rWidth &&
+			y - object.originY <= rY + rHeight)		
+			return true;		
+		else
+			return false;
+	}
+
+	/**
+	 * Checks if this Object overlaps the specified position.
+	 * @param	x			Virtual x position to place this Object.
+	 * @param	y			Virtual y position to place this Object.
+	 * @param	pX			X position.
+	 * @param	pY			Y position.
+	 * @return	If the Object intersects with the position.
+	 */
+	override public function collidePoint(x:Float, y:Float, pX:Float, pY:Float):Bool
+	{
+		if (pX >= x - object.originX &&
+			pY >= y - object.originY &&
+			pX < x - object.originX + object.width &&
+			pY < y - object.originY + object.height)
+			return true;
+		else
+			return false;
+	}
+
+	/**
+	 * Helper function that separate the object from another without checking
+	 * if the two objects are collidable
+	 */
+	function checkCollision(e:Object, x:Float, y:Float):Bool
+	{
+		_boxCollision = cast e.body;
+
+		if (_boxCollision.rects.length > 0)
+		{
+			for (rect in _boxCollision.rects)
+			{
+				if (x - object.originX + object.width > rect.x - e.originX						
+					&& y - object.originY + object.height > rect.y - e.originY
+					&& x - object.originX < rect.x - e.originX + rect.width
+					&& y - object.originY < rect.y - e.originY + rect.height)
+				{
+					separate(x - object.originX, y - object.originY, rect.x - e.originX, rect.y - e.originY, rect.width, rect.height);
+					return true;
+				}
+			}
+		}
+		else
+		{
+			if (x - object.originX + object.width > e.x - e.originX						
+				&& y - object.originY + object.height > e.y - e.originY
+				&& x - object.originX < e.x - e.originX + e.width
+				&& y - object.originY < e.y - e.originY + e.height)
+			{
+				separate(x - object.originX, y - object.originY, e.x - e.originX, e.y - e.originY, e.width, e.height);
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	function separate(x:Float, y:Float, eX:Float, eY:Float, eWidth:Float, eHeight:Float):Void

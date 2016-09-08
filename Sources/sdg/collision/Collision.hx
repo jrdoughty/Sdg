@@ -72,7 +72,7 @@ class Collision
 	 * @param	y		Virtual y position to place this Object.
 	 * @return	The Object if they overlap, or null if they don't.
 	 */
-	public function collideWith<Obj:Object>(e:Obj, x:Float, y:Float):Obj 
+	public function collideWith(e:Object, x:Float, y:Float):Object 
 	{
 		return null;
 	}
