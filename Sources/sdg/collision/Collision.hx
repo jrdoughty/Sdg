@@ -23,7 +23,21 @@ class Collision
 	public function new(object:Object):Void
 	{
 		this.object = object;
-	}
+	}	
+
+	/**
+	 * Pushes all objects in the screen of the type into the Array or Vector. This
+	 * function does not empty the array, that responsibility is left to the user.
+	 * @param	type		The type to check.
+	 * @param	into		The Array or Vector to populate.
+	 */
+	public function getType(type:String, into:Array<Object>):Void {}
+
+	//@:allow(sdg.Object)
+	//private function addType(object:Object):Void {}
+
+	//@:allow(sdg.Object)
+	//private function removeType(object:Object):Void {}
 	
 	/**
 	 * Checks for a collision against an Object type.
@@ -72,10 +86,10 @@ class Collision
 	 * @param	y		Virtual y position to place this Object.
 	 * @return	The Object if they overlap, or null if they don't.
 	 */
-	public function collideWith(e:Object, x:Float, y:Float):Object 
+	/*public function collideWith(e:Object, x:Float, y:Float):Object 
 	{
 		return null;
-	}
+	}*/
 	
 	/**
 	 * Checks if this Object overlaps the specified rectangle.

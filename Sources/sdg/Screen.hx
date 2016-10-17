@@ -19,7 +19,6 @@ class Screen
 	var updateList:List<Object>;
 	var layerDisplay:Map<Int,Bool>;
 	var layers:Map<Int,List<Object>>;
-	var types:Map<String,List<Object>>;
     
     // TODO: fix name
 	var entityNames:Map<String,Object>;	
@@ -46,7 +45,6 @@ class Screen
 		updateList = new List<Object>();
 		layerDisplay = new Map<Int,Bool>();
 		layers = new Map<Int,List<Object>>();
-		types = new Map<String,List<Object>>();
 		entityNames = new Map<String,Object>();
 				
 		bgColor = Color.Black;		
@@ -133,8 +131,7 @@ class Screen
 		addList = null;
 		removeList = null;
 		layerDisplay = null;
-		layers = null;
-		types = null;
+		layers = null;		
 		entityNames = null;
 		
 		for (object in updateList)
@@ -239,35 +236,7 @@ class Screen
 	public inline function isAtBack(object:Object):Bool
 	{
 		return object == layers.get(object.layer).last();
-	}
-	
-	/**
-	 * A list of objects of the type.
-	 * @param	type 		The type to check.
-	 * @return 	The object list.
-	 */
-	public inline function objectsForType(type:String):List<Object>
-	{
-		return types.exists(type) ? types.get(type) : null;
-	}
-	
-	/**
-	 * Pushes all objects in the screen of the type into the Array or Vector. This
-	 * function does not empty the array, that responsibility is left to the user.
-	 * @param	type		The type to check.
-	 * @param	into		The Array or Vector to populate.
-	 */
-	public function getType<Object>(type:String, into:Array<Object>):Void
-	{
-		if (!types.exists(type))
-			return;
-			
-		var n:Int = into.length;
-		for (object in types.get(type))
-		{
-			into[n++] = cast object;
-		}
-	}
+	}	
 	
 	/**
 	 * Returns the object with the instance name, or null if none exists
@@ -309,7 +278,7 @@ class Screen
 				removeUpdate(object);
 				removeRender(object);
 				
-				if (object.type != "") removeType(object);
+				//if (object.type != "") removeType(object);
 				if (object.name != "") unregisterName(object);
 			}
 			Sdg.clear(removeList);
@@ -335,8 +304,8 @@ class Screen
 				addUpdate(object);
 				addRender(object);
 				
-				if (object.type != "")
-					addType(object);
+				//if (object.type != "")
+				//	addType(object);
 				if (object.name != "") 
 					registerName(object);
 					
@@ -412,52 +381,16 @@ class Screen
 			layers.remove(object.layer);
 		}
 	}
-	
-	/** 
-	 * Adds object to the type list. 
-	 */
-	@:allow(sdg.Object)
-	private function addType(object:Object):Void
-	{
-		var list:List<Object>;
-		
-		// add to type list
-		if (types.exists(object.type))		
-			list = types.get(object.type);		
-		else
-		{
-			list = new List<Object>();
-			types.set(object.type, list);
-		}
-		
-		list.push(object);
-	}
-
-	/** 
-	 * Removes object from the type list. 
-	 */
-	@:allow(sdg.Object)
-	private function removeType(object:Object):Void
-	{
-		if (!types.exists(object.type))
-			return;
-			
-		var list = types.get(object.type);
-		list.remove(object);
-		
-		if (list.length == 0)
-			types.remove(object.type);		
-	}
     
     /**
 	 * A list of Entity objects of the type.
 	 * @param	type 		The type to check.
 	 * @return 	The Entity list.
 	 */
-	public inline function entitiesForType(type:String):List<Object>
+	/*public inline function entitiesForType(type:String):List<Object>
 	{
 		return types.exists(type) ? types.get(type) : null;
-	}
+	}*/
 	
 	/** 
 	 * Register the entities instance name. 

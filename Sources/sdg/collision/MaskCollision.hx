@@ -7,6 +7,9 @@ import sdg.collision.Collision.SolidType;
 
 class MaskCollision extends Collision
 {
+	static var types:Map<String,List<MaskCollision>>;
+	static var _maskCollision:MaskCollision;
+
 	/**
 	 * An optional Mask component, used for specialized collision. If this is
 	 * not assigned, collision checks will use the Object's hitbox by default.
@@ -17,16 +20,78 @@ class MaskCollision extends Collision
 	private var hitbox:Mask;
 	private var _mask:Mask;
 	private var _x:Float;
-	private var _y:Float;
-	private var _maskCollision:MaskCollision;
+	private var _y:Float;	
 	
-	public function new(object:Object):Void
+	public function new(object:Object, type:String = null):Void
 	{
 		super(object);
 		
 		hitbox = new Mask();
-        hitbox.parent = object;		
+        hitbox.parent = object;
+
+		if (type != null)
+			addType(this, type);
 	}
+
+	public static function init():Void
+	{
+		types = new Map<String,List<MaskCollision>>();
+		_maskCollision = new MaskCollision(new Object());
+	}
+
+	/** 
+	 * Adds object to the type list. 
+	 */	
+	private static function addType(maskCollision:MaskCollision, type:String):Void
+	{
+		var list:List<MaskCollision>;
+		
+		// add to type list
+		if (types.exists(type))		
+			list = types.get(type);
+		else
+		{
+			list = new List<MaskCollision>();
+			types.set(type, list);
+		}
+		
+		list.push(maskCollision);
+	}
+
+	/** 
+	 * Removes object from the type list. 
+	 */	
+	private static function removeType(maskCollision:MaskCollision, type:String):Void
+	{
+		if (!types.exists(type))
+			return;
+			
+		var list = types.get(type);
+		list.remove(maskCollision);
+		
+		if (list.length == 0)
+			types.remove(type);		
+	}
+
+	/**
+	 * A list of objects of the type.
+	 * @param	type 		The type to check.
+	 * @return 	The object list.
+	 */
+	public inline function masksForType(type:String):List<MaskCollision>
+	{
+		return types.exists(type) ? types.get(type) : null;
+	}
+
+	override public function getType(type:String, into:Array<Object>):Void
+	{
+		if (!types.exists(type))
+			return;
+			
+		var n:Int = into.length;
+		for (mask in types.get(type))		
+			into[n++] = mask.object;		
+	}	
 	
 	/**
 	 * Checks for a collision against an Object type.
@@ -39,8 +104,8 @@ class MaskCollision extends Collision
 	{
 		if (object.screen == null) return null;
 
-		var objects = object.screen.entitiesForType(type);
-		if (!object.collidable || objects == null) return null;
+		var masks = masksForType(type);
+		if (!object.collidable || masks == null) return null;
 
 		_x = object.x; 
 		_y = object.y;
@@ -49,42 +114,42 @@ class MaskCollision extends Collision
 
 		if (_mask == null)
 		{
-			for (e in objects)
+			for (e in masks)
 			{
-				if (e.collidable && e != object
-					&& x - object.originX + object.width > e.x - e.originX
-					&& y - object.originY + object.height > e.y - e.originY
-					&& x - object.originX < e.x - e.originX + e.width
-					&& y - object.originY < e.y - e.originY + e.height)
+				if (e.object.collidable && e.object != object
+					&& x - object.originX + object.width > e.object.x - e.object.originX
+					&& y - object.originY + object.height > e.object.y - e.object.originY
+					&& x - object.originX < e.object.x - e.object.originX + e.object.width
+					&& y - object.originY < e.object.y - e.object.originY + e.object.height)
 				{
-					_maskCollision = cast e.body;
+					//_maskCollision = cast e.body;
 					
-					if (_maskCollision._mask == null || _maskCollision._mask.collide(hitbox))
+					if (e._mask == null || e._mask.collide(hitbox))
 					{
 						object.x = _x; 
 						object.y = _y;
-						return e;
+						return e.object;
 					}
 				}
 			}
 		}
 		else
 		{
-			for (e in objects)
+			for (e in masks)
 			{
-				if (e.collidable && e != object
-					&& x - object.originX + object.width > e.x - e.originX
-					&& y - object.originY + object.height > e.y - e.originY
-					&& x - object.originX < e.x - e.originX + e.width
-					&& y - object.originY < e.y - e.originY + e.height)
+				if (e.object.collidable && e.object != object
+					&& x - object.originX + object.width > e.object.x - e.object.originX
+					&& y - object.originY + object.height > e.object.y - e.object.originY
+					&& x - object.originX < e.object.x - e.object.originX + e.object.width
+					&& y - object.originY < e.object.y - e.object.originY + e.object.height)
 				{
-					_maskCollision = cast e.body;
+					//_maskCollision = cast e.body;
 					
-					if (_mask.collide(_maskCollision._mask != null ? _maskCollision._mask : _maskCollision.hitbox))
+					if (_mask.collide(e._mask != null ? e._mask : e.hitbox))
 					{
 						object.x = _x; 
 						object.y = _y;
-						return e;
+						return e.object;
 					}
 				}
 			}
@@ -102,38 +167,38 @@ class MaskCollision extends Collision
 	 * @param	y		Virtual y position to place this Object.
 	 * @return	The Object if they overlap, or null if they don't.
 	 */
-	override public function collideWith(e:Object, x:Float, y:Float):Object
+	override public function collideWith(e:MaskCollision, x:Float, y:Float):Object
 	{
 		_x = object.x; 
 		_y = object.y;
 		object.x = x; 
 		object.y = y;
 
-		if (object.collidable && e.collidable
-			&& x - object.originX + object.width > e.x - e.originX
-			&& y - object.originY + object.height > e.y - e.originY
-			&& x - object.originX < e.x - e.originX + e.width
-			&& y - object.originY < e.y - e.originY + e.height)
+		if (object.collidable && e.object.collidable
+			&& x - object.originX + object.width > e.object.x - e.object.originX
+			&& y - object.originY + object.height > e.object.y - e.object.originY
+			&& x - object.originX < e.object.x - e.object.originX + e.object.width
+			&& y - object.originY < e.object.y - e.object.originY + e.object.height)
 		{
-			_maskCollision = cast e.body;
+			//_maskCollision = cast e.body;
 			
 			if (_mask == null)
 			{								
-				if ((untyped _maskCollision._mask) == null || (untyped _maskCollision._mask).collide(hitbox))
+				if ((untyped e._mask) == null || (untyped e._mask).collide(hitbox))
 				{
 					object.x = _x; 
 					object.y = _y;
-					return e;
+					return e.object;
 				}
 				object.x = _x; 
 				object.y = _y;
 				return null;
 			}
-			if (_mask.collide((untyped _maskCollision._mask) != null ? (untyped _maskCollision._mask) : (untyped _maskCollision.hitbox)))
+			if (_mask.collide((untyped e._mask) != null ? (untyped e._mask) : (untyped e.hitbox)))
 			{
 				object.x = _x; 
 				object.y = _y;
-				return e;
+				return e.object;
 			}
 		}
 		object.x = _x; 
@@ -170,7 +235,7 @@ class MaskCollision extends Collision
 			Sdg.object.width = Std.int(rWidth);
 			Sdg.object.height = Std.int(rHeight);
 			
-			_maskCollision = cast Sdg.object.body;
+			//_maskCollision = cast Sdg.object.body;
 			
 			if (_mask.collide(_maskCollision.hitbox))
 			{
@@ -213,7 +278,7 @@ class MaskCollision extends Collision
 			Sdg.object.width = 1;
 			Sdg.object.height = 1;
 			
-			_maskCollision = cast Sdg.object.body;
+			//_maskCollision = cast Sdg.object.body;
 			
 			if (_mask.collide(_maskCollision.hitbox))
 			{
@@ -242,8 +307,8 @@ class MaskCollision extends Collision
 		if (object.screen == null) 
 			return;
 
-		var objects = object.screen.entitiesForType(type);
-		if (!object.collidable || objects == null) 
+		var masks = masksForType(type);
+		if (!object.collidable || masks == null) 
 			return;
 
 		_x = object.x; 
@@ -254,35 +319,35 @@ class MaskCollision extends Collision
 
 		if (_mask == null)
 		{
-			for (e in objects)
+			for (e in masks)
 			{
-				e = cast e;
-				if (e.collidable && e != object
-					&& x - object.originX + object.width > e.x - e.originX
-					&& y - object.originY + object.height > e.y - e.originY
-					&& x - object.originX < e.x - e.originX + e.width
-					&& y - object.originY < e.y - e.originY + e.height)
+				//e = cast e;
+				if (e.object.collidable && e.object != object
+					&& x - object.originX + object.width > e.object.x - e.object.originX
+					&& y - object.originY + object.height > e.object.y - e.object.originY
+					&& x - object.originX < e.object.x - e.object.originX + e.object.width
+					&& y - object.originY < e.object.y - e.object.originY + e.object.height)
 				{
-					_maskCollision = cast e.body;
+					//_maskCollision = cast e.body;
 					
-					if ((untyped _maskCollision._mask) == null || (untyped _maskCollision._mask).collide(hitbox)) array[n++] = cast e;
+					if ((untyped e._mask) == null || (untyped e._mask).collide(hitbox)) array[n++] = cast e;
 				}
 			}
 		}
 		else
 		{
-			for (e in objects)
+			for (e in masks)
 			{
-				e = cast e;
-				if (e.collidable && e != object
-					&& x - object.originX + object.width > e.x - e.originX
-					&& y - object.originY + object.height > e.y - e.originY
-					&& x - object.originX < e.x - e.originX + e.width
-					&& y - object.originY < e.y - e.originY + e.height)
+				//e = cast e;
+				if (e.object.collidable && e.object != object
+					&& x - object.originX + object.width > e.object.x - e.object.originX
+					&& y - object.originY + object.height > e.object.y - e.object.originY
+					&& x - object.originX < e.object.x - e.object.originX + e.object.width
+					&& y - object.originY < e.object.y - e.object.originY + e.object.height)
 				{
-					_maskCollision = cast e.body;
+					//_maskCollision = cast e.body;
 					
-					if (_mask.collide((untyped _maskCollision._mask) != null ? (untyped _maskCollision._mask) : (untyped _maskCollision.HITBOX))) array[n++] = cast e;
+					if (_mask.collide((untyped e._mask) != null ? (untyped e._mask) : (untyped e.HITBOX))) array[n++] = cast e;
 				}
 			}
 		}

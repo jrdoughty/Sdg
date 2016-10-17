@@ -63,11 +63,7 @@ class Object
 	/**
 	 * The rendering layer of this Object. Higher layers are rendered first.
 	 */
-	public var layer(default, set):Int;
-	/**
-	 * The collision type, used for collision checking.
-	 */
-	public var type(default, set):String;
+	public var layer(default, set):Int;		
     /**
 	 * If the object should be fixed on screen. The camera position will be
 	 * ignored on the rendering
@@ -93,8 +89,7 @@ class Object
 		this.y = y;
         originX = originY = 0;
         width = height = 0;
-        
-        type = '';
+                
         collidable = true;
 		
 		_moveX = _moveY = 0;
@@ -261,7 +256,7 @@ class Object
 		return layer;
 	}
 	
-	private function set_type(value:String):String
+	/*private function set_type(value:String):String
 	{
 		if (type == value) return type;
 		if (screen == null)
@@ -273,7 +268,7 @@ class Object
 		type = value;
 		if (value != "") screen.addType(this);
 		return type;
-	}
+	}*/
 	
 	private function set_graphic(value:Graphic):Graphic
 	{

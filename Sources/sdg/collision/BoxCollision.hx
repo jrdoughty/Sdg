@@ -5,17 +5,78 @@ import sdg.math.Rectangle;
 
 class BoxCollision extends Collision
 {
+	static var types:Map<String,List<BoxCollision>>;
+
 	public var rects:Array<Rectangle>;
 
 	// Collision information.
-	var _boxCollision:BoxCollision;
+	//var _boxCollision:BoxCollision;
 
-	public function new(object:Object):Void
+	public function new(object:Object, type:String = null):Void
 	{
 		super(object);
 
 		rects = new Array<Rectangle>();
+
+		if (type != null)
+			addType(this, type);
 	}
+
+	public static function init():Void
+	{
+		types = new Map<String,List<BoxCollision>>();
+	}
+
+	/** 
+	 * Adds object to the type list. 
+	 */	
+	private static function addType(boxCollision:BoxCollision, type:String):Void
+	{
+		var list:List<BoxCollision>;
+		
+		// add to type list
+		if (types.exists(type))		
+			list = types.get(type);
+		else
+		{
+			list = new List<BoxCollision>();
+			types.set(type, list);
+		}
+		
+		list.push(boxCollision);
+	}
+
+	/** 
+	 * Removes object from the type list. 
+	 */	
+	private static function removeType(boxCollision:BoxCollision, type:String):Void
+	{
+		if (!types.exists(type))
+			return;
+			
+		var list = types.get(type);
+		list.remove(boxCollision);
+		
+		if (list.length == 0)
+			types.remove(type);		
+	}
+
+	public inline function boxesForType(type:String):List<BoxCollision>
+	{
+		return types.exists(type) ? types.get(type) : null;
+	}
+
+	override public function getType(type:String, into:Array<Object>):Void
+	{
+		if (!types.exists(type))
+			return;
+			
+		var n:Int = into.length;
+		for (box in types.get(type))
+		{
+			into[n++] = box.object;
+		}
+	}		
 	
 	/**
 	 * Checks for a collision against an Object type.
@@ -29,17 +90,17 @@ class BoxCollision extends Collision
 		if (object.screen == null) 
 			return null;
 
-		var objects = object.screen.entitiesForType(type);
-		if (!object.collidable || objects == null) 
+		var boxes = boxesForType(type);
+		if (!object.collidable || boxes == null) 
 			return null;
 		
-		for (e in objects)
+		for (e in boxes)
 		{
-			if (e.collidable && e != object)
+			if (e.object.collidable && e.object != object)
 			{
 				if (checkCollision(e, x, y))
-					return e; 
-			}						
+					return e.object; 
+			}
 		}
 
 		return null;
@@ -52,12 +113,12 @@ class BoxCollision extends Collision
 	 * @param	y		Virtual y position to place this Object.
 	 * @return	The Object if they overlap, or null if they don't.
 	 */
-	override public function collideWith(e:Object, x:Float, y:Float):Object
+	public function collideWith(e:BoxCollision, x:Float, y:Float):Object
 	{
-		if (object.collidable && e.collidable)
+		if (object.collidable && e.object.collidable)
 		{
 			if (checkCollision(e, x, y))
-				return e;
+				return e.object;
 		}
 		
 		return null;		
@@ -107,32 +168,32 @@ class BoxCollision extends Collision
 	 * Helper function that separate the object from another without checking
 	 * if the two objects are collidable
 	 */
-	function checkCollision(e:Object, x:Float, y:Float):Bool
+	function checkCollision(e:BoxCollision, x:Float, y:Float):Bool
 	{
-		_boxCollision = cast e.body;
+		//_boxCollision = cast e.body;
 
-		if (_boxCollision.rects.length > 0)
+		if (e.rects.length > 0)
 		{
-			for (rect in _boxCollision.rects)
+			for (rect in e.rects)
 			{
-				if (x - object.originX + object.width > rect.x - e.originX						
-					&& y - object.originY + object.height > rect.y - e.originY
-					&& x - object.originX < rect.x - e.originX + rect.width
-					&& y - object.originY < rect.y - e.originY + rect.height)
+				if (x - object.originX + object.width > rect.x - e.object.originX						
+					&& y - object.originY + object.height > rect.y - e.object.originY
+					&& x - object.originX < rect.x - e.object.originX + rect.width
+					&& y - object.originY < rect.y - e.object.originY + rect.height)
 				{
-					separate(x - object.originX, y - object.originY, rect.x - e.originX, rect.y - e.originY, rect.width, rect.height);
+					separate(x - object.originX, y - object.originY, rect.x - e.object.originX, rect.y - e.object.originY, rect.width, rect.height);
 					return true;
 				}
 			}
 		}
 		else
 		{
-			if (x - object.originX + object.width > e.x - e.originX						
-				&& y - object.originY + object.height > e.y - e.originY
-				&& x - object.originX < e.x - e.originX + e.width
-				&& y - object.originY < e.y - e.originY + e.height)
+			if (x - object.originX + object.width > e.object.x - e.object.originX
+				&& y - object.originY + object.height > e.object.y - e.object.originY
+				&& x - object.originX < e.object.x - e.object.originX + e.object.width
+				&& y - object.originY < e.object.y - e.object.originY + e.object.height)
 			{
-				separate(x - object.originX, y - object.originY, e.x - e.originX, e.y - e.originY, e.width, e.height);
+				separate(x - object.originX, y - object.originY, e.object.x - e.object.originX, e.object.y - e.object.originY, e.object.width, e.object.height);
 				return true;
 			}
 		}
