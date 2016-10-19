@@ -4,6 +4,8 @@ import kha.Color;
 import kha.Image;
 import kha.Scheduler;
 import kha.System;
+import kha.Scaler;
+import kha.Framebuffer;
 import kha.graphics2.Graphics;
 import sdg.manager.Manager;
 
@@ -124,7 +126,7 @@ class Engine
 		managers.push(manager);
 	}
 	
-	public function render():Void
+	public function renderBackbuffer():Void
 	{
 		if (Sdg.screen != null)
 		{			
@@ -143,5 +145,14 @@ class Engine
         #end
         	
 		g2.end();
+	}
+
+	public function render(framebuffer:Framebuffer):Void
+	{
+		renderBackbuffer();
+
+		framebuffer.g2.begin();
+		Scaler.scale(backbuffer, framebuffer, System.screenRotation);
+		framebuffer.g2.end();
 	}
 }

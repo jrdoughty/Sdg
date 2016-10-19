@@ -167,7 +167,7 @@ class MaskCollision extends Collision
 	 * @param	y		Virtual y position to place this Object.
 	 * @return	The Object if they overlap, or null if they don't.
 	 */
-	override public function collideWith(e:MaskCollision, x:Float, y:Float):Object
+	public function collideWith(e:MaskCollision, x:Float, y:Float):Object
 	{
 		_x = object.x; 
 		_y = object.y;

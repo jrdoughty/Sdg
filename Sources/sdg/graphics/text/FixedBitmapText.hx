@@ -29,10 +29,10 @@ class FixedBitmapText extends Graphic
 			this.region = new Region(0, 0, image.width, image.height);
     }
     
-    override function innerRender(g:Graphics, cx:Float, cy:Float):Void 
+    override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
         var code:Int;
-        var cursor = object.x + x;                
+        var cursor = objectX + x;
             
         text = text.toUpperCase();
         
@@ -47,7 +47,7 @@ class FixedBitmapText extends Graphic
                     code -= 60;				
                 
                 g.drawScaledSubImage(image, region.sx + (code * letterWidth), region.sy, letterWidth, letterHeight,
-							 cursor - cx, object.y + y - cy, letterWidth, letterHeight);
+							 cursor - cameraX, objectY + y - cameraY, letterWidth, letterHeight);
             }
             
             cursor += letterWidth;

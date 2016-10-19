@@ -43,7 +43,7 @@ class Atlas
 			return region;
 		else
 		{
-			trace('(getRegion) region "$name" not found in atlas "${this.name}"');
+			trace('(getRegion) region "$regionName" not found in atlas "${this.name}"');
 			return null;
 		}		
 	}
@@ -71,7 +71,7 @@ class Atlas
 		endIndex++;
 		
 		for (i in startIndex...endIndex)
-			listRegionNames.push('$regionName${i}');
+			listRegionNames.push('$regionName-$i');
 			
 		return getRegions(listRegionNames);
 	}
@@ -91,6 +91,11 @@ class Atlas
 		}
 	}
 
+	public static function getRegionFromAtlas(atlasName:String, regionName:String):Region
+	{
+		return getAtlas(atlasName).getRegion(regionName);
+	}
+
 	public static function getImageFromAtlas(atlasName:String):Image
 	{
 		var atlas = atlasCache.get(atlasName);
@@ -104,19 +109,19 @@ class Atlas
 		}		
 	}
 
-	public static function createAtlasFromImage(atlasName:String, image:Image, rows:Int, cols:Int, saveInCache:Bool = false):Atlas
+	public static function createAtlasFromImage(atlasName:String, image:Image, regionWidth:Int, regionHeight:Int, saveInCache:Bool = false):Atlas
     {
         var regions = new Map<String,Region>();        
-        var width = Std.int(image.width / cols);
-        var height = Std.int(image.height / rows);
-        var i = 1;
+        var cols = Std.int(image.width / regionWidth);
+        var rows = Std.int(image.height / regionHeight);
+        var i = 0;
         
         for (r in 0...rows)
         {
             for (c in 0...cols)
             {
-                var region = new Region(c * width, r * height, width, height);
-                regions.set('$atlasName$i', region);
+                var region = new Region(c * regionWidth, r * regionHeight, regionWidth, regionHeight);
+                regions.set('$atlasName-$i', region);
                 i++;
             }
         }
@@ -134,14 +139,14 @@ class Atlas
         var regions = new Map<String,Region>();        
         var width = Std.int(region.w / cols);
         var height = Std.int(region.h / rows);
-        var i = 1;
+        var i = 0;
         
         for (r in 0...rows)
         {
             for (c in 0...cols)
             {
                 var newRegion = new Region(region.sx + (c * width), region.sy + (r * height), width, height);
-                regions.set('$atlasName$i', newRegion);
+                regions.set('$atlasName-$i', newRegion);
                 i++;
             }
         }

@@ -1,7 +1,7 @@
 package sdg.components;
 
 import kha.Image;
-import sdg.Sprite;
+import sdg.graphics.Sprite;
 import sdg.atlas.Region;
 
 // TODO: Optimize for animations of one frame
@@ -58,11 +58,11 @@ class Animator extends Component
 	
 	override public function init():Void 
 	{
-		if (Std.is(object, Sprite))
-			sprite = cast object;
+		if (Std.is(object.graphic, Sprite))
+			sprite = cast object.graphic;
 		else
 		{
-			trace('Animator failed. The object \'${object.name}\' is not a sprite');
+			trace('Animator failed. The object "${object.name}" doesn\'t have a sprite');
 			sprite = null;
 		}
 	}
