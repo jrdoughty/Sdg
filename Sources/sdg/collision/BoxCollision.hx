@@ -12,14 +12,24 @@ class BoxCollision extends Collision
 	// Collision information.
 	//var _boxCollision:BoxCollision;
 
-	public function new(object:Object, type:String = null):Void
+	public function new(object:Object, types:SolidType = null):Void
 	{
 		super(object);
 
 		rects = new Array<Rectangle>();
 
-		if (type != null)
-			addType(this, type);
+		if (types != null)
+		{
+			switch (types.type)
+			{
+				case Left(s):
+					addType(this, s);
+
+				case Right(a):
+					for (type in a)
+						addType(this, type);
+			}
+		}			
 	}
 
 	public static function init():Void

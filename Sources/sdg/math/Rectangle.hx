@@ -51,11 +51,21 @@ class Rectangle
     
     public function pointInside(px:Float, py:Float):Bool
     {
-        if (px > x && px < (x + width) && py > y && py < (py + height))
+        if (px > x && px < (x + width) && py > y && py < (y + height))
             return true;
         else
             return false;
     }
+
+	public function rectInside(r:Rectangle):Bool
+	{
+		if (r.width <= width && r.height <= height
+			&& ((r.x == x && r.y == y) || (r.x > x && (r.x + r.width) < (x + width) && (r.y + r.height) < (y + height))
+		))
+			return true;
+		else
+			return false;
+	}
 
 	public function intersection(r:Rectangle):Rectangle
 	{

@@ -1,6 +1,6 @@
 package sdg.tween.actions;
 
-@:build(tween.actions.Inject.apply())
+@:build(sdg.tween.actions.Inject.apply())
 class Actions {
 
     @:tweenAction

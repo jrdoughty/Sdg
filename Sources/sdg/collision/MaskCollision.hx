@@ -22,15 +22,25 @@ class MaskCollision extends Collision
 	private var _x:Float;
 	private var _y:Float;	
 	
-	public function new(object:Object, type:String = null):Void
+	public function new(object:Object, types:SolidType = null):Void
 	{
 		super(object);
 		
 		hitbox = new Mask();
         hitbox.parent = object;
 
-		if (type != null)
-			addType(this, type);
+		if (types != null)
+		{
+			switch (types.type)
+			{
+				case Left(s):
+					addType(this, s);
+
+				case Right(a):
+					for (type in a)
+						addType(this, type);
+			}			
+		}			
 	}
 
 	public static function init():Void
