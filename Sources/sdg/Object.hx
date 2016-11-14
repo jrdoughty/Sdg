@@ -4,16 +4,13 @@ import kha.Color;
 import kha.FastFloat;
 import kha.math.Vector2;
 import kha.graphics2.Graphics;
-import sdg.collision.Collision;
 import sdg.components.Component;
-import sdg.masks.Mask;
-import sdg.math.Point;
 import sdg.math.Vector2b;
 
-@:allow(sdg.masks.Mask)
 @:allow(sdg.Screen)
 class Object
 {	
+	public var id:Int;
 	/** 
 	 * A name for identification and debugging
 	 */
@@ -29,11 +26,11 @@ class Object
     /**
 	 * X origin of the Object's hitbox.
 	 */
-	public var originX:Int;
+	//public var originX:Int;
 	/**
 	 * Y origin of the Object's hitbox.
 	 */
-	public var originY:Int;	
+	//public var originY:Int;	
 	/**
 	 * The hitbox width. You need to set this manually to use physics
 	 */
@@ -47,7 +44,7 @@ class Object
 	 */
 	public var collidable:Bool;
 	
-	public var body:Collision;
+	//public var body:Collision;
 	/**
 	 * If the object can update 
 	 */ 
@@ -78,21 +75,16 @@ class Object
     
     static private var _empty = new Object();
 	
-	// Collision information.
-	private var _moveX:Float;
-	private var _moveY:Float;
-	
 	public function new(x:Float = 0, y:Float = 0):Void
 	{
+		this.id = 0;
 		this.name = '';	
 		this.x = x;
 		this.y = y;
-        originX = originY = 0;
+        //originX = originY = 0;
         width = height = 0;
                 
-        collidable = true;
-		
-		_moveX = _moveY = 0;
+        collidable = true;		
 		
 		active = true;
 		visible = true;		
@@ -153,8 +145,8 @@ class Object
 	{
 		this.width = width;
 		this.height = height;
-		this.originX = originX;
-		this.originY = originY;
+		//this.originX = originX;
+		//this.originY = originY;
 	}
     
     /**
@@ -164,8 +156,8 @@ class Object
 	 */
 	public inline function setOrigin(x:Int = 0, y:Int = 0)
 	{
-		originX = x;
-		originY = y;
+		//originX = x;
+		//originY = y;
 	}	
 	
 	/**
@@ -210,10 +202,10 @@ class Object
 			graphic.render(g, x, y, cameraX, cameraY);
 	}
 	
-	public function setHitboxAuto():Void
+	public function setSizeAuto():Void
     {
-        originX = 0;
-        originY = 0;
+        //originX = 0;
+        //originY = 0;
 		
 		if (graphic != null)
 		{
@@ -225,7 +217,7 @@ class Object
 		{
 			width = 0;
 			height = 0;
-			trace('(setHitboxAuto) there isn\'t a graphic to get the size');			
+			trace('(setSizeAuto) there isn\'t a graphic to get the size');			
 		}
     }
 	
@@ -287,11 +279,11 @@ class Object
 	 * @param	useHitboxes		If hitboxes should be used to determine the distance. If not, the Entities' x/y positions are used.
 	 * @return	The distance.
 	 */
-	public inline function distanceFrom(e:Object, useHitboxes:Bool = false):Float
+	/*public inline function distanceFrom(e:Object, useHitboxes:Bool = false):Float
 	{
 		if (!useHitboxes) return Math.sqrt((x - e.x) * (x - e.x) + (y - e.y) * (y - e.y));
 		else return Sdg.distanceRects(x - originX, y - originY, width, height, e.x - e.originX, e.y - e.originY, e.width, e.height);
-	}
+	}*/
 
 	/**
 	 * Calculates the distance from this Object to the point.
@@ -300,11 +292,11 @@ class Object
 	 * @param	useHitboxes		If hitboxes should be used to determine the distance. If not, the Entities' x/y positions are used.
 	 * @return	The distance.
 	 */
-	public inline function distanceToPoint(px:Float, py:Float, useHitbox:Bool = false):Float
+	/*public inline function distanceToPoint(px:Float, py:Float, useHitbox:Bool = false):Float
 	{
 		if (!useHitbox) return Math.sqrt((x - px) * (x - px) + (y - py) * (y - py));
 		else return Sdg.distanceRectPoint(px, py, x - originX, y - originY, width, height);
-	}
+	}*/
 
 	/**
 	 * Calculates the distance from this Object to the rectangle.
@@ -314,109 +306,12 @@ class Object
 	 * @param	rheight		Height of the rectangle.
 	 * @return	The distance.
 	 */
-	public inline function distanceToRect(rx:Float, ry:Float, rwidth:Float, rheight:Float):Float
+	/*public inline function distanceToRect(rx:Float, ry:Float, rwidth:Float, rheight:Float):Float
 	{
 		return Sdg.distanceRects(rx, ry, rwidth, rheight, x - originX, y - originY, width, height);
-	}
+	}*/
     
-    /**
-	 * Moves the Object by the amount, retaining integer values for its x and y.
-	 * @param	x			Horizontal offset.
-	 * @param	y			Vertical offset.
-	 * @param	solidType	An optional collision type to stop flush against upon collision.
-	 * @param	sweep		If sweeping should be used (prevents fast-moving objects from going through solidType).
-	 */
-	public function moveBy(x:Float, y:Float, ?solidType:SolidType, sweep:Bool = false):Void
-	{
-		_moveX += x;
-		_moveY += y;
-		x = Math.round(_moveX);
-		y = Math.round(_moveY);
-		_moveX -= x;
-		_moveY -= y;
-		if (solidType != null)
-		{
-			var sign:Int, e:Object;
-			if (x != 0)
-			{
-				if (collidable && (sweep || body.collideTypes(solidType, this.x + x, this.y) != null))
-				{
-					sign = x > 0 ? 1 : -1;
-					while (x != 0)
-					{
-						if ((e = body.collideTypes(solidType, this.x + sign, this.y)) != null)
-						{
-							if (moveCollideX(e)) break;
-							else this.x += sign;
-						}
-						else
-						{
-							this.x += sign;
-						}
-						x -= sign;
-					}
-				}
-				else this.x += x;
-			}
-			if (y != 0)
-			{
-				if (collidable && (sweep || body.collideTypes(solidType, this.x, this.y + y) != null))
-				{
-					sign = y > 0 ? 1 : -1;
-					while (y != 0)
-					{
-						if ((e = body.collideTypes(solidType, this.x, this.y + sign)) != null)
-						{
-							if (moveCollideY(e)) break;
-							else this.y += sign;
-						}
-						else
-						{
-							this.y += sign;
-						}
-						y -= sign;
-					}
-				}
-				else this.y += y;
-			}
-		}
-		else
-		{
-			this.x += x;
-			this.y += y;
-		}
-	}
-
-	/**
-	 * Moves the Object to the position, retaining integer values for its x and y.
-	 * @param	x			X position.
-	 * @param	y			Y position.
-	 * @param	solidType	An optional collision type to stop flush against upon collision.
-	 * @param	sweep		If sweeping should be used (prevents fast-moving objects from going through solidType).
-	 */
-	public inline function moveTo(x:Float, y:Float, solidType:SolidType = null, sweep:Bool = false)
-	{
-		moveBy(x - this.x, y - this.y, solidType, sweep);
-	}
     
-    /**
-	 * Moves towards the target position, retaining integer values for its x and y.
-	 * @param	x			X target.
-	 * @param	y			Y target.
-	 * @param	amount		Amount to move.
-	 * @param	solidType	An optional collision type to stop flush against upon collision.
-	 * @param	sweep		If sweeping should be used (prevents fast-moving objects from going through solidType).
-	 */
-	public inline function moveTowards(x:Float, y:Float, amount:Float, solidType:SolidType = null, sweep:Bool = false)
-	{
-		var point = new Point(x - this.x, y - this.y);
-				
-		if (point.x * point.x + point.y * point.y > amount * amount)
-		{
-			point.normalizeThickness(amount);
-		}
-		moveBy(point.x, point.y, solidType, sweep);
-	}
     
     	/**
 	 * When you collide with an Object on the x-axis with moveTo() or moveBy()

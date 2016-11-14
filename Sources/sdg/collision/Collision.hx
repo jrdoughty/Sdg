@@ -2,6 +2,8 @@ package sdg.collision;
 
 import sdg.Object;
 import sdg.ds.Either;
+import sdg.math.Rectangle;
+import sdg.math.Point;
 
 /**
  * Abstract representing either a `String` or a `Array<String>`.
@@ -18,11 +20,29 @@ abstract SolidType(Either<String, Array<String>>)
 
 class Collision
 {
-	var object:Object;
+	public inline static var HITBOX_MASK:Int = 0;
+	public inline static var GRID_MASK:Int = 1;
+	public inline static var DIFFER_MASK:Int = 2;
+
+	public var object:Object;
+	public var rect:Rectangle;	
+
+	var id:Int;
+
+	// Collision information.
+	private var _moveX:Float;
+	private var _moveY:Float;
 	
-	public function new(object:Object):Void
+	public function new(object:Object, ?rect:Rectangle):Void
 	{
 		this.object = object;
+
+		_moveX = _moveY = 0;
+		
+		if (rect != null)
+			this.rect = rect;
+		else		
+			this.rect = new Rectangle(0, 0, object.width, object.height);				
 	}	
 
 	/**
@@ -31,7 +51,7 @@ class Collision
 	 * @param	type		The type to check.
 	 * @param	into		The Array or Vector to populate.
 	 */
-	public function getType(type:String, into:Array<Object>):Void {}
+	public function objectsForType(type:String, into:Array<Object>):Void {}	
 
 	//@:allow(sdg.Object)
 	//private function addType(object:Object):Void {}
@@ -60,7 +80,8 @@ class Collision
 	 */
 	public function collideTypes(types:SolidType, x:Float, y:Float):Object 
 	{
-		if (object.screen == null) return null;
+		if (object.screen == null) 
+			return null;
 
 		switch (types.type)
 		{
@@ -80,18 +101,6 @@ class Collision
 	}
 	
 	/**
-	 * Checks if this Object collides with a specific Object.
-	 * @param	e		The Object to collide against.
-	 * @param	x		Virtual x position to place this Object.
-	 * @param	y		Virtual y position to place this Object.
-	 * @return	The Object if they overlap, or null if they don't.
-	 */
-	/*public function collideWith(e:Object, x:Float, y:Float):Object 
-	{
-		return null;
-	}*/
-	
-	/**
 	 * Checks if this Object overlaps the specified rectangle.
 	 * @param	x			Virtual x position to place this Object.
 	 * @param	y			Virtual y position to place this Object.
@@ -103,7 +112,13 @@ class Collision
 	 */
 	public function collideRect(x:Float, y:Float, rX:Float, rY:Float, rWidth:Float, rHeight:Float):Bool 
 	{
-		return false;
+		if (x + rect.x + rect.width > rX &&
+			y + rect.y + rect.height > rY &&
+			x + rect.x < rX + rWidth &&
+			y + rect.y < rY + rHeight)
+			return true;		
+		else
+			return false;
 	}
 	
 	/**
@@ -116,7 +131,13 @@ class Collision
 	 */
 	public function collidePoint(x:Float, y:Float, pX:Float, pY:Float):Bool 
 	{
-		return false;
+		if (pX >= (x + rect.x) &&
+			pY >= (y + rect.y) &&
+			pX < (x + rect.x + object.width) &&
+			pY < (y + rect.y + object.height))
+			return true;
+		else
+			return false;
 	}
 	
 	/**
@@ -138,4 +159,103 @@ class Collision
 	 * @param	array		The Array or Vector object to populate.
 	 */
 	public function collideTypesInto<Obj:Object>(types:Array<String>, x:Float, y:Float, array:Array<Obj>):Void {}
+
+	/**
+	 * Moves the Object by the amount, retaining integer values for its x and y.
+	 * @param	x			Horizontal offset.
+	 * @param	y			Vertical offset.
+	 * @param	solidType	An optional collision type to stop flush against upon collision.
+	 * @param	sweep		If sweeping should be used (prevents fast-moving objects from going through solidType).
+	 */
+	public function moveBy(x:Float, y:Float, ?solidType:SolidType, sweep:Bool = false):Void
+	{
+		_moveX += x;
+		_moveY += y;
+		x = Math.round(_moveX);
+		y = Math.round(_moveY);
+		_moveX -= x;
+		_moveY -= y;
+		if (solidType != null)
+		{
+			var sign:Int, e:Object;
+			if (x != 0)
+			{
+				if (object.collidable && (sweep || collideTypes(solidType, object.x + x, object.y) != null))
+				{
+					sign = x > 0 ? 1 : -1;
+					while (x != 0)
+					{
+						if ((e = collideTypes(solidType, object.x + sign, object.y)) != null)
+						{
+							if (object.moveCollideX(e)) break;
+							else object.x += sign;
+						}
+						else
+						{
+							object.x += sign;
+						}
+						x -= sign;
+					}
+				}
+				else object.x += x;
+			}
+			if (y != 0)
+			{
+				if (object.collidable && (sweep || collideTypes(solidType, object.x, object.y + y) != null))
+				{
+					sign = y > 0 ? 1 : -1;
+					while (y != 0)
+					{
+						if ((e = collideTypes(solidType, object.x, object.y + sign)) != null)
+						{
+							if (object.moveCollideY(e)) break;
+							else object.y += sign;
+						}
+						else
+						{
+							object.y += sign;
+						}
+						y -= sign;
+					}
+				}
+				else object.y += y;
+			}
+		}
+		else
+		{
+			object.x += x;
+			object.y += y;
+		}
+	}
+
+	/**
+	 * Moves the Object to the position, retaining integer values for its x and y.
+	 * @param	x			X position.
+	 * @param	y			Y position.
+	 * @param	solidType	An optional collision type to stop flush against upon collision.
+	 * @param	sweep		If sweeping should be used (prevents fast-moving objects from going through solidType).
+	 */
+	public inline function moveTo(x:Float, y:Float, solidType:SolidType = null, sweep:Bool = false)
+	{
+		moveBy(x - object.x, y - object.y, solidType, sweep);
+	}
+    
+    /**
+	 * Moves towards the target position, retaining integer values for its x and y.
+	 * @param	x			X target.
+	 * @param	y			Y target.
+	 * @param	amount		Amount to move.
+	 * @param	solidType	An optional collision type to stop flush against upon collision.
+	 * @param	sweep		If sweeping should be used (prevents fast-moving objects from going through solidType).
+	 */
+	public inline function moveTowards(x:Float, y:Float, amount:Float, solidType:SolidType = null, sweep:Bool = false)
+	{
+		var point = new Point(x - object.x, y - object.y);
+				
+		if (point.x * point.x + point.y * point.y > amount * amount)
+		{
+			point.normalizeThickness(amount);
+		}
+		moveBy(point.x, point.y, solidType, sweep);
+	}
 }
