@@ -22,7 +22,8 @@ class Collision
 {
 	public inline static var HITBOX_MASK:Int = 0;
 	public inline static var GRID_MASK:Int = 1;
-	public inline static var DIFFER_MASK:Int = 2;
+	public inline static var GRID_EX_MASK:Int = 2;
+	public inline static var DIFFER_MASK:Int = 3;
 
 	public var object:Object;
 	public var rect:Rectangle;	

@@ -48,6 +48,24 @@ class Rectangle
 
 		return a && b;
 	}
+
+	public function collisionProjected(r:Rectangle, rx:Float, ry:Float, tx:Float = 0, ty:Float = 0):Bool 
+    {
+		var a: Bool;
+		var b: Bool;
+
+		if (x + tx < r.x + rx) 
+			a = r.x + rx < x + tx + width;
+		else 
+			a = x + tx < r.x + rx + r.width;
+
+		if (y + ty < r.y + ry) 
+			b = r.y + ry < y + ty + height;
+		else 
+			b = y + ty < r.y + ry + r.height;
+
+		return a && b;
+	}
     
     public function pointInside(px:Float, py:Float):Bool
     {

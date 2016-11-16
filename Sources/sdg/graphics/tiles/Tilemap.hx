@@ -44,7 +44,12 @@ class Tilemap extends Graphic
 	inline public function getTile(x:Int, y:Int):Int
 	{
 		if (map != null)
-			return map[y][x];
+		{
+			if (x < widthInTiles && y < heightInTiles)
+				return map[y][x];
+			else
+				return -1;
+		}
 		else
 		{
 			trace('tilemap is empty');

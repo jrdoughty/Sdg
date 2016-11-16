@@ -22,7 +22,7 @@ class Engine
 	
 	public var backgroundRender:Graphics->Void;    
 	
-	public function new(width:Int, height:Int):Void
+	public function new(width:Int, height:Int, ?fps:Null<Int>):Void
 	{
 		active = true;
 		
@@ -40,12 +40,18 @@ class Engine
         Sdg.halfGameWidth = Std.int(backbuffer.width / 2);
 		Sdg.gameHeight = backbuffer.height;
         Sdg.halfGameHeight = Std.int(backbuffer.height / 2);
+
+		if (fps != null)
+			Sdg.fixedDt = 1 / fps;
+		else
+			Sdg.fixedDt = 1 / 60;
         
         calcGameScale();
         
         Sdg.object = new Object();
 		
-		managers = new Array<Manager>(); 
+		managers = new Array<Manager>();
+		Sdg.screens = new Map<String, Screen>();
 		
 		//System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
 	}

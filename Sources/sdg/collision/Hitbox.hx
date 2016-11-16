@@ -122,21 +122,29 @@ class Hitbox extends Collision
 
 	function collideMask(e:Hitbox, x:Float, y:Float):Bool
 	{		
-		if (id == Collision.HITBOX_MASK && e.id == Collision.GRID_MASK)
+		if (id == Collision.HITBOX_MASK)
 		{
-			var grid:Grid = cast e;
-			return grid.collideHitboxAgainstGrid(x, y, this);
+			if (e.id == Collision.GRID_MASK)
+			{
+				var grid:Grid = cast e;
+				return grid.collideHitboxAgainstGrid(x, y, this);
+			}
+			else if (e.id == Collision.GRID_EX_MASK)
+			{
+				var grid:GridEx = cast e;
+				return grid.collideHitboxAgainstGrid(x, y, this);
+			}
+			
 		}
-		else if (id == Collision.GRID_MASK && e.id == Collision.HITBOX_MASK)
+		else if (e.id == Collision.HITBOX_MASK)
 		{
 			//var grid:Grid = cast this;
 			//return grid.collideHitbox(e.rect);
-		}
-		else
-		{
-			var grid:Grid = cast this;
-			return grid.collideGrid(cast e);
-		}		
+
+			//if (id == Collision.GRID_MASK)
+
+			//else if (id == Collision.GRID_EX_MASK)
+		}				
 		
 		return false;
 	}

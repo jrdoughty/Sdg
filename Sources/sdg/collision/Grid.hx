@@ -303,10 +303,5 @@ class Grid extends Hitbox
 		}
 
 		return false;
-	}
-
-	public function collideGrid(other:Grid):Bool
-	{
-		return false;
-	}
+	}	
 }

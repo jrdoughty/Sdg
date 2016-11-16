@@ -7,19 +7,26 @@ class Camera
     
     public var width:Int;
     public var height:Int;
+    public var halfWidth:Int;
+    public var halfHeight:Int;
     
     public var dzLeft:Int;
     public var dzRight:Int;
     public var dzTop:Int;
     public var dzBottom:Int;
+
+    var screen:Screen;
     
-    public function new():Void
+    public function new(screen:Screen):Void
     {
         x = 0;
         y = 0;
+        this.screen = screen;
         
         width = Sdg.gameWidth;
         height = Sdg.gameHeight;
+        halfWidth = Std.int(width / 2);
+        halfHeight = Std.int(height / 2);
         
         dzLeft = 0;
         dzRight = 0;
@@ -31,6 +38,8 @@ class Camera
     {
         this.width = width;
         this.height = height;
+        halfWidth = Std.int(width / 2);
+        halfHeight = Std.int(height / 2);
     }
     
     public function setDeadZones(left:Int, right:Int, top:Int, bottom:Int):Void
@@ -43,17 +52,34 @@ class Camera
     
     public function follow(objX:Float, objY:Float):Void
     {
-        if (objX > dzLeft && objX < (width - dzRight))
-            x = objX - Sdg.halfGameWidth;
+        if (objX > dzLeft && objX < (screen.worldWidth - dzRight))
+            x = objX - halfWidth;
             
-        if (objY > dzTop && objY < (height - dzBottom))
-            y = objY - Sdg.halfGameHeight;
+        if (objY > dzTop && objY < (screen.worldHeight - dzBottom))
+            y = objY - halfHeight;
+
+        checkBoundaries();
     }
-    
-    // TODO
-    public function center(obX:Float, objY:Float):Void
-    {
         
+    public function center(objX:Float, objY:Float):Void
+    {
+        x = objX - halfWidth;
+        y = objY - halfHeight;
+
+        checkBoundaries();        
+    }
+
+    function checkBoundaries():Void
+    {
+        if (x < 0)
+            x = 0;
+        else if (x + width > screen.worldWidth)
+            x = screen.worldWidth - width;
+        
+        if (y < 0)
+            y = 0;
+        else if (y + height > screen.worldHeight)
+            y = screen.worldHeight - height;
     }
     
     public function moveBy(stepX:Float, stepY:Float):Void

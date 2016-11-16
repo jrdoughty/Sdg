@@ -10,9 +10,8 @@ class Tileset
 	var region:Region;
 	public var tileWidth:Int;
 	public var tileHeight:Int;
-	var widthInTiles:Int;
-	var heightInTiles:Int;
-	var tiles:Array<Bool>;
+	public var widthInTiles:Int;
+	public var heightInTiles:Int;	
 	
 	// temp variables
 	var _x:Int;
@@ -30,23 +29,8 @@ class Tileset
 		this.tileHeight = tileHeight;
 		
 		widthInTiles = Std.int(region.w / tileWidth);
-		heightInTiles = Std.int(region.h / tileHeight);
-		
-		tiles = new Array<Bool>();
-		var lenght = Std.int(widthInTiles * heightInTiles);
-		for (i in 0...lenght)
-			tiles[i] = false;
-	}
-	
-	inline public function setCollision(x:Int, y:Int, solid:Bool):Void
-	{
-		tiles[widthInTiles * y + x] = solid;
-	}
-	
-	inline public function getCollision(x:Int, y:Int):Bool
-	{
-		return tiles[widthInTiles * y + x];
-	}
+		heightInTiles = Std.int(region.h / tileHeight);			
+	}	
 	
 	inline public function render(g:Graphics, index:Int, x:Float, y:Float):Void
 	{

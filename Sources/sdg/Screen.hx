@@ -31,6 +31,9 @@ class Screen
 	public var clipping:Rectangle;
 	
 	public var camera:Camera;
+
+	public var worldWidth:Int;
+	public var worldHeight:Int;
 	
 	public function new():Void
 	{
@@ -49,7 +52,10 @@ class Screen
 				
 		bgColor = Color.Black;		
 		clipping = null;
-		camera = new Camera();
+		
+		camera = new Camera(this);
+		worldWidth = Sdg.gameWidth;
+		worldHeight = Sdg.gameHeight;
 	}
     
     public function init():Void {}
