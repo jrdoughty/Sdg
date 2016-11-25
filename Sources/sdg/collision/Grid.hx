@@ -35,9 +35,9 @@ class Grid extends Hitbox
 	 */
 	public var data(default, null):Array<Array<Bool>>;
 
-	public function new(object:Object, tileWidth:Int, tileHeight:Int, ?rect:Rectangle, ?type:String):Void
+	public function new(object:Object, groupName:String, tileWidth:Int, tileHeight:Int, ?rect:Rectangle, ?type:String):Void
 	{
-		super(object, rect, type);
+		super(object, groupName, rect, type);
 
 		id = Collision.GRID_MASK;
 
@@ -268,7 +268,7 @@ class Grid extends Hitbox
 	 *
 	 * @return Return a copy of the grid.
 	 */
-	public function clone():Grid
+	/*public function clone():Grid
 	{
 		var cloneGrid = new Grid(object, Std.int(tile.width), Std.int(tile.height));
 		
@@ -281,7 +281,7 @@ class Grid extends Hitbox
 		}
 
 		return cloneGrid;
-	}
+	}*/
 
 	public function collideHitboxAgainstGrid(hx:Float, hy:Float, hb:Hitbox):Bool
 	{

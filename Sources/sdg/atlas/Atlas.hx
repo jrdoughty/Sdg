@@ -193,4 +193,25 @@ class Atlas
 		var atlas = new Atlas(atlasName, atlasImage, regions);
 		atlasCache.set(atlasName, atlas);
 	}
+
+	public static function loadAtlasLibGdx(atlasName:String, atlasImage:Image, data:Blob):Void
+	{
+		var regions = new Map<String, Region>();
+
+		var dataString = StringTools.trim(data.toString());
+		var lines = dataString.split('\n');
+		var totalItems = Std.int((lines.length - 5) / 7);
+
+		for (i in 0...totalItems)
+		{			
+			var position = lines[5 + (i * 7) + 2].substr(6).split(', ');
+			var size = lines[5 + (i * 7) + 3].substr(8).split(', ');
+
+			var region = new Region(Std.parseFloat(position[0]), Std.parseFloat(position[1]), Std.parseInt(size[0]), Std.parseInt(size[1]));
+			regions.set(lines[5 + (i * 7)], region);
+		}
+
+		var atlas = new Atlas(atlasName, atlasImage, regions);
+		atlasCache.set(atlasName, atlas);
+	}
 }

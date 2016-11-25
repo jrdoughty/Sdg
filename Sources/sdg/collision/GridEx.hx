@@ -17,9 +17,9 @@ class GridEx extends Hitbox
 	public var tileWidth(get, null):Int;
 	public var tileHeight(get, null):Int;
 
-	public function new(object:Object, tilemap:Tilemap, ?rect:Rectangle, ?type:String):Void
+	public function new(object:Object, groupName:String, tilemap:Tilemap, ?rect:Rectangle, ?type:String):Void
 	{
-		super(object, rect, type);
+		super(object, groupName, rect, type);
 
 		id = Collision.GRID_EX_MASK;
 		this.tilemap = tilemap;

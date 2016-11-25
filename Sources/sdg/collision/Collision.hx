@@ -53,12 +53,6 @@ class Collision
 	 * @param	into		The Array or Vector to populate.
 	 */
 	public function objectsForType(type:String, into:Array<Object>):Void {}	
-
-	//@:allow(sdg.Object)
-	//private function addType(object:Object):Void {}
-
-	//@:allow(sdg.Object)
-	//private function removeType(object:Object):Void {}
 	
 	/**
 	 * Checks for a collision against an Object type.

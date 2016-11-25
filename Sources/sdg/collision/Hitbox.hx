@@ -1,36 +1,50 @@
 package sdg.collision;
 
 import sdg.math.Rectangle;
+import sdg.Sdg;
+
+typedef Types = Map<String,List<Hitbox>>;
 
 @:allow(sdg.collision.Grid)
 class Hitbox extends Collision
 {
-	static var types:Map<String,List<Hitbox>>;
+	static var groups:Map<String, Types>;
+	var actualTypes:Types;
 
-	public function new(object:Object, ?rect:Rectangle, ?type:String):Void
+	public function new(object:Object, groupName:String, ?rect:Rectangle, ?type:String):Void
 	{
 		super(object, rect);
 
-		if (type != null)
-			addType(this, type);
+		if (type != null)		
+			addType(this, groupName, type);		
+
+		actualTypes = groups.get(groupName);
 
 		id = Collision.HITBOX_MASK;
 	}
 
 	public static function init():Void
 	{
-		types = new Map<String,List<Hitbox>>();
+		groups = new Map<String, Types>();
 	}
 
 	/** 
 	 * Adds object to the type list. 
 	 */	
-	private static function addType(hitbox:Hitbox, type:String):Void
+	private static function addType(hitbox:Hitbox, groupName:String, type:String):Void
 	{
 		var list:List<Hitbox>;
-		
+
+		var types = groups.get(groupName);
+
+		if (types == null)
+		{
+			types = new Types();
+			groups.set(groupName, types);
+		}			
+
 		// add to type list
-		if (types.exists(type))		
+		if (types.exists(type))
 			list = types.get(type);
 		else
 		{
@@ -44,9 +58,11 @@ class Hitbox extends Collision
 	/** 
 	 * Removes object from the type list. 
 	 */	
-	private static function removeType(hitbox:Hitbox, type:String):Void
+	private static function removeType(hitbox:Hitbox, groupName:String, type:String):Void
 	{
-		if (!types.exists(type))
+		var types = groups.get(groupName);
+
+		if (types == null || !types.exists(type))
 			return;
 			
 		var list = types.get(type);
@@ -56,18 +72,27 @@ class Hitbox extends Collision
 			types.remove(type);		
 	}
 
+	public inline function switchGroup(groupName:String):Void
+	{
+		actualTypes = groups.get(groupName);
+	}
+
 	public inline function hitboxesForType(type:String):List<Hitbox>
 	{
-		return types.exists(type) ? types.get(type) : null;
+		//var listManager = types.get(Sdg.screen.id);
+
+		return actualTypes.exists(type) ? actualTypes.get(type) : null;
 	}
 
 	override public function objectsForType(type:String, into:Array<Object>):Void
 	{
-		if (!types.exists(type))
+		//var listManager = types.get(Sdg.screen.id);
+
+		if (!actualTypes.exists(type))
 			return;
 			
 		var n:Int = into.length;
-		for (collision in types.get(type))
+		for (collision in actualTypes.get(type))
 		{
 			into[n++] = collision.object;
 		}

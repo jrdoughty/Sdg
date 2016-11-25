@@ -7,7 +7,7 @@ import sdg.math.Rectangle;
 import sdg.util.Camera;
 
 class Screen
-{	
+{
     public var active:Bool;
     
 	var layerList:Array<Int>;
@@ -37,7 +37,7 @@ class Screen
 	
 	public function new():Void
 	{
-        active = true;
+        active = true;		
         
 		layerList = new Array<Int>();
 	
