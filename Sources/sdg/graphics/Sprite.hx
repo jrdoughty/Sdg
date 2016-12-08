@@ -1,19 +1,15 @@
 package sdg.graphics;
 
 import kha.Image;
-import kha.math.Vector2;
 import kha.math.Vector2i;
 import sdg.math.Vector2b;
 import kha.graphics2.Graphics;
-import sdg.Object;
+import sdg.atlas.Atlas;
 import sdg.atlas.Region;
+import sdg.Graphic.ImageType;
 
 class Sprite extends Graphic
-{
-	/**
-	 * The image used to render the sprite
-	 */
-	public var image:Image;
+{	
 	/**
 	 * The region inside the image that is rendered
 	 */
@@ -39,16 +35,21 @@ class Sprite extends Graphic
 	 */
 	public var flip:Vector2b;	
 	
-	public function new(image:Image, ?region:Region):Void
+	public function new(source:ImageType):Void
 	{
-		super();
+		super();		
 		
-		this.image = image;
-		
-		if (region != null)
-			this.region = region;
-		else
-			this.region = new Region(0, 0, image.width, image.height);
+		switch (source.type)
+		{
+			case First(image):
+				this.region = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				this.region = region;
+
+			case Third(regionName):
+				this.region = Atlas.getRegion(regionName); 
+		}
 		
 		scaleX = 1;
 		scaleY = 1;
@@ -57,14 +58,13 @@ class Sprite extends Graphic
 	}
 	
 	override public function destroy():Void
-	{
-		image = null;                
+	{		
 		region = null;
 	}
 	
 	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{		
-		g.drawScaledSubImage(image, region.sx, region.sy, region.w, region.h,
+		g.drawScaledSubImage(region.image, region.sx, region.sy, region.w, region.h,
 							 objectX + x + (flip.x ? widthRegScaled : 0) - cameraX,
 							 objectY + y + (flip.y ? heightRegScaled : 0) - cameraY, 
 							 flip.x ? -widthRegScaled : widthRegScaled, flip.y ? -heightRegScaled : heightRegScaled);		

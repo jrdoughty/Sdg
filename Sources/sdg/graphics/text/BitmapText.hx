@@ -15,6 +15,8 @@ import sdg.graphics.text.Text.TextAlign;
 import sdg.graphics.text.Text.TextOptions;
 import sdg.graphics.text.Text.Line;
 import sdg.atlas.Region;
+import sdg.atlas.Atlas;
+import sdg.Graphic.ImageType;
 
 /**
 	Tip on how to generate Bitmap font, for Windows AND Mac:
@@ -41,7 +43,7 @@ import sdg.atlas.Region;
 	var outline:Int;
 	var lineHeight:Int;
 	var spaceWidth:Int;
-	var image:Image;
+	var region:Region;
 	var letters:Map<Int, BitmapLetter>;
 }
 
@@ -468,9 +470,9 @@ class BitmapText extends Graphic
 						letterHeightScaled = letter.height * scaleY;
 						
 						g.drawScaledSubImage(
-							font.image,
-							letter.x,
-							letter.y,
+							font.region.image,
+							font.region.sx + letter.x,
+							font.region.sy + letter.y,
 							letter.width,
 							letter.height,
 							objectX + x + cursor.x + letter.xoffset * scaleX + (flip.x ? letterWidthScaled : 0) - cameraX,
@@ -541,10 +543,21 @@ class BitmapText extends Graphic
 	 * Do this first before creating a new BitmapText, because we
 	 * need to process the font data before using.
 	 */
-	public static function loadFont(fontName:String, fontImage:Image, fontData:Blob, ?region:Region):Void
+	public static function loadFont(fontName:String, sourceImage:ImageType, fontData:Blob):Void
 	{
-		if (region == null)
-			region = new Region(0, 0, fontImage.width, fontImage.height);
+		var region:Region = null;
+
+		switch (sourceImage.type)
+		{
+			case First(img):
+				region = new Region(img, 0, 0, img.width, img.height);
+			
+			case Second(reg):
+				region = reg;
+
+			case Third(regName):
+				region = Atlas.getRegion(regName);
+		}		
 		
 		// We'll store each letter's data into a dictionary here later.
 		var letters = new Map<Int, BitmapLetter>();
@@ -616,7 +629,7 @@ class BitmapText extends Graphic
 			outline: Std.parseInt(data.node.info.att.outline), // outlines are considered padding too
 			lineHeight: Std.parseInt(data.node.common.att.lineHeight), // original vertical padding between texts
 			spaceWidth: spaceWidth, // remember, this is only for space character
-			image: fontImage, // the font image sheet
+			region: region, // the font image sheet
 			letters: letters // each letter's data
 		}
 

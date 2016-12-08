@@ -1,10 +1,28 @@
 package sdg;
 
 import kha.Color;
+import kha.Image;
 import kha.FastFloat;
 import kha.graphics2.Graphics;
 import kha.math.Vector2;
 import kha.math.Vector2i;
+import sdg.math.Rectangle;
+import sdg.atlas.Region;
+import sdg.ds.ThreeOptions;
+
+/**
+ * Abstract representing either a `Image` or a `Region`, .
+ * Conversion is automatic, no need to use this.
+ */
+abstract ImageType(ThreeOptions<Image, Region, String>)
+{
+	@:dox(hide) public inline function new(e:ThreeOptions<Image, Region, String>) this = e;
+	@:dox(hide) public var type(get, never):ThreeOptions<Image, Region, String>;
+	@:to inline function get_type() return this;
+	@:from static function fromFirst(v:Image) return new ImageType(First(v));
+	@:from static function fromSecond(v:Region) return new ImageType(Second(v));
+	@:from static function fromThird(v:String) return new ImageType(Third(v));
+}
 
 @:allow(sdg.Object)
 class Graphic
@@ -37,6 +55,8 @@ class Graphic
 	 * The pivot point of the rotation 
 	 */
 	public var pivot:Vector2;
+
+	var clipping:Rectangle;
 	
 	private var object:Object;
 	
@@ -49,6 +69,7 @@ class Graphic
 		alpha = 1;
 		angle = 0;		
 		pivot = new Vector2();
+		clipping = null;
 	}
 	
 	function added():Void {}
@@ -59,6 +80,8 @@ class Graphic
 	{
 		if (!visible)
 			return;
+
+		enableClipping(g);
 			
 		if (angle != 0)
 			g.pushRotation(angle, objectX + x + pivot.x - cameraX, objectY + y + pivot.y - cameraY);		
@@ -75,6 +98,8 @@ class Graphic
 			
 		if (angle != 0)		
 			g.popTransformation();
+
+		disableClipping(g);
 	}
 	
 	/**
@@ -82,6 +107,31 @@ class Graphic
 	 * use x and y as x - cx and y - cy (the camera position)
 	 */
 	function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void {}
+
+	inline public function enableClipping(g:Graphics):Void
+    {
+        if (clipping != null)
+            g.scissor(Std.int(object.x + clipping.x), Std.int(object.y + clipping.y), Std.int(clipping.width), Std.int(clipping.height));
+    }
+    
+    inline public function disableClipping(g:Graphics):Void
+    {
+        if (clipping != null)
+            g.disableScissor();
+    }
+
+	public function setClipping(x:Float, y:Float, width:Float, height:Float):Void
+	{
+		if (clipping == null)
+			clipping = new Rectangle(this.x + x, this.y + y, width, height);
+		else
+		{
+			clipping.x = this.x + x;
+			clipping.y = this.y + y;
+			clipping.width = width;
+			clipping.height = height;
+		}
+	}
 	
 	public function getSize():Vector2i 
 	{

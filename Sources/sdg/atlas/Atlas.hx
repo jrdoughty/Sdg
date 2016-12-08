@@ -23,49 +23,38 @@ typedef TexturePackerData = {
 
 class Atlas
 {
-	static var atlasCache = new Map<String, Atlas>();
+	static var cache:Map<String, Region>;
 
-	public var name:String;
-	public var image:Image;	
-	public var regions:Map<String, Region>;
-
-	public function new(atlasName:String, image:Image, regions:Map<String, Region>):Void
-	{
-		name = atlasName;
-		this.image = image;
-		this.regions = regions;
-	}
-
-	public function getRegion(regionName:String):Region
+	public static function getRegion(regionName:String):Region
 	{		
-		var region = regions.get(regionName);
+		var region = cache.get(regionName);
 		if (region != null)
 			return region;
 		else
 		{
-			trace('(getRegion) region "$regionName" not found in atlas "${this.name}"');
+			trace('(getRegion) region "$regionName" not found');
 			return null;
 		}		
 	}
 
-	public function getRegions(regionNames:Array<String>):Array<Region>
+	public static function getRegions(regionNames:Array<String>):Array<Region>
 	{
 		var region:Region;				
 		var listRegions = new Array<Region>();
 
 		for (name in regionNames)
 		{
-			region = regions.get(name);
+			region = cache.get(name);
 			if (region != null)
 				listRegions.push(region);
 			else
-				trace('(getRegions) region "$name" not found in atlas "${this.name}"');
+				trace('(getRegions) region "$name" not found');
 		}
 
 		return listRegions;		
 	}
 
-	public function getRegionsByIndex(regionName:String, startIndex:Int, endIndex:Int):Array<Region>
+	public static function getRegionsByIndex(regionName:String, startIndex:Int, endIndex:Int):Array<Region>
 	{
 		var listRegionNames = new Array<String>();
 		endIndex++;
@@ -74,129 +63,84 @@ class Atlas
 			listRegionNames.push('$regionName-$i');
 			
 		return getRegions(listRegionNames);
-	}
+	}	
 
-	/* -------------------------------- static functions -------------------------------- */
-
-	public static function getAtlas(atlasName:String):Atlas
-	{
-		var atlas = atlasCache.get(atlasName);
-		
-		if (atlas != null)
-			return atlas;
-		else
-		{
-			trace('(getAtlas) atlas "$atlasName" not found');
-			return null;
-		}
-	}
-
-	public static function getRegionFromAtlas(atlasName:String, regionName:String):Region
-	{
-		return getAtlas(atlasName).getRegion(regionName);
-	}
-
-	public static function getImageFromAtlas(atlasName:String):Image
-	{
-		var atlas = atlasCache.get(atlasName);
-		
-		if (atlas != null)		
-			return atlas.image;
-		else
-		{
-			trace('(getImageFromAtlas) atlas "$atlasName" not found');
-			return null;
-		}		
-	}
-
-	public static function createAtlasFromImage(atlasName:String, image:Image, regionWidth:Int, regionHeight:Int, saveInCache:Bool = false):Atlas
-    {
-        var regions = new Map<String,Region>();        
+	public static function createRegionsFromImage(image:Image, regionWidth:Int, regionHeight:Int):Array<Region>
+    {   
+		var regions = new Array<Region>();
         var cols = Std.int(image.width / regionWidth);
         var rows = Std.int(image.height / regionHeight);
-        var i = 0;
-        
+                
         for (r in 0...rows)
         {
-            for (c in 0...cols)
-            {
-                var region = new Region(c * regionWidth, r * regionHeight, regionWidth, regionHeight);
-                regions.set('$atlasName-$i', region);
-                i++;
-            }
-        }
+            for (c in 0...cols)            
+                regions.push(new Region(image, c * regionWidth, r * regionHeight, regionWidth, regionHeight));            
+        }         
         
-        var atlas = new Atlas(atlasName, image, regions);
-        
-        if (saveInCache)
-            atlasCache.set(atlasName, atlas); 
-        
-        return atlas;
+        return regions;
     }
 
-	public static function createAtlasFromRegion(atlasName:String, image:Image, region:Region, rows:Int, cols:Int, saveInCache:Bool = false):Atlas
+	public static function createRegionsFromRegion(region:Region, regionWidth:Int, regionHeight:Int):Array<Region>
     {
-        var regions = new Map<String,Region>();        
-        var width = Std.int(region.w / cols);
-        var height = Std.int(region.h / rows);
-        var i = 0;
+        var regions = new Array<Region>();
+        var cols = Std.int(region.w / regionWidth);
+        var rows = Std.int(region.h / regionHeight);
         
         for (r in 0...rows)
         {
-            for (c in 0...cols)
-            {
-                var newRegion = new Region(region.sx + (c * width), region.sy + (r * height), width, height);
-                regions.set('$atlasName-$i', newRegion);
-                i++;
-            }
+            for (c in 0...cols)            
+                regions.push(new Region(region.image, region.sx + (c * regionWidth), region.sy + (r * regionHeight), regionWidth, regionHeight));
         }
         
-        var atlas = new Atlas(atlasName, image, regions);
-        
-        if (saveInCache)
-            atlasCache.set(atlasName, atlas); 
-        
-        return atlas;
+        return regions;
     }
 
-	public static function loadAtlasShoebox(atlasName:String, atlasImage:Image, xml:Blob):Void
+	public static function saveRegionsInCache(regions:Array<Region>, baseName:String):Void
 	{
+		if (cache == null)
+			cache = new Map<String, Region>();
+
+		for (i in 0...regions.length)		
+			cache.set('$baseName-$i', regions[i]);
+	}
+
+	public static function loadAtlasShoebox(image:Image, xml:Blob):Void
+	{
+		if (cache == null)
+			cache = new Map<String, Region>();
+
 		var blobString:String = xml.toString();
 		var fullXml:Xml = Xml.parse(blobString);
 		var firstNode:Xml = fullXml.firstElement(); // <TextureAtlas>
-		var data = new Fast(firstNode);
-
-		var regions = new Map<String, Region>();
+		var data = new Fast(firstNode);		
 		
 		for (st in data.nodes.SubTexture)
 		{
-			var region = new Region(Std.parseInt(st.att.x), Std.parseInt(st.att.y), Std.parseInt(st.att.width), Std.parseInt(st.att.height));
-			regions.set(st.att.name, region);			
+			var region = new Region(image, Std.parseInt(st.att.x), Std.parseInt(st.att.y), Std.parseInt(st.att.width), Std.parseInt(st.att.height));
+			var name = StringTools.replace(st.att.name, '.png', '');
+			cache.set(name, region);
 		}
-
-		var atlas = new Atlas(atlasName, atlasImage, regions);
-		atlasCache.set(atlasName, atlas);
 	}
 	
-	public static function loadAtlasTexturePacker(atlasName:String, atlasImage:Image, xml:Blob):Void
+	public static function loadAtlasTexturePacker(image:Image, xml:Blob):Void
 	{
-		var regions = new Map<String, Region>();				
+		if (cache == null)
+			cache = new Map<String, Region>();
+
 		var data:TexturePackerData = Json.parse(xml.toString());		
 		//var items = cast(data.frames, Array<TexturePackerItem>);
 		
 		for (item in data.frames)
 		{
-			var region = new Region(item.frame.x, item.frame.y, item.frame.w, item.frame.h);			
-			regions.set(item.filename, region);			
-		}
-		
-		var atlas = new Atlas(atlasName, atlasImage, regions);
-		atlasCache.set(atlasName, atlas);
+			var region = new Region(image, item.frame.x, item.frame.y, item.frame.w, item.frame.h);			
+			cache.set(item.filename, region);
+		}		
 	}
 
-	public static function loadAtlasLibGdx(atlasName:String, atlasImage:Image, data:Blob):Void
+	public static function loadAtlasLibGdx(image:Image, data:Blob):Void
 	{
-		var regions = new Map<String, Region>();
+		if (cache == null)
+			cache = new Map<String, Region>();
 
 		var dataString = StringTools.trim(data.toString());
 		var lines = dataString.split('\n');
@@ -207,11 +151,8 @@ class Atlas
 			var position = lines[5 + (i * 7) + 2].substr(6).split(', ');
 			var size = lines[5 + (i * 7) + 3].substr(8).split(', ');
 
-			var region = new Region(Std.parseFloat(position[0]), Std.parseFloat(position[1]), Std.parseInt(size[0]), Std.parseInt(size[1]));
-			regions.set(lines[5 + (i * 7)], region);
-		}
-
-		var atlas = new Atlas(atlasName, atlasImage, regions);
-		atlasCache.set(atlasName, atlas);
+			var region = new Region(image, Std.parseFloat(position[0]), Std.parseFloat(position[1]), Std.parseInt(size[0]), Std.parseInt(size[1]));
+			cache.set(lines[5 + (i * 7)], region);
+		}		
 	}
 }

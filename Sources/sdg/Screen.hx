@@ -28,8 +28,6 @@ class Screen
 	 */
 	public var bgColor:Color;	
 	
-	public var clipping:Rectangle;
-	
 	public var camera:Camera;
 
 	public var worldWidth:Int;
@@ -51,7 +49,6 @@ class Screen
 		entityNames = new Map<String,Object>();
 				
 		bgColor = Color.Black;		
-		clipping = null;
 		
 		camera = new Camera(this);
 		worldWidth = Sdg.gameWidth;
@@ -100,9 +97,7 @@ class Screen
 	 * to call super.render() or your Entities will not be rendered.
 	 */
 	public function render(g:Graphics):Void
-	{
-		enableClipping(g);
-		
+	{				
 		// render the entities in order of depth
 		for (layer in layerList)
 		{
@@ -114,22 +109,8 @@ class Screen
 				if (object.visible)
 					object.render(g, camera.x, camera.y);				
 			}
-		}
-		
-		disableClipping(g);
-	}
-    
-    inline public function enableClipping(g:Graphics):Void
-    {
-        if (clipping != null)
-            g.scissor(Std.int(clipping.x), Std.int(clipping.y), Std.int(clipping.width), Std.int(clipping.height));
-    }
-    
-    inline public function disableClipping(g:Graphics):Void
-    {
-        if (clipping != null)
-            g.disableScissor();
-    }
+		}		
+	}    
 	
 	public function destroy():Void
 	{
@@ -169,6 +150,22 @@ class Screen
         if (destroy)
             destroyList[destroyList.length] = object;
         
+		return object;
+	}
+
+	/**
+	 * Creates an object and add to the screen 
+	 */
+	public function create(x:Float, y:Float, graphic:Graphic, ?layer:Null<Int>):Object
+	{
+		var object = new Object(x, y);
+		object.graphic = graphic;
+
+		if (layer != null)
+			object.layer = layer;
+
+		add(object);
+
 		return object;
 	}
 	
@@ -364,14 +361,6 @@ class Screen
 		list.add(object);
 	}
 	
-	/**
-	 * Sorts layer from highest value to lowest
-	 */
-	private function layerSort(a:Int, b:Int):Int
-	{
-		return b - a;
-	}
-
 	/** 
 	 * Removes object from the render list. 
 	 */
@@ -387,16 +376,14 @@ class Screen
 			layers.remove(object.layer);
 		}
 	}
-    
-    /**
-	 * A list of Entity objects of the type.
-	 * @param	type 		The type to check.
-	 * @return 	The Entity list.
+
+	/**
+	 * Sorts layer from highest value to lowest
 	 */
-	/*public inline function entitiesForType(type:String):List<Object>
+	private function layerSort(a:Int, b:Int):Int
 	{
-		return types.exists(type) ? types.get(type) : null;
-	}*/
+		return b - a;
+	}		
 	
 	/** 
 	 * Register the entities instance name. 

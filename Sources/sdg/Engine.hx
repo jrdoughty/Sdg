@@ -7,6 +7,7 @@ import kha.System;
 import kha.Scaler;
 import kha.Framebuffer;
 import kha.graphics2.Graphics;
+import kha.graphics2.ImageScaleQuality;
 import sdg.manager.Manager;
 
 class Engine
@@ -20,11 +21,14 @@ class Engine
 	
 	var managers:Array<Manager>;
 	
-	public var backgroundRender:Graphics->Void;    
+	public var backgroundRender:Graphics->Void;
+
+	public var highQualityScale:Bool;
 	
-	public function new(width:Int, height:Int, ?fps:Null<Int>):Void
+	public function new(width:Int, height:Int, highQualityScale = false, ?fps:Null<Int>):Void
 	{
 		active = true;
+		this.highQualityScale = highQualityScale;
 		
 		backbuffer = Image.createRenderTarget(width, height);
 		g2 = backbuffer.g2;
@@ -59,7 +63,7 @@ class Engine
     function calcGameScale()
     {
         // TODO
-        Sdg.gameScale = Sdg.windowWidth / Sdg.gameWidth;
+        Sdg.gameScale = Sdg.gameWidth / Sdg.windowWidth;
     }
 	
 	function onForeground()
@@ -158,6 +162,10 @@ class Engine
 		renderBackbuffer();
 
 		framebuffer.g2.begin();
+
+		if (highQualityScale)
+			framebuffer.g2.imageScaleQuality = ImageScaleQuality.High;
+			
 		Scaler.scale(backbuffer, framebuffer, System.screenRotation);
 		framebuffer.g2.end();
 	}

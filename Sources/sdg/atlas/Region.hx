@@ -1,10 +1,14 @@
 package sdg.atlas;
 
+import kha.Image;
+
 /**
  *	Represents a region inside a image
  */
 class Region
 {
+	public var image:Image;
+
 	/** The x position inside the image */
 	public var sx:Float;
 	
@@ -21,10 +25,11 @@ class Region
 	public var hw:Int;
 	
 	/** Half of the height */
-	public var hh:Int;
+	public var hh:Int;	
 	
-	public function new(sx:Float, sy:Float, w:Int, h:Int)
+	public function new(image:Image, sx:Float, sy:Float, w:Int, h:Int)
 	{
+		this.image = image;
 		this.sx = sx;
 		this.sy = sy;
 		this.w = w;

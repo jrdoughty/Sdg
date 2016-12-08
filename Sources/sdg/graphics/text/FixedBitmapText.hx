@@ -4,29 +4,36 @@ import kha.Image;
 import kha.graphics2.Graphics;
 import kha.math.Vector2i;
 import sdg.Object;
+import sdg.atlas.Atlas;
 import sdg.atlas.Region;
+import sdg.Graphic.ImageType;
 
 class FixedBitmapText extends Graphic
-{
-    public var image:Image;
+{    
     public var region:Region;
     public var text:String;
     
     var letterWidth:Int;
 	var letterHeight:Int;
     
-    public function new(text:String, letterWidth:Int, letterHeight:Int, image:Image, ?region:Region):Void
+    public function new(source:ImageType, text:String, letterWidth:Int, letterHeight:Int):Void
     {
         super();
         
-        this.image = image;
+        switch (source.type)
+		{
+			case First(image):
+				this.region = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				this.region = region;
+
+            case Third(regionName):
+                this.region = Atlas.getRegion(regionName);
+		}        
+
         this.letterWidth = letterWidth;
-        this.letterHeight = letterHeight;
-        
-        if (region != null)
-			this.region = region;
-		else
-			this.region = new Region(0, 0, image.width, image.height);
+        this.letterHeight = letterHeight;		
     }
     
     override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
@@ -46,7 +53,7 @@ class FixedBitmapText extends Graphic
                 else if (code > 122)
                     code -= 60;				
                 
-                g.drawScaledSubImage(image, region.sx + (code * letterWidth), region.sy, letterWidth, letterHeight,
+                g.drawScaledSubImage(region.image, region.sx + (code * letterWidth), region.sy, letterWidth, letterHeight,
 							 cursor - cameraX, objectY + y - cameraY, letterWidth, letterHeight);
             }
             

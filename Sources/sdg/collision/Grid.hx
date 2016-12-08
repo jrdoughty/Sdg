@@ -107,14 +107,10 @@ class Grid extends Hitbox
 	inline function checkTile(column:Int, row:Int):Bool
 	{
 		// check that tile is valid
-		if (column < 0 || column > columns - 1 || row < 0 || row > rows - 1)
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+		if (column < 0 || column > columns - 1 || row < 0 || row > rows - 1)		
+			return false;		
+		else		
+			return true;		
 	}
 
 	/**

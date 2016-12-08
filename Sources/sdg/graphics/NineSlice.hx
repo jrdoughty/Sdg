@@ -1,14 +1,12 @@
 package sdg.graphics;
 import kha.Image;
 import kha.graphics2.Graphics;
+import sdg.atlas.Atlas;
 import sdg.atlas.Region;
+import sdg.Graphic.ImageType;
 
 class NineSlice extends Graphic
-{
-	/**
-	 * The image used to render the sprite
-	 */
-	public var image:Image;
+{	
 	/**
 	 * The region inside the image that is rendered
 	 */
@@ -22,16 +20,21 @@ class NineSlice extends Graphic
 	var width:Int;
 	var height:Int;
 
-	public function new (leftBorder:Int, rightBorder:Int, topBorder:Int, bottomBorder:Int, width:Int, height:Int, image:Image, ?region:Region):Void
+	public function new (source:ImageType, leftBorder:Int, rightBorder:Int, topBorder:Int, bottomBorder:Int, width:Int, height:Int):Void
 	{
 		super();
 		
-		this.image = image;
-		
-		if (region != null)
-			this.region = region;
-		else
-			this.region = new Region(0, 0, image.width, image.height);
+		switch (source.type)
+		{
+			case First(image):
+				this.region = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				this.region = region;
+
+			case Third(regionName):
+				this.region = Atlas.getRegion(regionName);
+		}		
 
 		this.leftBorder = leftBorder == 0 ? 0 : leftBorder;
 		this.rightBorder = rightBorder == 0 ? 0 : rightBorder;
@@ -52,7 +55,7 @@ class NineSlice extends Graphic
 	{
 		if (leftBorder > 0)
 		{
-			g.drawScaledSubImage(image, region.sx, region.sy + topBorder,	// sxy
+			g.drawScaledSubImage(region.image, region.sx, region.sy + topBorder,	// sxy
 				leftBorder, region.h - topBorder - bottomBorder,			// swh
 				objectX + x - cameraX, objectY + y + topBorder - cameraY,	// xy
 				leftBorder, height);										// wh
@@ -60,7 +63,7 @@ class NineSlice extends Graphic
 
 		if (rightBorder > 0)
 		{
-			g.drawScaledSubImage(image, region.sx + region.w - rightBorder, region.sy + region.sy + topBorder,
+			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy + region.sy + topBorder,
 				rightBorder, region.h - topBorder - bottomBorder,
 				objectX + x + leftBorder + width - cameraX, objectY + y + topBorder - cameraY,
 				rightBorder, height);
@@ -68,7 +71,7 @@ class NineSlice extends Graphic
 
 		if (topBorder > 0)
 		{
-			g.drawScaledSubImage(image, region.sx + leftBorder, region.sy,
+			g.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy,
 				region.w - leftBorder - rightBorder, topBorder,
 				objectX + x + leftBorder - cameraX, object.y + y - cameraY,
 				width, topBorder);
@@ -76,7 +79,7 @@ class NineSlice extends Graphic
 
 		if (bottomBorder > 0)
 		{
-			g.drawScaledSubImage(image, region.sx + leftBorder, region.h - bottomBorder,
+			g.drawScaledSubImage(region.image, region.sx + leftBorder, region.h - bottomBorder,
 				region.w - leftBorder - rightBorder, bottomBorder,
 				objectX + x + leftBorder - cameraX, objectY + y + topBorder + height - cameraY,
 				width, bottomBorder);
@@ -84,7 +87,7 @@ class NineSlice extends Graphic
 
 		if (leftBorder > 0 && topBorder > 0)
 		{
-			g.drawScaledSubImage(image, region.sx, region.sy, 
+			g.drawScaledSubImage(region.image, region.sx, region.sy, 
 				leftBorder, topBorder,
 				objectX + x - cameraX, objectY + y - cameraY, 
 				leftBorder, topBorder);
@@ -92,7 +95,7 @@ class NineSlice extends Graphic
 
 		if (rightBorder > 0 && topBorder > 0)
 		{
-			g.drawScaledSubImage(image, region.sx + region.w - rightBorder, region.sy, 
+			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy, 
 				rightBorder, topBorder,
 				objectX + x + leftBorder + width - cameraX,	objectY + y - cameraY,
 				rightBorder, topBorder);
@@ -100,7 +103,7 @@ class NineSlice extends Graphic
 
 		if (leftBorder > 0 && bottomBorder > 0)
 		{
-			g.drawScaledSubImage(image, region.sx, region.sy + region.h - bottomBorder,
+			g.drawScaledSubImage(region.image, region.sx, region.sy + region.h - bottomBorder,
 				leftBorder, bottomBorder,
 				objectX + x - cameraX, objectY + y + topBorder + height - cameraY,
 				leftBorder, bottomBorder);
@@ -108,13 +111,13 @@ class NineSlice extends Graphic
 
 		if (rightBorder > 0 && bottomBorder > 0)
 		{
-			g.drawScaledSubImage(image, region.sx + region.w - rightBorder, region.sy + region.h - bottomBorder,
+			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy + region.h - bottomBorder,
 				rightBorder, bottomBorder,
 				objectX + x + leftBorder + width - cameraX, objectY + y + topBorder + height - cameraY,
 				rightBorder, bottomBorder);
 		}
 
-		g.drawScaledSubImage(image, region.sx + leftBorder, region.sy + topBorder,
+		g.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy + topBorder,
 			region.w - leftBorder - rightBorder, region.h - topBorder - bottomBorder,
 			objectX + x + leftBorder - cameraX, objectY + y + topBorder - cameraY,
 			width, height);

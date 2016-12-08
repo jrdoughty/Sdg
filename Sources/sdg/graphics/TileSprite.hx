@@ -5,103 +5,132 @@ import kha.math.Vector2;
 import kha.graphics2.Graphics;
 import kha.math.Vector2i;
 import sdg.atlas.Region;
+import sdg.Graphic.ImageType;
 
 class TileSprite extends Sprite
 {
-    public var widthArea(default, set):Int;
-    public var heightArea(default, set):Int;
-    
-    var restWidth:Int;
-    var restHeight:Int;    
-    
-    var columns:Int;
-    var rows:Int;
-    
+    public var widthArea:Int;
+    public var heightArea:Int;
+
+    var tileInfo:Array<Float>;
+    var numTiles:Int;
+
+    public var scrollX:Float;    
+    public var scrollY:Float;
+
     var cursor:Vector2;
     
-    public function new(widthArea:Int, heightArea:Int, image:Image, ?region:Region):Void
+    public function new(source:ImageType, widthArea:Int, heightArea:Int, scrollX:Float = 0, scrollY:Float = 0):Void
     {
-        super(image, region);
-        
+        super(source);
+
         this.widthArea = widthArea;
-        this.heightArea = heightArea;
+        this.heightArea = heightArea;        
         
-        cursor = new Vector2();
+        this.scrollX = scrollX;
+        this.scrollY = scrollY;
+        
+        cursor = new Vector2(-region.w, -region.h);
+        tileInfo = new Array<Float>();
+
+        while(cursor.y <= heightArea)
+        {
+            while(cursor.x <= widthArea)
+            {
+                tileInfo.push(cursor.x);
+                tileInfo.push(cursor.y);
+
+                cursor.x += region.w;
+                numTiles++;
+            }
+
+            cursor.x = -region.w;
+            cursor.y += region.h;
+        }
+
+        cursor.x = 0;
+        cursor.y = 0;
+    }
+
+    override function update():Void
+    {
+        if (scrollX != 0)
+        {
+            cursor.x += scrollX;
+
+            if (cursor.x > region.w)
+                cursor.x = 0;
+            else if (cursor.x < 0)
+                cursor.x = region.w;
+        }
+        
+        if (scrollY != 0)
+        {
+            cursor.y += scrollY;
+
+            if (cursor.y > region.h)
+                cursor.y = 0;
+            else if (cursor.y < 0)
+                cursor.y = region.h;
+        }
     }
     
-    override function innerRender(g:Graphics, cx:Float, cy:Float):Void 
+    override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-        var w = 0;
-        var h = 0;
-        
-        cursor.y = object.y + y;
-        
-        for (r in 0...rows)
-        {                        
-            cursor.x = object.x + x;
-            
-            if (restHeight > 0 && r == (rows - 1))
-                h = restHeight;                
+        var currTileX = 0.0;
+        var currTileY = 0.0;        
+
+        for (i in 0...tileInfo.length)
+        {
+            var posX = i * 2;
+            var posY = (i * 2) + 1;
+
+            var sx = region.sx;
+            var sy = region.sy;
+            var w = region.w;
+            var h = region.h;            
+
+            if ((tileInfo[posX] + cursor.x > widthArea) || (tileInfo[posY] + cursor.y > heightArea))
+                continue;
             else
-                h = region.h;                         
-            
-            for (c in 0...columns)
             {
-                if (restWidth > 0 && c == (columns - 1))
-                    w = restWidth;                    
-                else
-                    w = region.w;
-                
-                g.drawScaledSubImage(image, region.sx, region.sy, w, h,
-                    cursor.x - cx, cursor.y - cy, w, h);
-                  
-                cursor.x += w;
-            }
-                        
-            cursor.y += h;
-        }               
+                if (tileInfo[posX] < 0)
+                {
+                    sx = region.sx + region.w - cursor.x;
+                    w = Std.int(cursor.x);
+                    currTileX = objectX + x;
+                }
+                else 
+                {
+                    if (tileInfo[posX] + region.w + cursor.x > widthArea)                    
+                        w = Std.int(widthArea - tileInfo[posX] + cursor.x);
+                    
+                    currTileX = objectX + x + tileInfo[posX] + cursor.x;    
+                }                
+                    
+
+                if (tileInfo[posY] < 0)
+                {
+                    sy = region.sy + region.h - cursor.y;
+                    h = Std.int(cursor.y);
+                    currTileY = objectY + y;
+                }
+                else 
+                {
+                    if (tileInfo[posY] + region.h + cursor.y > heightArea)                    
+                        h = Std.int(heightArea - tileInfo[posY] + cursor.y);
+
+                    currTileY = objectY + y + tileInfo[posY] + cursor.y;
+                }                    
+            }   			
+            
+            g.drawScaledSubImage(region.image, sx, sy, w, h,
+                currTileX - cameraX, currTileY - cameraY, w, h);            
+        }
 	}
     
     override public function getSize():Vector2i 
     {
         return new Vector2i(widthArea, heightArea);
-    }
-    
-    function set_widthArea(value:Int):Int
-    {
-        if (value > region.w)
-        {                    
-            columns = Std.int(value / region.w);
-            
-            restWidth = Std.int(value % region.w);
-            if (restWidth > 0)
-                columns++;
-        }
-        else
-        {
-            columns = 1;
-            restWidth = Std.int(value % region.w);
-        }
-        
-        return widthArea = value;
-    }
-    
-    function set_heightArea(value:Int):Int
-    {
-        if (value > region.h)
-        {                    
-            rows = Std.int(value / region.h);
-            
-            restHeight = Std.int(value % region.h);
-            if (restHeight > 0)
-                rows++;
-        }
-        else
-        {
-            rows = 1;
-            restHeight = Std.int(value % region.h);
-        }    
-        
-        return heightArea = value;
-    }
+    }    
 }

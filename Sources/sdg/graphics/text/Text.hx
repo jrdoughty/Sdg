@@ -159,10 +159,7 @@ class Text extends Graphic
 			}
 		}
 
-		// Reusable variables
-		//var char:String;
-		//var charCode:Int;
-		//var letter:Letter;
+		// Reusable variables		
 		var currLineText = '';
 		var currLineWidth = 0;
 		var currWord = '';
@@ -211,38 +208,14 @@ class Text extends Graphic
 			if (thisWord != ' ')
 			{
 				currWord = thisWord;
-				currWordWidth = Std.int(font.width(fontSize, currWord));
-
-				/*for (charIndex in 0 ... thisWord.length)
-				{
-					char = thisWord.charAt(charIndex);
-					charCode = Utf8.charCodeAt(char, 0);
-
-					// Get letter data based on the charCode key
-					letter = font.letters.get(charCode);
-
-					// If the letter data exists, append it to the current word.
-					// Then add the letter's padding to the overall word width.
-					// If the letter data doesn't exist, then just skip without
-					// altering the currWord or currWordWidth.
-					if (letter != null)
-					{
-						currWord += char;
-						currWordWidth += letter.xadvance;
-
-						// If this is the last letter for the line, remember
-						// the padding so that we can add to the currLineWidth later.
-						lastLetterPadding = letter.width - letter.xadvance;
-					}
-				}*/
+				currWordWidth = Std.int(font.width(fontSize, currWord));												
 			}
 			else
 			{
 				// For space characters, usually they have no width,
 				// we have to manually add the .spaceWidth value.
 				currWord = ' ';
-				currWordWidth = Std.int(font.width(fontSize, ' '));
-				//currWordWidth = font.spaceWidth;
+				currWordWidth = Std.int(font.width(fontSize, ' '));				
 			}
 
 			// After adding current word to the line, did it pass
@@ -262,10 +235,7 @@ class Text extends Graphic
 			// current line to the array first, then add the
 			// current word to the next line.
 			if (isBreakFirst || isLastWord)
-			{
-				// Add padding so the last letter doesn't get chopped off
-				//currLineWidth += lastLetterPadding;
-
+			{								
 				// Add current line (sans current word) to array
 				lines.push({
 					text: currLineText,
@@ -307,8 +277,7 @@ class Text extends Graphic
 				if (trimAll) 
 				{
 					var position = lines.length - 1;
-					
-					//lines[position].text = StringTools.trim(lines[position].text);
+										
 					lines[position].text = trim1.replace(lines[position].text, '');
 					lines[position].width = Std.int(font.width(fontSize, lines[position].text));
 				}
@@ -318,9 +287,6 @@ class Text extends Graphic
 			// to the current line, do it here.
 			if (isBreakLater)
 			{
-				// Add padding so the last letter doesn't get chopped off
-				//currLineWidth += lastLetterPadding;
-
 				// add current line to array, whether it has already
 				// previously been broken to new line or not.
 
@@ -385,68 +351,10 @@ class Text extends Graphic
 			
 			g.font = font;
 			g.fontSize = fontSize;
-			g.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);  
-
-			/*var lineText:String = line.text;
-			var lineTextLen:Int = lineText.length;
-
-			for (i in 0 ... lineTextLen)
-			{
-				var char = lineText.charAt(i); // get letter
-				var charCode = Utf8.charCodeAt(char, 0); // get letter id
-				var letter = font.letters.get(charCode); // get letter data
-
-				// If the letter data exists, then we will render it.
-				if (letter != null)
-				{
-					// If the letter is NOT a space, then render it.
-					if (letter.id != spaceCharCode)
-					{
-						letterWidthScaled = letter.width * scaleX;
-						letterHeightScaled = letter.height * scaleY;
-						
-						g.drawScaledSubImage(
-							font.image,
-							letter.x,
-							letter.y,
-							letter.width,
-							letter.height,
-							x + cursor.x + letter.xoffset * scaleX + (flip.x ? letterWidthScaled : 0) - cx,
-							y + cursor.y + letter.yoffset * scaleX + (flip.y ? letterHeightScaled : 0) - cy,
-							flip.x ? -letterWidthScaled : letterWidthScaled,
-							flip.y ? -letterHeightScaled : letterHeightScaled);
-
-						// Add kerning if it exists. Also, we don't have to
-						// do this if we're already at the last character.
-						if (i != lineTextLen)
-						{
-							// Get next char's code
-							var charNext = lineText.charAt(i + 1);
-							var charCodeNext = Utf8.charCodeAt(charNext, 0);
-
-							// If kerning data exists, adjust the cursor position.
-							if (letter.kernings.exists(charCodeNext))							
-								cursor.x += letter.kernings.get(charCodeNext) * scaleX;							
-						}
-
-						// Move cursor to next position, with padding.
-						cursor.x += (letter.xadvance + font.outline) * scaleX;
-					}
-					else
-					{
-						// If this is a space character, move cursor
-						// without rendering anything.
-						cursor.x += font.spaceWidth * scaleX;
-					}
-				}
-				else
-					// Don't render anything if the letter data doesn't exist.
-					trace('letter data doesn\'t exist: $char');
-			}*/
+			g.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);  							
 
 			// After we finish rendering this line,
-			// move on to the next line.
-			//cursor.y += (font.lineHeight * scaleY) + lineSpacing;
+			// move on to the next line.			
 			cursor.y += fontHeight + lineSpacing;
 		}		
 	}

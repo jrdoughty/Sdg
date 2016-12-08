@@ -22,15 +22,7 @@ class Object
 	/** 
 	 * the y position 
 	 */
-	public var y:Float;
-    /**
-	 * X origin of the Object's hitbox.
-	 */
-	//public var originX:Int;
-	/**
-	 * Y origin of the Object's hitbox.
-	 */
-	//public var originY:Int;	
+	public var y:Float;    	 	
 	/**
 	 * The hitbox width. You need to set this manually to use physics
 	 */
@@ -42,9 +34,7 @@ class Object
     /**
 	 * If the Object should respond to collision checks.
 	 */
-	public var collidable:Bool;
-	
-	//public var body:Collision;
+	public var collidable:Bool;	
 	/**
 	 * If the object can update 
 	 */ 
@@ -81,7 +71,7 @@ class Object
 		this.name = '';	
 		this.x = x;
 		this.y = y;
-        //originX = originY = 0;
+        
         width = height = 0;
                 
         collidable = true;		
@@ -135,31 +125,16 @@ class Object
 	}
 	    
     /**
-	 * Sets the Object's hitbox properties.
-	 * @param	width		Width of the hitbox.
-	 * @param	height		Height of the hitbox.
-	 * @param	originX		X origin of the hitbox.
-	 * @param	originY		Y origin of the hitbox.
+	 * Sets the Object's size.
+	 * @param	width		Width of the object.
+	 * @param	height		Height of the object.	 
 	 */
-	public inline function setHitbox(width:Int = 0, height:Int = 0, originX:Int = 0, originY:Int = 0)
+	public inline function setSize(width:Int, height:Int)
 	{
 		this.width = width;
-		this.height = height;
-		//this.originX = originX;
-		//this.originY = originY;
+		this.height = height;		
 	}
     
-    /**
-	 * Sets the origin of the Object.
-	 * @param	x		X origin.
-	 * @param	y		Y origin.
-	 */
-	public inline function setOrigin(x:Int = 0, y:Int = 0)
-	{
-		//originX = x;
-		//originY = y;
-	}	
-	
 	/**
 	 * The position of the object relative to the screen.
 	 * If the object wasn't added to a screen, the world position is returned.
@@ -203,10 +178,7 @@ class Object
 	}
 	
 	public function setSizeAuto():Void
-    {
-        //originX = 0;
-        //originY = 0;
-		
+    {                		
 		if (graphic != null)
 		{
 			var size = graphic.getSize();
@@ -232,6 +204,14 @@ class Object
         
         return false;
     }
+
+	public function pointInside(px:Float, py:Float):Bool
+    {
+        if (px > x && px < (x + width) && py > y && py < (y + height))
+            return true;
+        else
+            return false;
+    }
 	
 	private function set_layer(value:Int):Int
 	{
@@ -246,21 +226,7 @@ class Object
 		screen.addRender(this);
 		
 		return layer;
-	}
-	
-	/*private function set_type(value:String):String
-	{
-		if (type == value) return type;
-		if (screen == null)
-		{
-			type = value;
-			return type;
-		}
-		if (type != "") screen.removeType(this);
-		type = value;
-		if (value != "") screen.addType(this);
-		return type;
-	}*/
+	}	
 	
 	private function set_graphic(value:Graphic):Graphic
 	{
@@ -310,15 +276,13 @@ class Object
 	{
 		return Sdg.distanceRects(rx, ry, rwidth, rheight, x - originX, y - originY, width, height);
 	}*/
-    
-    
-    
-    	/**
+        
+     /**
 	 * When you collide with an Object on the x-axis with moveTo() or moveBy()
 	 * the engine call this function. Override it to detect and change the
 	 * behaviour of collisions.
 	 *
-	 * @param	e		The Object you collided with.
+	 * @param	e	The Object you collided with.
 	 *
 	 * @return	If there was a collision.
 	 */
@@ -332,7 +296,7 @@ class Object
 	 * the engine call this function. Override it to detect and change the
 	 * behaviour of collisions.
 	 *
-	 * @param	e		The Object you collided with.
+	 * @param	e	The Object you collided with.
 	 *
 	 * @return	If there was a collision.
 	 */

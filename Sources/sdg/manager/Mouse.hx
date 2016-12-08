@@ -1,26 +1,57 @@
 package sdg.manager;
 
 import kha.input.Mouse;
+import kha.math.Vector2;
+import sdg.Sdg;
 
 class Mouse extends Manager
 {
-	public static var init:Bool = false;
-
-	// x and y not scaled
+	public static var init:Bool = false;	
+	/**
+	 * x not scaled
+	 */
 	public static var rawX:Int = 0;
-	public static var rawY:Int = 0;
-
-	// x and y scaled to the backbuffer
+	/**
+	 * y not scaled
+	 */
+	public static var rawY:Int = 0;	
+	/**
+	 * x scaled to the backbuffer
+	 */
 	public static var x:Int = 0;
+	/**
+	 * y scaled to the backbuffer
+	 */
 	public static var y:Int = 0;
+	/**
+	 * last x position when a mouse click started, scaled to the backbuffer
+	 */
+	public static var sx:Int = 0;
+	/**
+	 * last y position when a mouse click started, scaled to the backbuffer
+	 */
+	public static var sy:Int = 0;
 
-	// deltas of x and y
+	/**
+	 * delta of x
+	 */
 	public static var dx:Int = 0;
-	public static var dy:Int = 0;
-
-	// x and y inside the world (adjusted with the camera)
+	/**
+	 * delta of y
+	 */
+	public static var dy:Int = 0;	
+	/**
+	 * x inside the world (adjusted with the camera)
+	 */
 	public static var wx:Int = 0;
+	/**
+	 * y inside the world (adjusted with the camera)
+	 */
 	public static var wy:Int = 0;
+
+	public static var durationMouseDown:Float = 0;
+
+	static var mouseDownStartTime:Float;
 
 	static var mousePressed:Map<Int, Bool>;
 	static var mouseHeld:Map<Int, Bool>;
@@ -72,12 +103,17 @@ class Mouse extends Manager
 		
 		updateMouseData(x, y, 0, 0);
 
+		Mouse.sx = Std.int(x * Sdg.gameScale);
+		Mouse.sy = Std.int(y * Sdg.gameScale);
+
 		mousePressed.set(index, true);
 		mouseHeld.set(index, true);
 
 		mouseCount++;
 
 		mouseJustPressed = true;
+
+		mouseDownStartTime = kha.Scheduler.time();
 	}
 
 	function onMouseEnd(index:Int, x:Int, y:Int):Void
@@ -88,6 +124,8 @@ class Mouse extends Manager
 		mouseHeld.remove(index);
 
 		mouseCount--;
+
+		durationMouseDown = kha.Scheduler.time() - mouseDownStartTime;
 	}
 
 	function onMouseMove(x:Int, y:Int, dx:Int, dy:Int):Void
@@ -99,12 +137,12 @@ class Mouse extends Manager
 	{
 		Mouse.rawX = x;
 		Mouse.rawY = y;
-		Mouse.x = Std.int(x / Sdg.gameScale);
-		Mouse.y = Std.int(y / Sdg.gameScale);
-		Mouse.dx = Std.int(dx / Sdg.gameScale);
-		Mouse.dy = Std.int(dy / Sdg.gameScale);
-		Mouse.wx = Std.int((x + Sdg.screen.camera.x) / Sdg.gameScale);
-		Mouse.wy = Std.int((y + Sdg.screen.camera.y) / Sdg.gameScale);
+		Mouse.x = Std.int(x * Sdg.gameScale);
+		Mouse.y = Std.int(y * Sdg.gameScale);
+		Mouse.dx = Std.int(dx * Sdg.gameScale);
+		Mouse.dy = Std.int(dy * Sdg.gameScale);
+		Mouse.wx = Std.int((x + Sdg.screen.camera.x) * Sdg.gameScale);
+		Mouse.wy = Std.int((y + Sdg.screen.camera.y) * Sdg.gameScale);
 	}
 
 	function onMouseWheel(delta:Int):Void
@@ -113,17 +151,17 @@ class Mouse extends Manager
 		trace("onMouseWheel : " + delta);
 	}
 
-	inline public static function isPressed(index:Int=0):Bool
+	inline public static function isPressed(index:Int = 0):Bool
 	{
 		return init && mousePressed.exists(index);
 	}
 
-	inline public static function isHeld(index:Int=0):Bool
+	inline public static function isHeld(index:Int = 0):Bool
 	{
 		return init && mouseHeld.exists(index);
 	}
 
-	inline public static function isUp(index:Int=0):Bool
+	inline public static function isUp(index:Int = 0):Bool
 	{
 		return init && mouseUp.exists(index);
 	}
@@ -136,5 +174,16 @@ class Mouse extends Manager
 	inline public static function isAnyPressed():Bool
 	{
 		return init && mouseJustPressed;
+	}
+
+	public static function checkSwipe():Swipe
+	{
+		var swipeOcurred = (Sdg.distance(Mouse.sx, Mouse.sy, Mouse.x, Mouse.y) > 30
+			&& durationMouseDown > 0.1 && durationMouseDown < 0.25);
+
+		if (swipeOcurred)
+			return new Swipe(new Vector2(Mouse.sx, Mouse.sy), new Vector2(Mouse.x, Mouse.y));
+		else
+			return null;
 	}	
 }
