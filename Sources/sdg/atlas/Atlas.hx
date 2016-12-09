@@ -118,6 +118,7 @@ class Atlas
 		{
 			var region = new Region(image, Std.parseInt(st.att.x), Std.parseInt(st.att.y), Std.parseInt(st.att.width), Std.parseInt(st.att.height));
 			var name = StringTools.replace(st.att.name, '.png', '');
+			name = StringTools.replace(name, '.jpg', '');
 			cache.set(name, region);
 		}
 	}

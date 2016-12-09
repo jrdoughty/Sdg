@@ -5,7 +5,7 @@ import sdg.atlas.Atlas;
 import sdg.atlas.Region;
 import sdg.Graphic.ImageType;
 
-class NineSlice extends Graphic
+class NinePatch extends Graphic
 {	
 	/**
 	 * The region inside the image that is rendered
@@ -17,8 +17,11 @@ class NineSlice extends Graphic
 	var topBorder:Int;
 	var bottomBorder:Int;
 	
-	var width:Int;
-	var height:Int;
+	public var width(default, set):Int;
+	public var height(default, set):Int;
+
+	var innerWidth:Int;
+	var innerHeight:Int;
 
 	public function new (source:ImageType, leftBorder:Int, rightBorder:Int, topBorder:Int, bottomBorder:Int, width:Int, height:Int):Void
 	{
@@ -36,19 +39,13 @@ class NineSlice extends Graphic
 				this.region = Atlas.getRegion(regionName);
 		}		
 
-		this.leftBorder = leftBorder == 0 ? 0 : leftBorder;
-		this.rightBorder = rightBorder == 0 ? 0 : rightBorder;
-		this.topBorder = topBorder == 0 ? 0 : topBorder;
-		this.bottomBorder = bottomBorder == 0 ? 0 : bottomBorder;
+		this.leftBorder = leftBorder;
+		this.rightBorder = rightBorder;
+		this.topBorder = topBorder;
+		this.bottomBorder = bottomBorder;
 		
-		this.width = width - leftBorder - rightBorder;
-		this.height = height - topBorder - bottomBorder;
-		
-		if (this.width < 0)
-			this.width = 0;
-			
-		if (this.height < 0)
-			this.height = 0;		
+		this.width = width;
+		this.height = height;				
 	}	
 
 	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
@@ -56,17 +53,17 @@ class NineSlice extends Graphic
 		if (leftBorder > 0)
 		{
 			g.drawScaledSubImage(region.image, region.sx, region.sy + topBorder,	// sxy
-				leftBorder, region.h - topBorder - bottomBorder,			// swh
-				objectX + x - cameraX, objectY + y + topBorder - cameraY,	// xy
-				leftBorder, height);										// wh
+				leftBorder, region.h - topBorder - bottomBorder,					// swh
+				objectX + x - cameraX, objectY + y + topBorder - cameraY,			// xy
+				leftBorder, innerHeight);											// wh
 		}
 
 		if (rightBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy + region.sy + topBorder,
+			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy + topBorder,
 				rightBorder, region.h - topBorder - bottomBorder,
-				objectX + x + leftBorder + width - cameraX, objectY + y + topBorder - cameraY,
-				rightBorder, height);
+				objectX + x + leftBorder + innerWidth - cameraX, objectY + y + topBorder - cameraY,
+				rightBorder, innerHeight);
 		}
 
 		if (topBorder > 0)
@@ -74,15 +71,15 @@ class NineSlice extends Graphic
 			g.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy,
 				region.w - leftBorder - rightBorder, topBorder,
 				objectX + x + leftBorder - cameraX, object.y + y - cameraY,
-				width, topBorder);
+				innerWidth, topBorder);
 		}
 
 		if (bottomBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx + leftBorder, region.h - bottomBorder,
+			g.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy + region.h - bottomBorder,
 				region.w - leftBorder - rightBorder, bottomBorder,
-				objectX + x + leftBorder - cameraX, objectY + y + topBorder + height - cameraY,
-				width, bottomBorder);
+				objectX + x + leftBorder - cameraX, objectY + y + topBorder + innerHeight - cameraY,
+				innerWidth, bottomBorder);
 		}
 
 		if (leftBorder > 0 && topBorder > 0)
@@ -97,7 +94,7 @@ class NineSlice extends Graphic
 		{
 			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy, 
 				rightBorder, topBorder,
-				objectX + x + leftBorder + width - cameraX,	objectY + y - cameraY,
+				objectX + x + leftBorder + innerWidth - cameraX,	objectY + y - cameraY,
 				rightBorder, topBorder);
 		}
 
@@ -105,7 +102,7 @@ class NineSlice extends Graphic
 		{
 			g.drawScaledSubImage(region.image, region.sx, region.sy + region.h - bottomBorder,
 				leftBorder, bottomBorder,
-				objectX + x - cameraX, objectY + y + topBorder + height - cameraY,
+				objectX + x - cameraX, objectY + y + topBorder + innerHeight - cameraY,
 				leftBorder, bottomBorder);
 		}
 
@@ -113,13 +110,33 @@ class NineSlice extends Graphic
 		{
 			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy + region.h - bottomBorder,
 				rightBorder, bottomBorder,
-				objectX + x + leftBorder + width - cameraX, objectY + y + topBorder + height - cameraY,
+				objectX + x + leftBorder + innerWidth - cameraX, objectY + y + topBorder + innerHeight - cameraY,
 				rightBorder, bottomBorder);
 		}
 
 		g.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy + topBorder,
 			region.w - leftBorder - rightBorder, region.h - topBorder - bottomBorder,
 			objectX + x + leftBorder - cameraX, objectY + y + topBorder - cameraY,
-			width, height);
+			innerWidth, innerHeight);
+	}
+
+	inline function set_width(value:Int):Int
+	{
+		innerWidth = value - leftBorder - rightBorder;
+
+		if (innerWidth < 0)
+			innerWidth = 0;
+
+		return (width = value);
+	}
+
+	inline function set_height(value:Int):Int
+	{
+		innerHeight = value - topBorder - bottomBorder;
+
+		if (innerHeight < 0)
+			innerHeight = 0;
+
+		return (height = value);
 	}
 }
