@@ -2,11 +2,12 @@ package sdg.graphics.tiles;
 
 import kha.Image;
 import kha.graphics2.Graphics;
+import sdg.atlas.Atlas;
 import sdg.atlas.Region;
+import sdg.Graphic.ImageType;
 
 class Tileset
-{
-	var image:Image;
+{	
 	var region:Region;
 	public var tileWidth:Int;
 	public var tileHeight:Int;
@@ -17,14 +18,20 @@ class Tileset
 	var _x:Int;
 	var _y:Int;
 	
-	public function new(image:Image, tileWidth:Int, tileHeight:Int, ?region:Region):Void
+	public function new(source:ImageType, tileWidth:Int, tileHeight:Int):Void
 	{
-		this.image = image;
-		
-		if (region == null)
-			region = new Region(0, 0, image.width, image.height);
-		
-		this.region = region;		
+		switch (source.type)
+		{
+			case First(image):
+				this.region = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				this.region = region;
+
+			case Third(regionName):
+				this.region = Atlas.getRegion(regionName); 
+		}		
+						
 		this.tileWidth = tileWidth;
 		this.tileHeight = tileHeight;
 		
@@ -36,6 +43,6 @@ class Tileset
 	{
 		_x = index % widthInTiles;
 		_y = Std.int(index / widthInTiles);		
-		g.drawScaledSubImage(image, region.sx + (_x * tileWidth), region.sy + (_y * tileHeight), tileWidth, tileHeight, x, y, tileWidth, tileHeight);
+		g.drawScaledSubImage(region.image, region.sx + (_x * tileWidth), region.sy + (_y * tileHeight), tileWidth, tileHeight, x, y, tileWidth, tileHeight);
 	}
 }

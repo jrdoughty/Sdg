@@ -112,7 +112,7 @@ class Animator extends Component
 		super.destroy();
 	}
 	
-	public function addAnimation(name:String, regions:Array<Region>, fps:Int=12):Void
+	public function addAnimation(name:String, regions:Array<Region>, fps:Int = 12):Void
 	{
 		if (animations.exists(name))
 			trace('animation $name already exists, overwriting...');

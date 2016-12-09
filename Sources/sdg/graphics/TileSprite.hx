@@ -97,35 +97,45 @@ class TileSprite extends Sprite
                 if (tileInfo[posX] < 0)
                 {
                     sx = region.sx + region.w - cursor.x;
-                    w = Std.int(cursor.x);
+
+                    if (cursor.x < widthArea)
+                        w = Std.int(cursor.x);
+                    else
+                        w = widthArea;
+
                     currTileX = objectX + x;
                 }
                 else 
                 {
                     if (tileInfo[posX] + region.w + cursor.x > widthArea)                    
-                        w = Std.int(widthArea - tileInfo[posX] + cursor.x);
+                        w = Std.int(widthArea - (tileInfo[posX] + cursor.x));
                     
-                    currTileX = objectX + x + tileInfo[posX] + cursor.x;    
+                    currTileX = objectX + x + tileInfo[posX] + cursor.x;
                 }                
                     
 
                 if (tileInfo[posY] < 0)
                 {
                     sy = region.sy + region.h - cursor.y;
-                    h = Std.int(cursor.y);
+
+                    if (cursor.y < heightArea)
+                        h = Std.int(cursor.y);
+                    else
+                        h = heightArea;
+                        
                     currTileY = objectY + y;
                 }
                 else 
                 {
                     if (tileInfo[posY] + region.h + cursor.y > heightArea)                    
-                        h = Std.int(heightArea - tileInfo[posY] + cursor.y);
+                        h = Std.int(heightArea - (tileInfo[posY] + cursor.y));
 
                     currTileY = objectY + y + tileInfo[posY] + cursor.y;
                 }                    
-            }   			
-            
+            }
+                        
             g.drawScaledSubImage(region.image, sx, sy, w, h,
-                currTileX - cameraX, currTileY - cameraY, w, h);            
+                currTileX - cameraX, currTileY - cameraY, w, h);                        
         }
 	}
     

@@ -65,9 +65,12 @@ class Sdg
     @:dox(hide) public static var point2:Vector2 = new Vector2();
     @:dox(hide) public static var rect:Rectangle = new Rectangle();
 
-	public static function addScreen(screen:Screen, name:String):Void
+	public static function addScreen(name:String, screen:Screen, goToScreen:Bool = false):Void
 	{
 		screens.set(name, screen);
+
+		if (goToScreen)
+			switchScreen(name);
 	}
 
 	public static function removeScreen(name:String):Void

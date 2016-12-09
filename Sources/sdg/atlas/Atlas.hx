@@ -4,6 +4,7 @@ import haxe.xml.Fast;
 import haxe.Json;
 import kha.Image;
 import kha.Blob;
+import sdg.Graphic.ImageType;
 
 typedef TexturePackerFrame = {
 	var x:Int;
@@ -63,45 +64,44 @@ class Atlas
 			listRegionNames.push('$regionName-$i');
 			
 		return getRegions(listRegionNames);
-	}	
+	}
 
-	public static function createRegionsFromImage(image:Image, regionWidth:Int, regionHeight:Int):Array<Region>
-    {   
+	public static function createRegionsFromAsset(source:ImageType, regionWidth:Int, regionHeight:Int):Array<Region>
+	{
+		var reg:Region = null;
+
+		switch (source.type)
+		{
+			case First(image):
+				reg = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				reg = region;
+
+			case Third(regionName):
+				reg = Atlas.getRegion(regionName); 
+		}
+
 		var regions = new Array<Region>();
-        var cols = Std.int(image.width / regionWidth);
-        var rows = Std.int(image.height / regionHeight);
-                
-        for (r in 0...rows)
-        {
-            for (c in 0...cols)            
-                regions.push(new Region(image, c * regionWidth, r * regionHeight, regionWidth, regionHeight));            
-        }         
-        
-        return regions;
-    }
-
-	public static function createRegionsFromRegion(region:Region, regionWidth:Int, regionHeight:Int):Array<Region>
-    {
-        var regions = new Array<Region>();
-        var cols = Std.int(region.w / regionWidth);
-        var rows = Std.int(region.h / regionHeight);
+        var cols = Std.int(reg.w / regionWidth);
+        var rows = Std.int(reg.h / regionHeight);
         
         for (r in 0...rows)
         {
             for (c in 0...cols)            
-                regions.push(new Region(region.image, region.sx + (c * regionWidth), region.sy + (r * regionHeight), regionWidth, regionHeight));
+                regions.push(new Region(reg.image, reg.sx + (c * regionWidth), reg.sy + (r * regionHeight), regionWidth, regionHeight));
         }
         
         return regions;
-    }
+	}    
 
 	public static function saveRegionsInCache(regions:Array<Region>, baseName:String):Void
 	{
 		if (cache == null)
 			cache = new Map<String, Region>();
 
-		for (i in 0...regions.length)		
-			cache.set('$baseName-$i', regions[i]);
+		for (i in 1...(regions.length + 1))
+			cache.set('$baseName-$i', regions[i - 1]);
 	}
 
 	public static function loadAtlasShoebox(image:Image, xml:Blob):Void
