@@ -11,14 +11,14 @@ class Polygon extends ShapeBase
 {        
     public var points:Array<Vector2>;
     
-    public function new(points:Array<Vector2>, color:Color, filled:Bool = true):Void
+    public function new(points:Array<Vector2>, color:Color, filled:Bool = true, strength:Float = 1):Void
     {
-        super(color, filled);
+        super(color, filled, strength);
         
         this.points = points;
     }
     
-    public static function createRectangle(width:Int, height:Int, color:Color, filled:Bool = true):Polygon
+    public static function createRectangle(width:Int, height:Int, color:Color, filled:Bool = true, strength:Float = 1):Polygon
     {
         var points = new Array<Vector2>();
         
@@ -27,7 +27,7 @@ class Polygon extends ShapeBase
         points.push(new Vector2(width, height));
         points.push(new Vector2(0, height));
         
-        return new Polygon(points, color, filled);
+        return new Polygon(points, color, filled, strength);
     }
     
     override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 

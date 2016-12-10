@@ -7,12 +7,12 @@ class ShapeBase extends Graphic
     public var filled:Bool;
     public var strength:Float;
     
-    public function new(color:Color, filled:Bool):Void
+    public function new(color:Color, filled:Bool, strength:Float):Void
     {
         super();
         
         this.color = color;
         this.filled = filled;
-        strength = 1;
+        this.strength = strength;
     }
 }

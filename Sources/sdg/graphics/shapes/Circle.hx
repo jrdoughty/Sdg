@@ -12,12 +12,12 @@ class Circle extends ShapeBase
     public var segments:Int;
     public var radius:Float;
     
-    public function new(radius:Float, color:Color, filled:Bool = true, segments:Int = 0):Void
+    public function new(radius:Float, color:Color, filled:Bool = true, strength:Float = 1):Void
     {
-        super(color, filled);
+        super(color, filled, strength);
         
         this.radius = radius;
-        this.segments = segments;
+        segments = 0;
     }
     
     override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
