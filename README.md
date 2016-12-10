@@ -1,4 +1,6 @@
-This is a 2D engine for Kha. The api is being developed and it can change, but it is already in a good state.  
+This is a 2D engine for Kha. The api is being developed and it can change, but it is already in a good state.
+
+Check the [showcase](https://github.com/RafaelOliveira/sdg-showcase) where the features are being added.
 
 Main features:
 
@@ -25,8 +27,6 @@ Softwares supported: TexturePacker and Shoebox
 There is no code for tweens, but there is support to use the library [Delta](https://github.com/furusystems/Delta).
 
 There is a collision system for rects objects and tilemaps, but it needs more testing.
-
-You can check a [showcase](https://github.com/RafaelOliveira/sdg-showcase) where the features are being added.
 
 Documentation and a tutorial are planned.
 
