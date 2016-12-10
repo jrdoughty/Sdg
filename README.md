@@ -21,12 +21,12 @@ Components available:
 - Motion (for velocity, acceleration and drag)
 - OnClick (for a basic click event)
 
-Images can be used as a single file, or it can be packed like an atlas.  
+Images can be used as a single file, or it can be used inside an atlas.  
 Softwares supported: TexturePacker and Shoebox
 
 There is no code for tweens, but there is support to use the library [Delta](https://github.com/furusystems/Delta).
 
-There is a collision system for rects objects and tilemaps, but it needs more testing.
+There is a collision system for rectangle objects and tilemaps, but it needs more testing.
 
 Documentation and a tutorial are planned.
 
