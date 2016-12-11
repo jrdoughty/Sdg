@@ -22,7 +22,8 @@ class Object
 	/** 
 	 * the y position 
 	 */
-	public var y:Float;    	 	
+	public var y:Float;	
+
 	/**
 	 * The hitbox width. You need to set this manually to use physics
 	 */
@@ -30,7 +31,11 @@ class Object
 	/**
 	 * The hitbox height. You need to set this manually to use physics
 	 */
-	public var height:Int;	
+	public var height:Int;
+
+	public var right(get, null):Float;
+
+	public var bottom(get, null):Float;		
     /**
 	 * If the Object should respond to collision checks.
 	 */
@@ -276,6 +281,16 @@ class Object
 	{
 		return Sdg.distanceRects(rx, ry, rwidth, rheight, x - originX, y - originY, width, height);
 	}*/
+
+	inline public function get_right():Float
+	{
+		return x + width;
+	}
+
+	inline public function get_bottom():Float
+	{
+		return y + height;
+	}
         
      /**
 	 * When you collide with an Object on the x-axis with moveTo() or moveBy()

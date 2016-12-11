@@ -93,9 +93,36 @@ class Atlas
         }
         
         return regions;
+	}
+
+	public static function createRegionFromRegion(source:ImageType, sx:Float, sy:Float, w:Int, h:Int):Region
+	{
+		var regionSource:Region = null;
+
+		switch (source.type)
+		{
+			case First(image):
+				regionSource = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				regionSource = region;
+
+			case Third(regionName):
+				regionSource = Atlas.getRegion(regionName); 
+		}
+
+		return new Region(regionSource.image, regionSource.sx + sx, regionSource.sy + sy, w, h);
+	}
+
+	public static function saveRegionInCache(region:Region, name:String):Void
+	{
+		if (cache == null)
+			cache = new Map<String, Region>();
+		
+		cache.set('$name', region);
 	}    
 
-	public static function saveRegionsInCache(regions:Array<Region>, baseName:String):Void
+	public static function saveRegionListInCache(regions:Array<Region>, baseName:String):Void
 	{
 		if (cache == null)
 			cache = new Map<String, Region>();
