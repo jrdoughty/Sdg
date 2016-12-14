@@ -13,7 +13,7 @@ Game objects are represented by the class Object, and it can have one of the gra
 - GraphicList (can hold many graphic classes together)
 - Text and BitmapText
 - Shapes
-- Particles (broken because of the latest changes, will be fixed)
+- Particles
 
 There is a basic entity-component system, you can create generic components that can be updated with the objects.  
 Components available:
