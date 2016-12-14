@@ -32,7 +32,7 @@ import sdg.Graphic.ImageType;
 		- Bit depth = 32
 		- Channel - A = glyph, R/G/B = one
 		- Presets - White text with alpha
-		- Font description - XML (required for WynBitmapText to parse data)
+		- Font description - XML (required for BitmapText to parse data)
 		- Textures - PNG
 	- Once done setup, just click Options > Save bitmap font as...
 	- Copy the generated PNG and FNT file to your kha assets folder and use normally.
@@ -447,7 +447,7 @@ class BitmapText extends Graphic
 				{
 					case TextAlign.Left: cursor.x = 0;
 					case TextAlign.Right: cursor.x = boxWidth - line.width;
-					case TextAlign.Center: cursor.x = (boxWidth / 2) - (line.width / 2);
+					case TextAlign.Center: cursor.x = Std.int((boxWidth * 0.5) - (line.width * 0.5));
 				}
 			}						
 
@@ -577,8 +577,8 @@ class BitmapText extends Graphic
 		{
 			var letter:BitmapLetter = {
 				id: Std.parseInt(char.att.id),
-				x: Std.int(Std.parseInt(char.att.x) + region.sx),
-				y: Std.int(Std.parseInt(char.att.y) + region.sy),
+				x: Std.parseInt(char.att.x),
+				y: Std.parseInt(char.att.y),
 				width: Std.parseInt(char.att.width),
 				height: Std.parseInt(char.att.height),
 				xoffset: Std.parseInt(char.att.xoffset),
