@@ -246,28 +246,24 @@ class Object
     
     /**
 	 * Calculates the distance from another Object.
-	 * @param	e				The other Object.
-	 * @param	useHitboxes		If hitboxes should be used to determine the distance. If not, the Entities' x/y positions are used.
+	 * @param	e				The other Object.	 
 	 * @return	The distance.
 	 */
-	/*public inline function distanceFrom(e:Object, useHitboxes:Bool = false):Float
+	public inline function distanceFrom(e:Object):Float
 	{
-		if (!useHitboxes) return Math.sqrt((x - e.x) * (x - e.x) + (y - e.y) * (y - e.y));
-		else return Sdg.distanceRects(x - originX, y - originY, width, height, e.x - e.originX, e.y - e.originY, e.width, e.height);
-	}*/
+		return Sdg.distanceRects(x, y, width, height, e.x, e.y, e.width, e.height);		
+	}
 
 	/**
 	 * Calculates the distance from this Object to the point.
 	 * @param	px				X position.
-	 * @param	py				Y position.
-	 * @param	useHitboxes		If hitboxes should be used to determine the distance. If not, the Entities' x/y positions are used.
+	 * @param	py				Y position.	 
 	 * @return	The distance.
 	 */
-	/*public inline function distanceToPoint(px:Float, py:Float, useHitbox:Bool = false):Float
+	public inline function distanceToPoint(px:Float, py:Float):Float
 	{
-		if (!useHitbox) return Math.sqrt((x - px) * (x - px) + (y - py) * (y - py));
-		else return Sdg.distanceRectPoint(px, py, x - originX, y - originY, width, height);
-	}*/
+		return Sdg.distanceRectPoint(px, py, x, y, width, height);
+	}
 
 	/**
 	 * Calculates the distance from this Object to the rectangle.
@@ -277,10 +273,10 @@ class Object
 	 * @param	rheight		Height of the rectangle.
 	 * @return	The distance.
 	 */
-	/*public inline function distanceToRect(rx:Float, ry:Float, rwidth:Float, rheight:Float):Float
+	public inline function distanceToRect(rx:Float, ry:Float, rwidth:Float, rheight:Float):Float
 	{
-		return Sdg.distanceRects(rx, ry, rwidth, rheight, x - originX, y - originY, width, height);
-	}*/
+		return Sdg.distanceRects(x, y, width, height, rx, ry, rwidth, rheight);
+	}
 
 	inline public function get_right():Float
 	{
