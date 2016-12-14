@@ -22,6 +22,7 @@ class Engine
 	var managers:Array<Manager>;
 	
 	public var backgroundRender:Graphics->Void;
+	public var persistentRender:Graphics->Void;
 
 	public var highQualityScale:Bool;
 	
@@ -144,15 +145,18 @@ class Engine
 			Sdg.screen.render(g2);
 		}
 		else
-			g2.begin(true, Color.Black);
-		
-		if (!active && backgroundRender != null)
-			backgroundRender(g2);
+			g2.begin(true, Color.Black);				
             
 		#if debug
-        else if (Sdg.editor != null && Sdg.editor.active)
+        if (Sdg.editor != null && Sdg.editor.active)
             Sdg.editor.render(g2);
         #end
+
+		if (persistentRender != null)
+			persistentRender(g2);
+
+		if (!active && backgroundRender != null)
+			backgroundRender(g2);		
         	
 		g2.end();
 	}

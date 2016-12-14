@@ -1,7 +1,6 @@
 package sdg.graphics.particles.loaders;
 
 import haxe.Json;
-import kha.Image;
 import kha.Blob;
 import kha.graphics4.BlendingFactor;
 import sdg.graphics.particles.ParticleSystem;
@@ -9,6 +8,9 @@ import sdg.graphics.particles.util.DynamicExt;
 import sdg.graphics.particles.util.MathHelper;
 import sdg.graphics.particles.util.ParticleColor;
 import sdg.graphics.particles.util.ParticleVector;
+import sdg.atlas.Atlas;
+import sdg.atlas.Region;
+import sdg.Graphic.ImageType;
 
 using sdg.graphics.particles.util.DynamicTools;
 
@@ -18,12 +20,22 @@ class PixiParticleLoader
     private static inline var BLEND_MODE_ADD : String = "add";
     private static inline var BLEND_MODE_MULTIPLY : String = "multiply";
 
-    public static function load(path:Blob, texture:Image):ParticleSystem 
+    public static function load(source:ImageType, path:Blob):ParticleSystem 
 	{
         var map : DynamicExt = Json.parse(path.toString());
         var ps = new ParticleSystem();
-        
-        ps.texture = texture;
+
+        switch (source.type)
+		{
+			case First(image):
+				ps.region = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				ps.region = region;
+
+			case Third(regionName):
+				ps.region = Atlas.getRegion(regionName); 
+		}        
 
         if (ps.texture == null) 
         {

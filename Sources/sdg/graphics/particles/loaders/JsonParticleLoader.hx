@@ -1,7 +1,6 @@
 package sdg.graphics.particles.loaders;
 
 import haxe.Json;
-import kha.Image;
 import kha.Blob;
 import sdg.Sdg;
 import sdg.graphics.particles.ParticleSystem;
@@ -9,15 +8,30 @@ import sdg.graphics.particles.util.DynamicExt;
 import sdg.graphics.particles.util.MathHelper;
 import sdg.graphics.particles.util.ParticleColor;
 import sdg.graphics.particles.util.ParticleVector;
+import sdg.atlas.Atlas;
+import sdg.atlas.Region;
+import sdg.Graphic.ImageType;
 
 using sdg.graphics.particles.util.DynamicTools;
 
 class JsonParticleLoader 
 {
-    public static function load(path:Blob, texture:Image):ParticleSystem 
+    public static function load(source:ImageType, path:Blob):ParticleSystem 
     {
         var map : DynamicExt = Json.parse(path.toString());
-        var ps = new ParticleSystem();
+        var ps = new ParticleSystem();        
+
+        switch (source.type)
+		{
+			case First(img):
+				ps.region = new Region(img, 0, 0, img.width, img.height);
+			
+			case Second(reg):
+				ps.region = reg;
+
+			case Third(regName):
+				ps.region = Atlas.getRegion(regName); 
+		}        
 
         ps.emitterType = map["emitterType"].asInt();
         ps.maxParticles = map["maxParticles"].asInt();
@@ -55,8 +69,7 @@ class JsonParticleLoader
         ps.tangentialAcceleration = map["tangentialAcceleration"].asFloat();
         ps.tangentialAccelerationVariance = map["tangentialAccelVariance"].asFloat();
         ps.blendFuncSource = Sdg.getBlendingFactor(map["blendFuncSource"].asInt());
-        ps.blendFuncDestination = Sdg.getBlendingFactor(map["blendFuncDestination"].asInt());
-        ps.texture = texture;
+        ps.blendFuncDestination = Sdg.getBlendingFactor(map["blendFuncDestination"].asInt());        
         ps.yCoordMultiplier = (map["yCoordFlipped"].asInt() == 1 ? -1.0 : 1.0);
 		
 		ps.__initialize();

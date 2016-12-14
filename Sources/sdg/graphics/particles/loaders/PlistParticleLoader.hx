@@ -1,19 +1,21 @@
 package sdg.graphics.particles.loaders;
 
-import kha.Image;
 import kha.Blob;
 import sdg.Sdg;
 import sdg.graphics.particles.ParticleSystem;
 import sdg.graphics.particles.util.MathHelper;
 import sdg.graphics.particles.util.ParticleColor;
 import sdg.graphics.particles.util.ParticleVector;
+import sdg.atlas.Atlas;
+import sdg.atlas.Region;
+import sdg.Graphic.ImageType;
 
 using sdg.graphics.particles.util.DynamicTools;
 using sdg.graphics.particles.util.XmlExt;
 
 class PlistParticleLoader 
 {
-    public static function load(path:Blob, texture:Image):ParticleSystem 
+    public static function load(source:ImageType, path:Blob):ParticleSystem 
     {
         var root = Xml.parse(path.toString()).firstElement().firstElement();
 
@@ -78,6 +80,18 @@ class PlistParticleLoader
 
         var ps = new ParticleSystem();
 
+        switch (source.type)
+		{
+			case First(image):
+				ps.region = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				ps.region = region;
+
+			case Third(regionName):
+				ps.region = Atlas.getRegion(regionName); 
+		}        
+
         ps.emitterType = map["emitterType"].asInt();
         ps.maxParticles = map["maxParticles"].asInt();
         ps.positionType = map["positionType"].asInt();
@@ -114,8 +128,7 @@ class PlistParticleLoader
         ps.tangentialAcceleration = map["tangentialAcceleration"].asFloat();
         ps.tangentialAccelerationVariance = map["tangentialAccelVariance"].asFloat();
         ps.blendFuncSource = Sdg.getBlendingFactor(map["blendFuncSource"].asInt());
-        ps.blendFuncDestination = Sdg.getBlendingFactor(map["blendFuncDestination"].asInt());
-        ps.texture = texture;
+        ps.blendFuncDestination = Sdg.getBlendingFactor(map["blendFuncDestination"].asInt());        
         ps.yCoordMultiplier = (map["yCoordFlipped"].asInt() == 1 ? -1.0 : 1.0);
 		
 		ps.__initialize();

@@ -1,7 +1,6 @@
 package sdg.graphics.particles;
 
 import kha.Color;
-import kha.Image;
 import kha.Scheduler;
 import kha.Shaders;
 import kha.graphics2.Graphics;
@@ -12,6 +11,7 @@ import kha.graphics4.VertexStructure;
 import sdg.graphics.particles.util.MathHelper;
 import sdg.graphics.particles.util.ParticleColor;
 import sdg.graphics.particles.util.ParticleVector;
+import sdg.atlas.Region;
 
 class ParticleSystem extends Graphic 
 {
@@ -59,7 +59,7 @@ class ParticleSystem extends Graphic
     public var rotatePerSecondVariance : Float;
     public var blendFuncSource : BlendingFactor;
     public var blendFuncDestination : BlendingFactor;
-	public var texture : Image;
+	public var region : Region;
     public var active : Bool;
     public var restart : Bool;
     public var particleScaleX : Float;
@@ -321,14 +321,14 @@ class ParticleSystem extends Graphic
 		for (i in 0 ... particleCount)
 		{
 			particle = particleList[i];			
-			scale = particle.particleSize / texture.width * particleScaleSize;			
+			scale = particle.particleSize / region.w * particleScaleSize;			
 			//rotation = particle.rotation * 180.0 / Math.PI + 90.0;			
 			g.color = Color.fromFloats(particle.color.r, particle.color.g, particle.color.b, particle.color.a);
 			
-			g.drawScaledSubImage(texture, 0, 0, texture.width, texture.height,
-							 objectX + (particle.position.x * particleScaleX) - ((texture.width * scale) * 0.5) - (!object.fixed.x ? cameraX : 0), 
-							 objectY + (particle.position.y * particleScaleY) - ((texture.height * scale) * 0.5) - (!object.fixed.y ? cameraY : 0), 
-							 texture.width * scale, texture.height * scale);
+			g.drawScaledSubImage(region.image, region.sx, region.sy, region.w, region.h,
+							 objectX + (particle.position.x * particleScaleX) - ((region.w * scale) * 0.5) - (!object.fixed.x ? cameraX : 0), 
+							 objectY + (particle.position.y * particleScaleY) - ((region.h * scale) * 0.5) - (!object.fixed.y ? cameraY : 0), 
+							 region.w * scale, region.h * scale);
 		}
 			
 		g.pipeline = null;

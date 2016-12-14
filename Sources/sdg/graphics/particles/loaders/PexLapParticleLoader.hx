@@ -2,16 +2,18 @@ package sdg.graphics.particles.loaders;
 
 import kha.Assets;
 import kha.Blob;
-import kha.Image;
 import sdg.Sdg;
 import sdg.graphics.particles.ParticleSystem;
 import sdg.graphics.particles.util.MathHelper;
 import sdg.graphics.particles.util.ParticleColor;
 import sdg.graphics.particles.util.ParticleVector;
+import sdg.atlas.Atlas;
+import sdg.atlas.Region;
+import sdg.Graphic.ImageType;
 
 class PexLapParticleLoader 
 {
-    public static function load(path:Blob, texture:Image):ParticleSystem 
+    public static function load(source:ImageType, path:Blob):ParticleSystem 
     {
         var root = Xml.parse(path.toString()).firstElement();
 
@@ -23,7 +25,19 @@ class PexLapParticleLoader
         for (node in root.elements())         
             map[node.nodeName] = node;        
 
-        var ps = new ParticleSystem();
+        var ps = new ParticleSystem();        
+
+        switch (source.type)
+		{
+			case First(image):
+				ps.region = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				ps.region = region;
+
+			case Third(regionName):
+				ps.region = Atlas.getRegion(regionName); 
+		}        
 
         ps.emitterType = parseIntNode(map["emitterType"]);
         ps.maxParticles = parseIntNode(map["maxParticles"]);
@@ -61,8 +75,7 @@ class PexLapParticleLoader
         ps.tangentialAcceleration = parseFloatNode(map["tangentialAcceleration"]);
         ps.tangentialAccelerationVariance = parseFloatNode(map["tangentialAccelVariance"]);
         ps.blendFuncSource = Sdg.getBlendingFactor(parseIntNode(map["blendFuncSource"]));
-        ps.blendFuncDestination = Sdg.getBlendingFactor(parseIntNode(map["blendFuncDestination"]));
-        ps.texture = texture;
+        ps.blendFuncDestination = Sdg.getBlendingFactor(parseIntNode(map["blendFuncDestination"]));        
         ps.yCoordMultiplier = (parseIntNode(map["yCoordFlipped"]) == 1 ? -1.0 : 1.0);
 		
 		ps.__initialize();
