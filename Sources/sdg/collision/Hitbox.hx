@@ -15,10 +15,10 @@ class Hitbox extends Collision
 	{
 		super(object, rect);
 
-		if (type != null)		
+		if (type != null)
 			addType(this, groupName, type);		
 
-		actualTypes = groups.get(groupName);
+		actualTypes = getTypes(groupName);
 
 		id = Collision.HITBOX_MASK;
 	}
@@ -28,6 +28,19 @@ class Hitbox extends Collision
 		groups = new Map<String, Types>();
 	}
 
+	static function getTypes(groupName:String):Types
+	{
+		var types = groups.get(groupName);
+
+		if (types == null)
+		{
+			types = new Types();
+			groups.set(groupName, types);
+		}
+
+		return types;
+	}
+
 	/** 
 	 * Adds object to the type list. 
 	 */	
@@ -35,13 +48,7 @@ class Hitbox extends Collision
 	{
 		var list:List<Hitbox>;
 
-		var types = groups.get(groupName);
-
-		if (types == null)
-		{
-			types = new Types();
-			groups.set(groupName, types);
-		}			
+		var types = getTypes(groupName);			
 
 		// add to type list
 		if (types.exists(type))

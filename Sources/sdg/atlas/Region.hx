@@ -38,4 +38,9 @@ class Region
 		hw = Std.int(w / 2);
 		hh = Std.int(h / 2);
 	}
+
+	public static function createFromImage(image:Image):Region
+	{
+		return new Region(image, 0, 0, image.width, image.height);
+	}
 }

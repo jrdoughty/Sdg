@@ -131,6 +131,11 @@ class Atlas
 			cache.set('$baseName-$i', regions[i - 1]);
 	}
 
+	public static function removeRegion(regionName):Void
+	{
+		cache.remove(regionName);
+	}
+
 	public static function loadAtlasShoebox(image:Image, xml:Blob):Void
 	{
 		if (cache == null)
