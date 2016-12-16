@@ -30,29 +30,70 @@ class GridEx extends Hitbox
 			tiles[i] = new Tile(false);
 	}
 
-	public function setTilesetCollision(index:Int, solid:Bool):Void
-	{
-		//var position = tilesetColumns * y + x;
-
-		if (index < tiles.length)
+	/**
+	 * Set the collision of a tile in the tileset by index
+	 */
+	inline public function setTileCollision(index:Int, solid:Bool):Void
+	{		
+		if (index > -1 && index < tiles.length)
 			tiles[index].solid = solid;
 	}
-	
-	public function getTilesetCollision(index:Int):Bool
-	{
-		//var position = tilesetColumns * y + x;
 
-		if (index < tiles.length && tiles[index] != null)
+	/**
+	 * Set the collision of a tile in the tileset 
+	 * by the position of the tile
+	 */
+	public function setTileCollisionXY(tx:Int, ty:Int, solid:Bool):Void
+	{
+		var position = tilesetColumns * ty + tx;
+		setTileCollision(position, solid);
+	}
+
+	/**
+	 * Set the collision of tiles in the tileset
+	 * using the area of a rectangle
+	 */
+	public function setTileCollisionRect(tx:Int, ty:Int, width:Int, height:Int, solid:Bool):Void
+	{
+		var position:Int;
+
+		for (y in ty...(ty + height))
+		{
+			for (x in tx...(tx + width))
+			{
+				position = tilesetColumns * y + x;
+				setTileCollision(position, solid);
+			}
+		}
+	}
+	
+	/**
+	 * Get the collision of a tile in the tileset by index
+	 */
+	public function getTileCollision(index:Int):Bool
+	{
+		if (index > -1 && index < tiles.length)
 			return tiles[index].solid;
 		else
 			return false;
 	}
 
-	public function setTilesetRect(index:Int, rect:Rectangle):Void
+	/**
+	 * Get the collision of a tile in the tileset
+	 * by the position of the tile
+	 */ 
+	public function getTileCollisionXY(tx:Int, ty:Int):Bool
 	{
-		//var position = tilesetColumns * y + x;
+		var position = tilesetColumns * ty + tx;
+		return getTileCollision(position);
+	}
 
-		if (index < tiles.length)
+	/**
+	 * Set the collision rectangle of a tile in the tileset by index
+	 */
+	public function setTileRect(index:Int, rect:Rectangle):Void
+	{
+		if (index > -1 && index < tiles.length)
 		{
 			tiles[index].rect = rect;
 			
@@ -61,6 +102,16 @@ class GridEx extends Hitbox
 			else
 				tiles[index].solid = false;
 		}			
+	}
+
+	/**
+	 * Set the collision rectangle of a tile in the tileset
+	 * by the position of the tile
+	 */
+	public function setTileRectXY(tx:Int, ty:Int, rect:Rectangle):Void
+	{
+		var position = tilesetColumns * ty + tx;
+		setTileRect(position, rect);
 	}
 
 	public function collideHitboxAgainstGrid(hx:Float, hy:Float, hb:Hitbox):Bool
@@ -82,7 +133,7 @@ class GridEx extends Hitbox
 			{
 				index = tilemap.getTile(dx, dy);
 
-				if (index > -1)
+				if (index > -1 && index < tiles.length)
 				{
 					tile = tiles[index];
 

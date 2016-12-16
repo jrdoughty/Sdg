@@ -1,5 +1,6 @@
 package sdg.manager;
 
+#if Delta
 import tween.Delta;
 
 class TweenDelta extends Manager
@@ -15,3 +16,4 @@ class TweenDelta extends Manager
 		Delta.step(Sdg.fixedDt);
 	}
 }
+#end

@@ -45,7 +45,7 @@ class Tilemap extends Graphic
 	{
 		if (map != null)
 		{
-			if (x < widthInTiles && y < heightInTiles)
+			if (x > -1 && x < widthInTiles && y > -1 && y < heightInTiles)
 				return map[y][x];
 			else
 				return -1;
@@ -250,13 +250,5 @@ class Tilemap extends Graphic
         trace('');
         #end
     }
-    #end
-	
-	public static function createObject(x:Float, y:Float, tileset:Tileset):Object
-	{
-		var object = new Object(x, y);
-		object.graphic = new Tilemap(tileset);
-		
-		return object;
-	}
+    #end	
 }
