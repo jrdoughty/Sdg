@@ -1,6 +1,6 @@
 This is a 2D engine for Kha. The api is being developed and it can change, but it is already in a good state.
 
-Check the [showcase](https://github.com/RafaelOliveira/sdg-showcase) where the features are being added.
+[showcase](https://github.com/RafaelOliveira/sdg-showcase) | [samples](https://github.com/RafaelOliveira/sdg-samples)
 
 Main features:
 
