@@ -23,9 +23,9 @@ class Circle extends ShapeBase
     override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
     {
         if (filled)
-            g.fillCircle(objectX + x - cameraX, objectY + y - cameraY, radius, segments);
+            g.fillCircle(objectX + x + radius - cameraX, objectY + y + radius - cameraY, radius, segments);
         else
-            g.drawCircle(objectX + x - cameraX, objectY + y - cameraY, radius, strength, segments);
+            g.drawCircle(objectX + x + radius - cameraX, objectY + y + radius - cameraY, radius, strength, segments);
     }
 	
 	override public function getSize():Vector2i 
