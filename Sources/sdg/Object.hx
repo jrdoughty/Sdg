@@ -70,12 +70,15 @@ class Object
     
     static private var _empty = new Object();
 	
-	public function new(x:Float = 0, y:Float = 0):Void
+	public function new(x:Float = 0, y:Float = 0, ?graphic:Graphic):Void
 	{
 		this.id = 0;
 		this.name = '';	
 		this.x = x;
 		this.y = y;
+
+		if (graphic != null)
+			this.graphic = graphic;
         
         width = height = 0;
                 

@@ -193,7 +193,7 @@ class BitmapText extends Graphic
 
 		if (boxWidth <= 0)
 		{
-			lines.push({ text: text, width: 0 });
+			lines.push({ text: text, width: calculateWidthFromString(text, font) });
 			return;
 		}
 
@@ -416,6 +416,35 @@ class BitmapText extends Graphic
 		textProcessed = true;
 		boxHeight = Std.int(lines.length * ((font.lineHeight * scaleY) + lineSpacing));
 	}
+
+	static function calculateWidthFromString(text:String, font:BitmapFont):Int
+	{
+		var char:String = '';
+		var charCode:Int;
+		var letter:BitmapLetter = null;		
+		var textWidth:Int = 0;
+
+		for (charIndex in 0...text.length)
+		{
+			char = text.charAt(charIndex);
+
+			if (char != ' ')
+			{
+				charCode = Utf8.charCodeAt(char, 0);
+				letter = font.letters.get(charCode);
+
+				if (letter != null)				
+					textWidth += letter.xadvance;				
+			}
+			else
+				textWidth += font.spaceWidth;
+		}
+
+		if (char != ' ' && letter != null)
+			textWidth += letter.width - letter.xadvance;
+
+		return textWidth;
+	}
 	
 	override public function destroy():Void
 	{
@@ -502,10 +531,7 @@ class BitmapText extends Graphic
 						// without rendering anything.
 						cursor.x += font.spaceWidth * scaleX;
 					}
-				}
-				else
-					// Don't render anything if the letter data doesn't exist.
-					trace('letter data doesn\'t exist: $char');
+				}									
 			}
 
 			// After we finish rendering this line,
@@ -525,6 +551,22 @@ class BitmapText extends Graphic
         return new Vector2i(boxWidth, boxHeight);
     }
 	
+	public function getLineWidth(index:Int = 0):Int
+	{
+		if (lines[index] != null)
+			return lines[index].width;
+		else
+			return 0;
+	}
+
+	public function getLineText(index:Int = 0):String
+	{
+		if (lines[index] != null)
+			return lines[index].text;
+		else
+			return '';
+	}
+
 	public function set_text(value:String):String
 	{
 		textProcessed = false;

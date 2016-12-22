@@ -176,10 +176,10 @@ class Mouse extends Manager
 		return init && mouseJustPressed;
 	}
 
-	public static function checkSwipe():Swipe
+	public static function checkSwipe(distance:Int = 30, timeFrom:Float = 0.1, timeUntil:Float = 0.25):Swipe
 	{
-		var swipeOcurred = (Sdg.distance(Mouse.sx, Mouse.sy, Mouse.x, Mouse.y) > 30
-			&& durationMouseDown > 0.1 && durationMouseDown < 0.25);
+		var swipeOcurred = (isHeld() && Sdg.distance(Mouse.sx, Mouse.sy, Mouse.x, Mouse.y) > distance
+			&& durationMouseDown > timeFrom && durationMouseDown < timeUntil);									
 
 		if (swipeOcurred)
 			return new Swipe(new Vector2(Mouse.sx, Mouse.sy), new Vector2(Mouse.x, Mouse.y));
