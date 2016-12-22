@@ -11,7 +11,7 @@ import sdg.atlas.Region;
 import sdg.ds.ThreeOptions;
 
 /**
- * Abstract representing either a `Image` or a `Region`, .
+ * Abstract representing either a Image, a Region, or the name of a Region.
  * Conversion is automatic, no need to use this.
  */
 abstract ImageType(ThreeOptions<Image, Region, String>)
@@ -55,9 +55,13 @@ class Graphic
 	 * The pivot point of the rotation 
 	 */
 	public var pivot:Vector2;
-
+	/**
+	 * The clipping rectangle
+	 */
 	var clipping:Rectangle;
-	
+	/**
+	 * The object this graphic belongs
+	 */
 	private var object:Object;
 	
 	public function new() 
@@ -72,10 +76,20 @@ class Graphic
 		clipping = null;
 	}
 	
+	/**
+	 * Override this, called when this graphic is added to a object
+	 */
 	function added():Void {}
 	
+	/**
+	 * Override this, used to add update logic to the graphic
+	 */
 	public function update():Void {}
 	
+	/**
+	 * Code for the rendering phase that happens to all graphic classes before
+	 * the specific rendering
+	 */
 	public function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
 		if (!visible)
@@ -103,23 +117,27 @@ class Graphic
 	}
 	
 	/**
-	 * Override this when creating a class for a new type of object
-	 * use x and y as x - cx and y - cy (the camera position)
+	 * Override this when creating a class for a new type of graphic. 
+	 * This is where happens the specific rendering of the graphic.
+	 * See the Sprite class as a example.
 	 */
 	function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void {}
 
-	inline public function enableClipping(g:Graphics):Void
+	inline function enableClipping(g:Graphics):Void
     {
         if (clipping != null)
             g.scissor(Std.int(object.x + clipping.x), Std.int(object.y + clipping.y), Std.int(clipping.width), Std.int(clipping.height));
     }
     
-    inline public function disableClipping(g:Graphics):Void
+    inline function disableClipping(g:Graphics):Void
     {
         if (clipping != null)
             g.disableScissor();
     }
 
+	/**
+	 * Sets the area of the clipping rectangle
+	 */
 	public function setClipping(x:Float, y:Float, width:Float, height:Float):Void
 	{
 		if (clipping == null)
@@ -133,6 +151,10 @@ class Graphic
 		}
 	}
 	
+	/**
+	 * Override this in the class that is implementing a type of graphic
+	 * and return the size of the graphic
+	 */
 	public function getSize():Vector2i 
 	{
 		return null;
