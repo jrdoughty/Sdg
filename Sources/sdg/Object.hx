@@ -10,11 +10,15 @@ import sdg.math.Vector2b;
 @:allow(sdg.Screen)
 class Object
 {	
+	/**
+	 * A id to be used by the developer. 
+	 * It's not used by the engine.
+	 */
 	public var id:Int;
 	/** 
 	 * A name for identification and debugging
 	 */
-	public var name:String;		
+	public var name:String;
 	/**
 	 * The x position 
 	 */
@@ -22,19 +26,24 @@ class Object
 	/** 
 	 * the y position 
 	 */
-	public var y:Float;	
-
+	public var y:Float;
 	/**
-	 * The hitbox width. You need to set this manually to use physics
+	 * The object width. This doesn't influence collision but some parts in the class uses it. 
+	 * Call setSizeAuto() to set the width/height from the graphic.
 	 */
 	public var width:Int;
 	/**
-	 * The hitbox height. You need to set this manually to use physics
+	 * The object height. This doesn't influence collision but some parts in the class uses it.
+	 * Call setSizeAuto() to set the width/height from the graphic.
 	 */
 	public var height:Int;
-
+	/**
+	 * The x position in the right side (x + width)
+	 */
 	public var right(get, null):Float;
-
+	/**
+	 * The y position in the bottom side (y + height)
+	 */
 	public var bottom(get, null):Float;		
     /**
 	 * If the Object should respond to collision checks.
@@ -65,7 +74,9 @@ class Object
 	 * Components that updates and affect the object
 	 */
 	public var components:Array<Component>;
-	
+	/**
+	 * The graphic used by this object
+	 */
 	public var graphic(default, set):Graphic;	
     
     static private var _empty = new Object();
@@ -133,9 +144,7 @@ class Object
 	}
 	    
     /**
-	 * Sets the Object's size.
-	 * @param	width		Width of the object.
-	 * @param	height		Height of the object.	 
+	 * Sets the Object's size	 	 
 	 */
 	public inline function setSize(width:Int, height:Int)
 	{
@@ -145,8 +154,7 @@ class Object
     
 	/**
 	 * The position of the object relative to the screen.
-	 * If the object wasn't added to a screen, the world position is returned.
-	 * @return
+	 * If the object wasn't added to a screen, the world position is returned.	 
 	 */
 	public function getScreenPosition():Vector2
 	{
@@ -185,6 +193,9 @@ class Object
 			graphic.render(g, x, y, cameraX, cameraY);
 	}
 	
+	/**
+	 * Sets the size using the size of the graphic
+	 */
 	public function setSizeAuto():Void
     {                		
 		if (graphic != null)
@@ -201,6 +212,9 @@ class Object
 		}
     }
 	
+	/**
+	 * Tells if the object is inside the camera area
+	 */
 	public function onCamera():Bool
     {
         if (screen != null)
@@ -213,6 +227,9 @@ class Object
         return false;
     }
 
+	/**
+	 * Checks if a point is inside the object
+	 */
 	public function pointInside(px:Float, py:Float):Bool
     {
         if (px > x && px < (x + width) && py > y && py < (y + height))
@@ -292,7 +309,7 @@ class Object
 	}
         
      /**
-	 * When you collide with an Object on the x-axis with moveTo() or moveBy()
+	 * When you collide with an Object on the x-axis with hitbox.moveTo() or hitbox.moveBy()
 	 * the engine call this function. Override it to detect and change the
 	 * behaviour of collisions.
 	 *
@@ -306,7 +323,7 @@ class Object
 	}
 
 	/**
-	 * When you collide with an Object on the y-axis with moveTo() or moveBy()
+	 * When you collide with an Object on the y-axis with hitbox.moveTo() or hitbox.moveBy()
 	 * the engine call this function. Override it to detect and change the
 	 * behaviour of collisions.
 	 *
