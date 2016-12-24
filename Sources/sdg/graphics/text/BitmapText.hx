@@ -126,6 +126,8 @@ class BitmapText extends Graphic
 	 * Variable for rendering purposes 
 	 */
 	var letterHeightScaled:Float;
+
+	var _kerningSize:Null<Int>;
 	
 	/**
 	 * Loads the bitmap font from cache. Remember to call loadFont first before
@@ -193,7 +195,7 @@ class BitmapText extends Graphic
 
 		if (boxWidth <= 0)
 		{
-			lines.push({ text: text, width: calculateWidthFromString(text, font) });
+			lines.push({ text: text, width: getStringWidth(text, font) });
 			return;
 		}
 
@@ -417,7 +419,7 @@ class BitmapText extends Graphic
 		boxHeight = Std.int(lines.length * ((font.lineHeight * scaleY) + lineSpacing));
 	}
 
-	static function calculateWidthFromString(text:String, font:BitmapFont):Int
+	static function getStringWidth(text:String, font:BitmapFont):Int
 	{
 		var char:String = '';
 		var charCode:Int;
@@ -434,7 +436,7 @@ class BitmapText extends Graphic
 				letter = font.letters.get(charCode);
 
 				if (letter != null)				
-					textWidth += letter.xadvance;				
+					textWidth += letter.xadvance;
 			}
 			else
 				textWidth += font.spaceWidth;
@@ -444,7 +446,7 @@ class BitmapText extends Graphic
 			textWidth += letter.width - letter.xadvance;
 
 		return textWidth;
-	}
+	}	
 	
 	override public function destroy():Void
 	{
@@ -462,7 +464,7 @@ class BitmapText extends Graphic
 
 		// Reset cursor position
 		cursor.x = 0;
-		cursor.y = 0;		
+		cursor.y = 0;
 
 		for (line in lines)
 		{
@@ -518,8 +520,9 @@ class BitmapText extends Graphic
 							var charCodeNext = Utf8.charCodeAt(charNext, 0);
 
 							// If kerning data exists, adjust the cursor position.
-							if (letter.kernings.exists(charCodeNext))							
-								cursor.x += letter.kernings.get(charCodeNext) * scaleX;							
+							_kerningSize = letter.kernings.get(charCodeNext);
+							if (_kerningSize != null)
+								cursor.x += _kerningSize * scaleX;
 						}
 
 						// Move cursor to next position, with padding.

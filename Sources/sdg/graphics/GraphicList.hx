@@ -5,7 +5,7 @@ import kha.math.Vector2i;
 
 class GraphicList extends Graphic
 {
-	var graphics:Array<Graphic>;
+	public var graphics:Array<Graphic>;
 
 	public function new(graphics:Array<Graphic>):Void
 	{

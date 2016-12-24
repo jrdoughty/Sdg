@@ -73,9 +73,17 @@ class Sdg
 			switchScreen(name);
 	}
 
-	public static function removeScreen(name:String):Void
+	public static function removeScreen(name:String, destroy:Bool = false):Void
 	{
-		if (screens.exists(name))
+		if (destroy)
+		{
+			var screen = screens.get(name);
+			screens.remove(name);
+
+			if (screen != null)
+				screen.destroy();
+		}
+		else
 			screens.remove(name);
 	}
 
@@ -92,7 +100,7 @@ class Sdg
 		}
 		
 		return false;
-	}
+	}	
 	
 	public static function addTimeTask(task: Void -> Void, start: Float, period: Float = 0, duration: Float = 0):Int
 	{

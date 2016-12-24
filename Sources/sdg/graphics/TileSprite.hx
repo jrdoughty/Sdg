@@ -78,17 +78,25 @@ class TileSprite extends Sprite
     override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
         var currTileX = 0.0;
-        var currTileY = 0.0;        
+        var currTileY = 0.0;
+
+        var posX:Int;
+        var posY:Int;
+
+        var sx:Float;
+        var sy:Float;
+        var w:Int;
+        var h:Int;
 
         for (i in 0...tileInfo.length)
         {
-            var posX = i * 2;
-            var posY = (i * 2) + 1;
+            posX = i * 2;
+            posY = (i * 2) + 1;
 
-            var sx = region.sx;
-            var sy = region.sy;
-            var w = region.w;
-            var h = region.h;            
+            sx = region.sx;
+            sy = region.sy;
+            w = region.w;
+            h = region.h;            
 
             if ((tileInfo[posX] + cursor.x > widthArea) || (tileInfo[posY] + cursor.y > heightArea))
                 continue;
@@ -111,8 +119,7 @@ class TileSprite extends Sprite
                         w = Std.int(widthArea - (tileInfo[posX] + cursor.x));
                     
                     currTileX = objectX + x + tileInfo[posX] + cursor.x;
-                }                
-                    
+                }
 
                 if (tileInfo[posY] < 0)
                 {
