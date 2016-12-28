@@ -13,7 +13,6 @@ import sdg.manager.Manager;
 class Engine
 {
 	public var backbuffer:Image;
-	var g2:Graphics;
 	
 	var currTime:Float = 0;
 	var prevTime:Float = 0;
@@ -25,14 +24,12 @@ class Engine
 	public var persistentRender:Graphics->Void;
 
 	public var highQualityScale:Bool;
+	var useBackbuffer:Bool;
 	
-	public function new(width:Int, height:Int, highQualityScale = false, ?fps:Null<Int>):Void
+	public function new(width:Int, height:Int, highQualityScale = false, useBackbuffer:Bool = true, ?fps:Null<Int>):Void
 	{
 		active = true;
-		this.highQualityScale = highQualityScale;
-		
-		backbuffer = Image.createRenderTarget(width, height);
-		g2 = backbuffer.g2;
+		this.highQualityScale = highQualityScale;		
 		
 		currTime = Scheduler.time();
 		
@@ -41,10 +38,24 @@ class Engine
 		Sdg.windowHeight = System.windowHeight();
         Sdg.halfWinHeight = Std.int(Sdg.windowHeight / 2);
         
-        Sdg.gameWidth = backbuffer.width;
-        Sdg.halfGameWidth = Std.int(backbuffer.width / 2);
-		Sdg.gameHeight = backbuffer.height;
-        Sdg.halfGameHeight = Std.int(backbuffer.height / 2);
+		this.useBackbuffer = useBackbuffer;
+
+        if (useBackbuffer)
+		{
+			backbuffer = Image.createRenderTarget(width, height);			
+
+			Sdg.gameWidth = backbuffer.width;
+        	Sdg.halfGameWidth = Std.int(backbuffer.width / 2);
+			Sdg.gameHeight = backbuffer.height;
+        	Sdg.halfGameHeight = Std.int(backbuffer.height / 2);
+		}
+		else
+		{
+			Sdg.gameWidth = Sdg.windowWidth;
+        	Sdg.halfGameWidth = Sdg.halfWinWidth;
+			Sdg.gameHeight = Sdg.windowHeight;
+        	Sdg.halfGameHeight = Sdg.halfWinHeight;
+		}
 
 		if (fps != null)
 			Sdg.fixedDt = 1 / fps;
@@ -62,9 +73,8 @@ class Engine
 	}
     
     function calcGameScale()
-    {
-        // TODO
-        Sdg.gameScale = Sdg.gameWidth / Sdg.windowWidth;
+    {        
+        Sdg.gameScale = Sdg.windowWidth / Sdg.gameWidth;
     }
 	
 	function onForeground()
@@ -137,7 +147,7 @@ class Engine
 		managers.push(manager);
 	}
 	
-	public function renderBackbuffer():Void
+	inline public function renderGame(g2:Graphics):Void
 	{
 		if (Sdg.screen != null)
 		{			
@@ -163,14 +173,23 @@ class Engine
 
 	public function render(framebuffer:Framebuffer):Void
 	{
-		renderBackbuffer();
+		if (useBackbuffer)
+		{
+			renderGame(backbuffer.g2);
 
-		framebuffer.g2.begin();
+			framebuffer.g2.begin();
 
-		if (highQualityScale)
-			framebuffer.g2.imageScaleQuality = ImageScaleQuality.High;
-			
-		Scaler.scale(backbuffer, framebuffer, System.screenRotation);
-		framebuffer.g2.end();
+			if (highQualityScale)
+				framebuffer.g2.imageScaleQuality = ImageScaleQuality.High;
+				
+			Scaler.scale(backbuffer, framebuffer, System.screenRotation);
+			framebuffer.g2.end();
+		}
+		else
+		{
+			framebuffer.g2.begin();
+			renderGame(framebuffer.g2);
+			framebuffer.g2.end();
+		}
 	}
 }

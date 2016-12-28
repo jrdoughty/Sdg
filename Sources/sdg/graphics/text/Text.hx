@@ -123,7 +123,7 @@ class Text extends Graphic
 		
 		if (boxWidth <= 0)
 		{
-			lines.push({ text: text, width: 0 });
+			lines.push({ text: text, width: Std.int(font.width(fontSize, text)) });
 			return;
 		}
 
@@ -325,9 +325,8 @@ class Text extends Graphic
 
 	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		// For every letter in the text, render directly on buffer.
-		// In best case scenario where text doesn't change, it may be better to
-		// Robert says Kha can handle it.
+		g.font = font;
+		g.fontSize = fontSize;
 
 		// Reset cursor position
 		cursor.x = 0;
@@ -348,9 +347,7 @@ class Text extends Graphic
 					case TextAlign.Center: cursor.x = (boxWidth / 2) - (line.width / 2);
 				}
 			}						
-			
-			g.font = font;
-			g.fontSize = fontSize;
+						
 			g.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);  							
 
 			// After we finish rendering this line,
@@ -361,15 +358,26 @@ class Text extends Graphic
 	
 	override public function getSize():Vector2i 
     {
-        return new Vector2i(boxWidth, boxHeight);
+		if (boxWidth > 0)
+        	return new Vector2i(boxWidth, boxHeight);
+		else
+			return new Vector2i(getLineWidth(), fontHeight);
     }
-	
-	public static function createObject(x:Float, y:Float, text:String, font:Font, fontSize:Int, boxWidth:Int = 0, ?option:TextOptions):Object
+
+	public function getLineWidth(index:Int = 0):Int
 	{
-		var object = new Object(x, y);
-		object.graphic = new Text(text, font, fontSize, boxWidth, option);
-		
-		return object;
+		if (lines[index] != null)
+			return lines[index].width;
+		else
+			return 0;
+	}
+
+	public function getLineText(index:Int = 0):String
+	{
+		if (lines[index] != null)
+			return lines[index].text;
+		else
+			return '';
 	}
 	
 	public function set_text(value:String):String

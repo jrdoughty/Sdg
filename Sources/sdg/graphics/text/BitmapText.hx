@@ -458,10 +458,6 @@ class BitmapText extends Graphic
 	
 	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		// For every letter in the text, render directly on buffer.
-		// In best case scenario where text doesn't change, it may be better to
-		// Robert says Kha can handle it.
-
 		// Reset cursor position
 		cursor.x = 0;
 		cursor.y = 0;
@@ -551,7 +547,10 @@ class BitmapText extends Graphic
 	
 	override public function getSize():Vector2i 
     {
-        return new Vector2i(boxWidth, boxHeight);
+        if (boxWidth > 0)
+			return new Vector2i(boxWidth, boxHeight);
+		else
+			return new Vector2i(getLineWidth(), font.lineHeight);
     }
 	
 	public function getLineWidth(index:Int = 0):Int
