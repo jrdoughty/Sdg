@@ -323,8 +323,10 @@ class Text extends Graphic
 		super.destroy();
 	}
 
-	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
+		g.color = color;
+		
 		g.font = font;
 		g.fontSize = fontSize;
 

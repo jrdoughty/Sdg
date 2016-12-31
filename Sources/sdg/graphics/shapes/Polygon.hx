@@ -30,8 +30,10 @@ class Polygon extends ShapeBase
         return new Polygon(points, color, filled, strength);
     }
     
-    override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+    override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
     {
+        g.color = color;
+        
         if (filled)
             g.fillPolygon(objectX + x - cameraX, objectY + y - cameraY, points);
         else

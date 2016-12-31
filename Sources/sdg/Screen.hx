@@ -106,8 +106,8 @@ class Screen
 			
 			for (object in layers.get(layer))
 			{
-				if (object.visible)
-					object.render(g, camera.x, camera.y);				
+				if (object.graphic != null && object.graphic.visible)
+					object.render(g, !object.fixed.x ? camera.x : 0, !object.fixed.y ? camera.y : 0);				
 			}
 		}		
 	}    
@@ -402,4 +402,10 @@ class Screen
 	{
 		entityNames.remove(object.name);
 	}
+
+	/**
+	 * Override this to be called when the screen size is updated
+	 * by engine.updateGameSize()
+	 */
+	public function gameSizeUpdated(newWidth:Int, newHeight:Int):Void {}
 }

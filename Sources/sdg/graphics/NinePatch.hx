@@ -48,8 +48,10 @@ class NinePatch extends Graphic
 		this.height = height;				
 	}	
 
-	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
+	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
 	{
+		g.color = color;
+		
 		if (leftBorder > 0)
 		{
 			g.drawScaledSubImage(region.image, region.sx, region.sy + topBorder,	// sxy

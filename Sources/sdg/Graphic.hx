@@ -84,16 +84,12 @@ class Graphic
 	/**
 	 * Override this, used to add update logic to the graphic
 	 */
-	public function update():Void {}
-	
-	/**
-	 * Code for the rendering phase that happens to all graphic classes before
-	 * the specific rendering
-	 */
-	public function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	public function update():Void {}	 
+	 
+	inline function startRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		if (!visible)
-			return;
+		//if (!visible)
+		//	return;
 
 		enableClipping(g);
 			
@@ -103,25 +99,23 @@ class Graphic
 		if (alpha != 1) 
 			g.pushOpacity(alpha);
 		
-		g.color = color;
+		//g.color = color;
 			
-		innerRender(g, objectX, objectY, !object.fixed.x ? cameraX : 0, !object.fixed.y ? cameraY : 0);
-		
+		//innerRender(g, objectX, objectY, cameraX, cameraY);
+	}
+
+	inline function endRender(g:Graphics):Void
+	{
 		if (alpha != 1)
 			g.popOpacity();
 			
-		if (angle != 0)		
+		if (angle != 0)
 			g.popTransformation();
 
 		disableClipping(g);
 	}
-	
-	/**
-	 * Override this when creating a class for a new type of graphic. 
-	 * This is where happens the specific rendering of the graphic.
-	 * See the Sprite class as a example.
-	 */
-	function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void {}
+		 
+	function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void {}
 
 	inline function enableClipping(g:Graphics):Void
     {

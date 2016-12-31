@@ -56,7 +56,7 @@ class Object
 	/**
 	 * If the object should render
 	 */
-	public var visible:Bool;	
+	public var visible(get, set):Bool;	
 	/**
 	 * The screen this object belongs 
 	 */
@@ -96,7 +96,8 @@ class Object
         collidable = true;		
 		
 		active = true;
-		visible = true;		
+		//visible = true;
+		layer = 0;
 		
         fixed = new Vector2b();		
 		
@@ -189,8 +190,10 @@ class Object
 	
 	public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
 	{
-		if (graphic != null && graphic.visible)
-			graphic.render(g, x, y, cameraX, cameraY);
+		//if (graphic != null && graphic.visible)
+		graphic.startRender(g, x, y, cameraX, cameraY);
+		graphic.render(g, x, y, cameraX, cameraY);
+		graphic.endRender(g);
 	}
 	
 	/**
@@ -306,6 +309,16 @@ class Object
 	inline public function get_bottom():Float
 	{
 		return y + height;
+	}
+
+	inline public function get_visible():Bool
+	{
+		return graphic.visible;
+	}
+
+	inline public function set_visible(value:Bool):Bool
+	{
+		return graphic.visible = value;
 	}
         
      /**

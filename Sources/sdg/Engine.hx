@@ -72,7 +72,7 @@ class Engine
 		//System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
 	}
     
-    function calcGameScale()
+    inline function calcGameScale():Void
     {        
         Sdg.gameScale = Sdg.windowWidth / Sdg.gameWidth;
     }
@@ -147,7 +147,7 @@ class Engine
 		managers.push(manager);
 	}
 	
-	inline public function renderGame(g2:Graphics):Void
+	inline function renderGame(g2:Graphics):Void
 	{
 		if (Sdg.screen != null)
 		{			
@@ -191,5 +191,35 @@ class Engine
 			renderGame(framebuffer.g2);
 			framebuffer.g2.end();
 		}
+	}
+
+	public function updateGameSize(newWidth:Int, newHeight:Int):Void
+	{
+		Sdg.windowWidth = System.windowWidth();
+        Sdg.halfWinWidth = Std.int(Sdg.windowWidth / 2);
+		Sdg.windowHeight = System.windowHeight();
+        Sdg.halfWinHeight = Std.int(Sdg.windowHeight / 2);
+
+		if (useBackbuffer)
+		{
+			backbuffer = Image.createRenderTarget(newWidth, newHeight);
+
+			Sdg.gameWidth = backbuffer.width;
+        	Sdg.halfGameWidth = Std.int(backbuffer.width / 2);
+			Sdg.gameHeight = backbuffer.height;
+        	Sdg.halfGameHeight = Std.int(backbuffer.height / 2);
+		}
+		else
+		{
+			Sdg.gameWidth = Sdg.windowWidth;
+        	Sdg.halfGameWidth = Sdg.halfWinWidth;
+			Sdg.gameHeight = Sdg.windowHeight;
+        	Sdg.halfGameHeight = Sdg.halfWinHeight;
+		}
+
+		calcGameScale();
+
+		if (Sdg.screen != null)
+			Sdg.screen.gameSizeUpdated(newWidth, newHeight);
 	}
 }

@@ -456,8 +456,10 @@ class BitmapText extends Graphic
 		super.destroy();
 	}
 	
-	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
+		g.color = color;
+		
 		// Reset cursor position
 		cursor.x = 0;
 		cursor.y = 0;

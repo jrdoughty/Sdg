@@ -75,7 +75,7 @@ class TileSprite extends Sprite
         }
     }
     
-    override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+    override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
         var currTileX = 0.0;
         var currTileY = 0.0;
@@ -87,6 +87,8 @@ class TileSprite extends Sprite
         var sy:Float;
         var w:Int;
         var h:Int;
+
+        g.color = color;
 
         for (i in 0...tileInfo.length)
         {

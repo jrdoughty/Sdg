@@ -36,8 +36,10 @@ class FixedBitmapText extends Graphic
         this.letterHeight = letterHeight;		
     }
     
-    override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+    override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
+        g.color = color;
+        
         var code:Int;
         var cursor = objectX + x;
             
