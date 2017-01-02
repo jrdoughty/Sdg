@@ -63,13 +63,17 @@ class Sprite extends Graphic
 	}
 	
 	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
-	{	
+	{
+		preRender(g, objectX, objectY, cameraX, cameraY);
+
 		g.color = color;
 			
 		g.drawScaledSubImage(region.image, region.sx, region.sy, region.w, region.h,
 							 objectX + x + (flip.x ? widthRegScaled : 0) - cameraX,
 							 objectY + y + (flip.y ? heightRegScaled : 0) - cameraY, 
-							 flip.x ? -widthRegScaled : widthRegScaled, flip.y ? -heightRegScaled : heightRegScaled);		
+							 flip.x ? -widthRegScaled : widthRegScaled, flip.y ? -heightRegScaled : heightRegScaled);
+
+		postRender(g);		
 	}    
 	
 	public function setScale(value:Float):Void

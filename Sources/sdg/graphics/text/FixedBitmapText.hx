@@ -38,6 +38,8 @@ class FixedBitmapText extends Graphic
     
     override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
+        preRender(g, objectX, objectY, cameraX, cameraY);
+
         g.color = color;
         
         var code:Int;
@@ -60,7 +62,9 @@ class FixedBitmapText extends Graphic
             }
             
             cursor += letterWidth;
-        }        				
+        }
+
+        postRender(g);        				
 	}
 	
 	override public function getSize():Vector2i 

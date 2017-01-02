@@ -185,9 +185,7 @@ class Object
 	
 	public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
 	{		
-		graphic.startRender(g, x, y, cameraX, cameraY);
-		graphic.render(g, x, y, cameraX, cameraY);
-		graphic.endRender(g);
+		graphic.render(g, x, y, cameraX, cameraY);		
 	}
 	
 	/**

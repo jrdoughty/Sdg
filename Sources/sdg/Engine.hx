@@ -65,9 +65,7 @@ class Engine
         calcGameScale();           
 		
 		managers = new Array<Manager>();
-		Sdg.screens = new Map<String, Screen>();
-		
-		System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
+		Sdg.screens = new Map<String, Screen>();		
 	}
     
     inline function calcGameScale():Void
@@ -219,5 +217,13 @@ class Engine
 
 		if (Sdg.screen != null)
 			Sdg.screen.gameSizeUpdated(newWidth, newHeight);
+	}
+
+	public function enablePauseOnLostFocus(value:Bool):Void
+	{
+		if (value)
+			System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
+		else
+			System.notifyOnApplicationState(null, null, null, null, null);
 	}
 }

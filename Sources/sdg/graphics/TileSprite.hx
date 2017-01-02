@@ -77,6 +77,8 @@ class TileSprite extends Sprite
     
     override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
+        preRender(g, objectX, objectY, cameraX, cameraY);
+
         var currTileX = 0.0;
         var currTileY = 0.0;
 
@@ -146,6 +148,8 @@ class TileSprite extends Sprite
             g.drawScaledSubImage(region.image, sx, sy, w, h,
                 currTileX - cameraX, currTileY - cameraY, w, h);                        
         }
+
+        postRender(g);
 	}
     
     override public function getSize():Vector2i 

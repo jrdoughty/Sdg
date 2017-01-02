@@ -86,7 +86,7 @@ class Graphic
 	 */
 	public function update():Void {}	 
 	 
-	inline function startRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	inline function preRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
 		enableClipping(g);
 			
@@ -97,7 +97,7 @@ class Graphic
 			g.pushOpacity(alpha);
 	}
 
-	inline function endRender(g:Graphics):Void
+	inline function postRender(g:Graphics):Void
 	{
 		if (alpha != 1)
 			g.popOpacity();

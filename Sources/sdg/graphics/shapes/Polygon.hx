@@ -32,12 +32,16 @@ class Polygon extends ShapeBase
     
     override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
     {
+        preRender(g, objectX, objectY, cameraX, cameraY);
+
         g.color = color;
         
         if (filled)
             g.fillPolygon(objectX + x - cameraX, objectY + y - cameraY, points);
         else
-            g.drawPolygon(objectX + x - cameraX, objectY + y - cameraY, points, strength);        
+            g.drawPolygon(objectX + x - cameraX, objectY + y - cameraY, points, strength);
+
+        postRender(g);        
     }
 	
 	override public function getSize():Vector2i 

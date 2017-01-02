@@ -306,10 +306,7 @@ class ParticleSystem extends Graphic
     }
 	
 	override public function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
-	{
-		//if (!visible)
-		//	return;
-
+	{		
         g.color = color;
 			
 		//if (angle != 0)

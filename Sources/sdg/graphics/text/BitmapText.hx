@@ -458,6 +458,8 @@ class BitmapText extends Graphic
 	
 	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
+		preRender(g, objectX, objectY, cameraX, cameraY);
+
 		g.color = color;
 		
 		// Reset cursor position
@@ -538,7 +540,9 @@ class BitmapText extends Graphic
 			// After we finish rendering this line,
 			// move on to the next line.
 			cursor.y += (font.lineHeight * scaleY) + lineSpacing;
-		}		
+		}
+
+		postRender(g);		
 	}
 	
 	public function setScale(value:Float):Void
