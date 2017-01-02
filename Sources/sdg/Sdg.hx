@@ -24,7 +24,8 @@ class Sdg
     public static var halfGameHeight(default, null):Int;
     
 	public static var screen:Screen;
-	static var screens:Map<String, Screen>;	
+	static var screens:Map<String, Screen>;
+	
 	public static var gameScale:Float = 1;
     
     /** Convert a radian value into a degree value. */
@@ -33,17 +34,7 @@ class Sdg
     
     /** Convert a degree value into a radian value. */
 	public static var RAD(get, never):Float;
-	private static inline function get_RAD(): Float { return Math.PI / -180; }
-    
-    /**
-	 * Flash equivalent: int.MIN_VALUE
-	 */
-	public static inline var INT_MIN_VALUE = -2147483648;
-
-	/**
-	 * Flash equivalent: int.MAX_VALUE
-	 */
-	public static inline var INT_MAX_VALUE = 2147483647;
+	private static inline function get_RAD(): Float { return Math.PI / -180; }	
 	
 	static var timeTasks:Array<Int>;
 	
@@ -57,13 +48,7 @@ class Sdg
 	 * Custom game editor. Needs to be extended to be used	
 	 */
     public static var editor:Editor;
-    #end
-    
-    // Global objects used for rendering, collision, etc.
-    @:dox(hide) public static var object:Object;
-    @:dox(hide) public static var point:Point = new Point();
-    @:dox(hide) public static var point2:Vector2 = new Vector2();
-    @:dox(hide) public static var rect:Rectangle = new Rectangle();
+    #end                      
 
 	public static function addScreen(name:String, screen:Screen, goToScreen:Bool = false):Void
 	{

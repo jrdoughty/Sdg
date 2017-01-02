@@ -19,9 +19,8 @@ class Screen
 	var updateList:List<Object>;
 	var layerDisplay:Map<Int,Bool>;
 	var layers:Map<Int,List<Object>>;
-    
-    // TODO: fix name
-	var entityNames:Map<String,Object>;	
+        
+	var objectNames:Map<String, Object>;	
 	
 	/** 
 	 * The background color 
@@ -46,7 +45,7 @@ class Screen
 		updateList = new List<Object>();
 		layerDisplay = new Map<Int,Bool>();
 		layers = new Map<Int,List<Object>>();
-		entityNames = new Map<String,Object>();
+		objectNames = new Map<String,Object>();
 				
 		bgColor = Color.Black;		
 		
@@ -119,7 +118,7 @@ class Screen
 		removeList = null;
 		layerDisplay = null;
 		layers = null;		
-		entityNames = null;
+		objectNames = null;
 		
 		for (object in updateList)
 			object.destroy();
@@ -248,7 +247,7 @@ class Screen
 	 */
 	public function getInstance(name:String):Object
 	{
-		return entityNames.get(name);
+		return objectNames.get(name);
 	}
 	
 	/**
@@ -391,7 +390,7 @@ class Screen
 	@:allow(sdg.Object)
 	inline private function registerName(object:Object):Void
 	{
-		entityNames.set(object.name, object);
+		objectNames.set(object.name, object);
 	}
 
 	/** 
@@ -400,7 +399,7 @@ class Screen
 	@:allow(sdg.Object)
 	inline private function unregisterName(object:Object):Void
 	{
-		entityNames.remove(object.name);
+		objectNames.remove(object.name);
 	}
 
 	/**

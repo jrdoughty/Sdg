@@ -77,9 +77,7 @@ class Object
 	/**
 	 * The graphic used by this object
 	 */
-	public var graphic(default, set):Graphic;	
-    
-    static private var _empty = new Object();
+	public var graphic(default, set):Graphic;        
 	
 	public function new(x:Float = 0, y:Float = 0, ?graphic:Graphic):Void
 	{
@@ -92,14 +90,11 @@ class Object
 			this.graphic = graphic;
         
         width = height = 0;
-                
+        
         collidable = true;		
-		
 		active = true;
-		//visible = true;
-		layer = 0;
-		
-        fixed = new Vector2b();		
+		layer = 0;		
+        fixed = new Vector2b();
 		
 		components = new Array<Component>();
 	}
@@ -189,8 +184,7 @@ class Object
 	}
 	
 	public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
-	{
-		//if (graphic != null && graphic.visible)
+	{		
 		graphic.startRender(g, x, y, cameraX, cameraY);
 		graphic.render(g, x, y, cameraX, cameraY);
 		graphic.endRender(g);

@@ -99,8 +99,6 @@ class Mouse extends Manager
 
 	function onMouseStart(index:Int, x:Int, y:Int):Void
 	{
-		// trace("onMouseStart : " + index + " , " + x + " , " + y);
-		
 		updateMouseData(x, y, 0, 0);
 
 		Mouse.sx = Std.int(x * Sdg.gameScale);

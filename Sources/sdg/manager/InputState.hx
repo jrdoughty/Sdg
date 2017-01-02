@@ -1,4 +1,4 @@
-package wyn.manager;
+package sdg.manager;
 
 enum InputState {
 	NONE;

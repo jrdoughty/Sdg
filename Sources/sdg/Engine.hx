@@ -26,7 +26,7 @@ class Engine
 	public var highQualityScale:Bool;
 	var useBackbuffer:Bool;
 	
-	public function new(width:Int, height:Int, highQualityScale = false, useBackbuffer:Bool = true, ?fps:Null<Int>):Void
+	public function new(width:Int, height:Int, highQualityScale:Bool = false, useBackbuffer:Bool = true, ?fps:Null<Int>):Void
 	{
 		active = true;
 		this.highQualityScale = highQualityScale;		
@@ -62,14 +62,12 @@ class Engine
 		else
 			Sdg.fixedDt = 1 / 60;
         
-        calcGameScale();
-        
-        Sdg.object = new Object();
+        calcGameScale();           
 		
 		managers = new Array<Manager>();
 		Sdg.screens = new Map<String, Screen>();
 		
-		//System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
+		System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
 	}
     
     inline function calcGameScale():Void
@@ -147,7 +145,7 @@ class Engine
 		managers.push(manager);
 	}
 	
-	inline function renderGame(g2:Graphics):Void
+	function renderGame(g2:Graphics):Void
 	{
 		if (Sdg.screen != null)
 		{			

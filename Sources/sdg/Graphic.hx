@@ -88,9 +88,6 @@ class Graphic
 	 
 	inline function startRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		//if (!visible)
-		//	return;
-
 		enableClipping(g);
 			
 		if (angle != 0)
@@ -98,10 +95,6 @@ class Graphic
 			
 		if (alpha != 1) 
 			g.pushOpacity(alpha);
-		
-		//g.color = color;
-			
-		//innerRender(g, objectX, objectY, cameraX, cameraY);
 	}
 
 	inline function endRender(g:Graphics):Void
