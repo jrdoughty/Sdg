@@ -48,8 +48,12 @@ class NinePatch extends Graphic
 		this.height = height;				
 	}	
 
-	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
+	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
 	{
+		preRender(g, objectX, objectY, cameraX, cameraY);
+
+		g.color = color;
+		
 		if (leftBorder > 0)
 		{
 			g.drawScaledSubImage(region.image, region.sx, region.sy + topBorder,	// sxy
@@ -118,6 +122,8 @@ class NinePatch extends Graphic
 			region.w - leftBorder - rightBorder, region.h - topBorder - bottomBorder,
 			objectX + x + leftBorder - cameraX, objectY + y + topBorder - cameraY,
 			innerWidth, innerHeight);
+
+		postRender(g);
 	}
 
 	inline function set_width(value:Int):Int

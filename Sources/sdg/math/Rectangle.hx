@@ -21,48 +21,48 @@ class Rectangle
 		this.y = y;
 	}
 
-	public function moveX(xdelta:Int):Void 
+	public function moveX(dx:Int):Void 
     {
-		x += xdelta;
+		x += dx;
 	}
 
-	public function moveY(ydelta:Int):Void 
+	public function moveY(dy:Int):Void 
     {
-		y += ydelta;
+		y += dy;
 	}
 
-	public function collision(r:Rectangle):Bool 
+	public function collision(rect:Rectangle):Bool 
     {
 		var a: Bool;
 		var b: Bool;
 
-		if (x < r.x) 
-			a = r.x < x + width;
+		if (x < rect.x) 
+			a = rect.x < x + width;
 		else 
-			a = x < r.x + r.width;
+			a = x < rect.x + rect.width;
 
-		if (y < r.y) 
-			b = r.y < y + height;
+		if (y < rect.y) 
+			b = rect.y < y + height;
 		else 
-			b = y < r.y + r.height;
+			b = y < rect.y + rect.height;
 
 		return a && b;
 	}
 
-	public function collisionProjected(r:Rectangle, rx:Float, ry:Float, tx:Float = 0, ty:Float = 0):Bool 
+	public function collisionProjected(rect:Rectangle, rx:Float, ry:Float, tx:Float = 0, ty:Float = 0):Bool 
     {
 		var a: Bool;
 		var b: Bool;
 
-		if (x + tx < r.x + rx) 
-			a = r.x + rx < x + tx + width;
+		if (x + tx < rect.x + rx) 
+			a = rect.x + rx < x + tx + width;
 		else 
-			a = x + tx < r.x + rx + r.width;
+			a = x + tx < rect.x + rx + rect.width;
 
-		if (y + ty < r.y + ry) 
-			b = r.y + ry < y + ty + height;
+		if (y + ty < rect.y + ry) 
+			b = rect.y + ry < y + ty + height;
 		else 
-			b = y + ty < r.y + ry + r.height;
+			b = y + ty < rect.y + ry + rect.height;
 
 		return a && b;
 	}
@@ -75,51 +75,51 @@ class Rectangle
             return false;
     }
 
-	public function rectInside(r:Rectangle):Bool
+	public function rectInside(rect:Rectangle):Bool
 	{
-		if (r.width <= width && r.height <= height
-			&& ((r.x == x && r.y == y) || (r.x > x && (r.x + r.width) < (x + width) && (r.y + r.height) < (y + height))
+		if (rect.width <= width && rect.height <= height
+			&& ((rect.x == x && rect.y == y) || (rect.x > x && (rect.x + rect.width) < (x + width) && (rect.y + rect.height) < (y + height))
 		))
 			return true;
 		else
 			return false;
 	}
 
-	public function intersection(r:Rectangle):Rectangle
+	public function intersection(rect:Rectangle):Rectangle
 	{
 		var nx:Float = 0; 
 		var ny:Float = 0;
 		var nw:Float = 0; 
 		var nh:Float = 0;
 
-		if (x < r.x)
+		if (x < rect.x)
 		{
-			nx = r.x;
-			nw = Std.int((x + width) - r.x);  
+			nx = rect.x;
+			nw = Std.int((x + width) - rect.x);  
 		}
 		else
 		{
 			nx = x;
 			
-			if ((x + width) < (r.x + r.width))
+			if ((x + width) < (rect.x + rect.width))
 				nw = width;
 			else
-				nw = Std.int((r.x + r.width) - x);
+				nw = Std.int((rect.x + rect.width) - x);
 		}
 
-		if (y < r.y)
+		if (y < rect.y)
 		{
-			ny = r.y;
-			nh = Std.int((y + height) - r.y);
+			ny = rect.y;
+			nh = Std.int((y + height) - rect.y);
 		}
 		else
 		{
 			ny = y;
 
-			if ((y + height) < (r.y + r.height))
+			if ((y + height) < (rect.y + rect.height))
 				nh = height;
 			else
-				nh = Std.int((r.y + r.height) - y);
+				nh = Std.int((rect.y + rect.height) - y);
 		}
 
 		return new Rectangle(nx, ny, nw, nh);

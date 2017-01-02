@@ -47,7 +47,7 @@ class GraphicList extends Graphic
 			graphic.update();		
 	}
 
-	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
+	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
 	{
 		for (graphic in graphics)
 		{

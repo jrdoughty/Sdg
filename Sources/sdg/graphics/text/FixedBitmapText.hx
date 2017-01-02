@@ -36,8 +36,12 @@ class FixedBitmapText extends Graphic
         this.letterHeight = letterHeight;		
     }
     
-    override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+    override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
+        preRender(g, objectX, objectY, cameraX, cameraY);
+
+        g.color = color;
+        
         var code:Int;
         var cursor = objectX + x;
             
@@ -58,7 +62,9 @@ class FixedBitmapText extends Graphic
             }
             
             cursor += letterWidth;
-        }        				
+        }
+
+        postRender(g);        				
 	}
 	
 	override public function getSize():Vector2i 

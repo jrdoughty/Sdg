@@ -99,8 +99,6 @@ class Mouse extends Manager
 
 	function onMouseStart(index:Int, x:Int, y:Int):Void
 	{
-		// trace("onMouseStart : " + index + " , " + x + " , " + y);
-		
 		updateMouseData(x, y, 0, 0);
 
 		Mouse.sx = Std.int(x * Sdg.gameScale);
@@ -141,8 +139,12 @@ class Mouse extends Manager
 		Mouse.y = Std.int(y / Sdg.gameScale);
 		Mouse.dx = Std.int(dx / Sdg.gameScale);
 		Mouse.dy = Std.int(dy / Sdg.gameScale);
-		Mouse.wx = Std.int((x + Sdg.screen.camera.x) / Sdg.gameScale);
-		Mouse.wy = Std.int((y + Sdg.screen.camera.y) / Sdg.gameScale);
+		
+		if (Sdg.screen != null)
+		{
+			Mouse.wx = Std.int((x + Sdg.screen.camera.x) / Sdg.gameScale);
+			Mouse.wy = Std.int((y + Sdg.screen.camera.y) / Sdg.gameScale);
+		}
 	}
 
 	function onMouseWheel(delta:Int):Void

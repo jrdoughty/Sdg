@@ -323,8 +323,12 @@ class Text extends Graphic
 		super.destroy();
 	}
 
-	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
+		preRender(g, objectX, objectY, cameraX, cameraY);
+
+		g.color = color;
+		
 		g.font = font;
 		g.fontSize = fontSize;
 
@@ -353,7 +357,9 @@ class Text extends Graphic
 			// After we finish rendering this line,
 			// move on to the next line.			
 			cursor.y += fontHeight + lineSpacing;
-		}		
+		}
+
+		postRender(g);		
 	}
 	
 	override public function getSize():Vector2i 

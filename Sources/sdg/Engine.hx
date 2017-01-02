@@ -26,7 +26,7 @@ class Engine
 	public var highQualityScale:Bool;
 	var useBackbuffer:Bool;
 	
-	public function new(width:Int, height:Int, highQualityScale = false, useBackbuffer:Bool = true, ?fps:Null<Int>):Void
+	public function new(width:Int, height:Int, highQualityScale:Bool = false, useBackbuffer:Bool = true, ?fps:Null<Int>):Void
 	{
 		active = true;
 		this.highQualityScale = highQualityScale;		
@@ -62,17 +62,13 @@ class Engine
 		else
 			Sdg.fixedDt = 1 / 60;
         
-        calcGameScale();
-        
-        Sdg.object = new Object();
+        calcGameScale();           
 		
 		managers = new Array<Manager>();
-		Sdg.screens = new Map<String, Screen>();
-		
-		//System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
+		Sdg.screens = new Map<String, Screen>();		
 	}
     
-    function calcGameScale()
+    inline function calcGameScale():Void
     {        
         Sdg.gameScale = Sdg.windowWidth / Sdg.gameWidth;
     }
@@ -147,7 +143,7 @@ class Engine
 		managers.push(manager);
 	}
 	
-	inline public function renderGame(g2:Graphics):Void
+	function renderGame(g2:Graphics):Void
 	{
 		if (Sdg.screen != null)
 		{			
@@ -191,5 +187,43 @@ class Engine
 			renderGame(framebuffer.g2);
 			framebuffer.g2.end();
 		}
+	}
+
+	public function updateGameSize(newWidth:Int, newHeight:Int):Void
+	{
+		Sdg.windowWidth = System.windowWidth();
+        Sdg.halfWinWidth = Std.int(Sdg.windowWidth / 2);
+		Sdg.windowHeight = System.windowHeight();
+        Sdg.halfWinHeight = Std.int(Sdg.windowHeight / 2);
+
+		if (useBackbuffer)
+		{
+			backbuffer = Image.createRenderTarget(newWidth, newHeight);
+
+			Sdg.gameWidth = backbuffer.width;
+        	Sdg.halfGameWidth = Std.int(backbuffer.width / 2);
+			Sdg.gameHeight = backbuffer.height;
+        	Sdg.halfGameHeight = Std.int(backbuffer.height / 2);
+		}
+		else
+		{
+			Sdg.gameWidth = Sdg.windowWidth;
+        	Sdg.halfGameWidth = Sdg.halfWinWidth;
+			Sdg.gameHeight = Sdg.windowHeight;
+        	Sdg.halfGameHeight = Sdg.halfWinHeight;
+		}
+
+		calcGameScale();
+
+		if (Sdg.screen != null)
+			Sdg.screen.gameSizeUpdated(newWidth, newHeight);
+	}
+
+	public function enablePauseOnLostFocus(value:Bool):Void
+	{
+		if (value)
+			System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
+		else
+			System.notifyOnApplicationState(null, null, null, null, null);
 	}
 }

@@ -20,12 +20,18 @@ class Circle extends ShapeBase
         segments = 0;
     }
     
-    override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+    override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
     {
+        preRender(g, objectX, objectY, cameraX, cameraY);
+
+        g.color = color;
+        
         if (filled)
             g.fillCircle(objectX + x + radius - cameraX, objectY + y + radius - cameraY, radius, segments);
         else
             g.drawCircle(objectX + x + radius - cameraX, objectY + y + radius - cameraY, radius, strength, segments);
+
+        postRender(g);
     }
 	
 	override public function getSize():Vector2i 

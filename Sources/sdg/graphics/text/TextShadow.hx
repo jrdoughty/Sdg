@@ -24,27 +24,9 @@ class TextShadow extends Text
 		shadowY = 2;		
 		shadowColor = Color.Black;
 		shadowAlpha = 0.3;
-	}
+	}	
 
-	override public function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
-	{
-		if (!visible)
-			return;
-
-		enableClipping(g);
-			
-		if (angle != 0)
-			g.pushRotation(angle, objectX + x + pivot.x - cameraX, objectY + y + pivot.y - cameraY);		
-			
-		innerRender(g, objectX, objectY, !object.fixed.x ? cameraX : 0, !object.fixed.y ? cameraY : 0);		
-			
-		if (angle != 0)		
-			g.popTransformation();
-
-		disableClipping(g);
-	}
-
-	override function innerRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
 		cursor.x = 0;
 		cursor.y = shadowY;
