@@ -71,6 +71,38 @@ class GamePadMan
 			leftTrigger = value;
 		else if (axis == 5)
 			rightTrigger = value;
+		else if (axis == 6)//Dpad comes in as an axis vs a button even though it only is -1,0, or 1
+		{
+			if(value>0)
+			{
+				onGamepadButton(GamePads.DRIGHT,1);
+			}
+			else if(value<0)
+			{
+				onGamepadButton(GamePads.DLEFT, 1);
+			}
+			else
+			{
+				onGamepadButton(GamePads.DLEFT, 0);
+				onGamepadButton(GamePads.DRIGHT, 0);
+			}
+		}
+		else if (axis == 7)
+		{
+			if(value>0)
+			{
+				onGamepadButton(GamePads.DUP,1);
+			}
+			else if(value<0)
+			{
+				onGamepadButton(GamePads.DDOWN, 1);
+			}
+			else
+			{
+				onGamepadButton(GamePads.DUP, 0);
+				onGamepadButton(GamePads.DDOWN, 0);
+			}
+		}
 			
 		
 		//Debug
@@ -120,6 +152,11 @@ class GamePadMan
 			}
 		}
 		*/
+		if(value > .2 || value <-.2)
+		{
+			trace("a"+axis);
+			trace("v"+value);
+		}
 	}
 	
 	public function onGamepadButton(button:Int, value:Float):Void 
@@ -136,6 +173,7 @@ class GamePadMan
 			buttonsHeld.set(button, false);
 			buttonsUp.set(button, true);
 		}
+		trace(button);
 		/*
 		//Debug
 		if (button == 0){
