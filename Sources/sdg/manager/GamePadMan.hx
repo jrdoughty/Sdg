@@ -2,7 +2,7 @@ package sdg.manager;
 
 import kha.math.Vector2;
 
-class GamePadMan extends Manager
+class GamePadMan
 {
 	public var id:Int;
 	public var leftAnalog:Vector2;
@@ -17,7 +17,6 @@ class GamePadMan extends Manager
 	
 	public function new(id:Int)
 	{
-		super();
 		this.id = id;
 		leftAnalog = new Vector2(0,0);
 		rightAnalog = new Vector2(0,0);
@@ -30,10 +29,8 @@ class GamePadMan extends Manager
 		buttonsJustPressed = false;	
 	}
 
-	override public function update():Void
+	public function update():Void
 	{
-		super.update();
-
 		for (key in buttonsUp.keys())
 			buttonsUp.remove(key);
 
@@ -43,9 +40,8 @@ class GamePadMan extends Manager
 		buttonsJustPressed = false;
 	}
 
-	override public function reset():Void
+	public function reset():Void
 	{
-		super.reset();
 
 		for (key in buttonsUp.keys())
 			buttonsUp.remove(key);
@@ -78,6 +74,7 @@ class GamePadMan extends Manager
 			
 		
 		//Debug
+		/*
 		if (axis == 0){
 			trace(value);
 			if (value > 0.5){
@@ -122,7 +119,7 @@ class GamePadMan extends Manager
 				trace(value+' RIGHT TRIGGER');
 			}
 		}
-		
+		*/
 	}
 	
 	public function onGamepadButton(button:Int, value:Float):Void 
