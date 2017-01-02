@@ -151,12 +151,12 @@ class GamePadMan
 				trace(value+' RIGHT TRIGGER');
 			}
 		}
-		*/
 		if(value > .2 || value <-.2)
 		{
 			trace("a"+axis);
 			trace("v"+value);
 		}
+		*/
 	}
 	
 	public function onGamepadButton(button:Int, value:Float):Void 
@@ -173,9 +173,9 @@ class GamePadMan
 			buttonsHeld.set(button, false);
 			buttonsUp.set(button, true);
 		}
-		trace(button);
 		/*
 		//Debug
+		trace(button);
 		if (button == 0){
 			trace('A');
 		} else if (button == 1){
