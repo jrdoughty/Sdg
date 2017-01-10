@@ -1,5 +1,7 @@
 package sdg.graphics;
+
 import kha.Image;
+import kha.math.Vector2i;
 import kha.graphics2.Graphics;
 import sdg.atlas.Atlas;
 import sdg.atlas.Region;
@@ -144,5 +146,10 @@ class NinePatch extends Graphic
 			innerHeight = 0;
 
 		return (height = value);
+	}
+
+	override public function getSize():Vector2i
+	{
+		return new Vector2i(width, height);
 	}
 }

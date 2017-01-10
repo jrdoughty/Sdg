@@ -66,7 +66,7 @@ class Atlas
 		return getRegions(listRegionNames);
 	}
 
-	public static function createRegionsFromAsset(source:ImageType, regionWidth:Int, regionHeight:Int):Array<Region>
+	public static function createRegionList(source:ImageType, regionWidth:Int, regionHeight:Int):Array<Region>
 	{
 		var reg:Region = null;
 
@@ -95,7 +95,7 @@ class Atlas
         return regions;
 	}
 
-	public static function createRegionFromRegion(source:ImageType, sx:Float, sy:Float, w:Int, h:Int):Region
+	public static function createRegion(source:ImageType, sx:Float, sy:Float, w:Int, h:Int):Region
 	{
 		var regionSource:Region = null;
 
@@ -114,7 +114,7 @@ class Atlas
 		return new Region(regionSource.image, regionSource.sx + sx, regionSource.sy + sy, w, h);
 	}
 
-	public static function saveRegionInCache(region:Region, name:String):Void
+	public static function saveRegion(region:Region, name:String):Void
 	{
 		if (cache == null)
 			cache = new Map<String, Region>();
@@ -122,7 +122,7 @@ class Atlas
 		cache.set('$name', region);
 	}    
 
-	public static function saveRegionListInCache(regions:Array<Region>, baseName:String):Void
+	public static function saveRegionList(regions:Array<Region>, baseName:String):Void
 	{
 		if (cache == null)
 			cache = new Map<String, Region>();
