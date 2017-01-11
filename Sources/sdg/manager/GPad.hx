@@ -2,7 +2,7 @@ package sdg.manager;
 
 import kha.math.Vector2;
 
-class GamePadMan
+class GPad
 {
 	public var id:Int;
 	public var leftAnalog:Vector2;

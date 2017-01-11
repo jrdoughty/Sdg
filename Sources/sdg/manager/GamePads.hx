@@ -1,10 +1,11 @@
 package sdg.manager;
 
 import kha.input.Gamepad;
+
 class GamePads extends Manager
 {
 
-	public static var gamePads:Map<Int,GamePadMan>;
+	public static var gamePads:Map<Int,GPad>;
 	public static inline var AX:Int = 0;
 	public static inline var BCIRCLE:Int = 1;
 	public static inline var XSQUARE:Int = 2;
@@ -25,13 +26,13 @@ class GamePads extends Manager
 	{
 		super();
 		
-		gamePads = new Map<Int,GamePadMan>();	
+		gamePads = new Map<Int,GPad>();	
 
 		for(i in 0...4)
 		{
 			if(Gamepad.get(i) != null)
 			{
-				gamePads.set(i, new GamePadMan(i));
+				gamePads.set(i, new GPad(i));
 				Gamepad.get(i).notify(gamePads[i].onGamepadAxis, gamePads[i].onGamepadButton);
 			}
 		}
