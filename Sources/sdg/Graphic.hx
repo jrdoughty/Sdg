@@ -110,6 +110,11 @@ class Graphic
 		 
 	function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void {}
 
+	inline public function renderTo(g:Graphics, x:Float, y:Float):Void
+	{
+		render(g, x, y, 0, 0);
+	}
+
 	inline function enableClipping(g:Graphics):Void
     {
         if (clipping != null)
