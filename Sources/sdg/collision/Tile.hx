@@ -7,9 +7,9 @@ class Tile
 	public var solid:Bool;
 	public var rect:Rectangle;
 
-	public function new(solid:Bool, ?rect:Rectangle):Void
+	public function new(solid:Bool):Void
 	{
 		this.solid = solid;
-		this.rect = rect;
+		this.rect = null;
 	}
 }

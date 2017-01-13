@@ -88,6 +88,12 @@ class Screen
 	public inline function layerVisible(layer:Int):Bool
 	{
 		return !layerDisplay.exists(layer) || layerDisplay.get(layer);
+	}
+
+	public inline function setWorldSize(width:Int, height:Int):Void
+	{
+		worldWidth = width;
+		worldHeight = height;
 	}	
 	
 	/**
