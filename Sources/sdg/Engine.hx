@@ -12,6 +12,8 @@ import sdg.manager.Manager;
 
 class Engine
 {
+	public static var instance:Engine;
+
 	public var backbuffer:Image;
 	
 	var currTime:Float = 0;
@@ -28,6 +30,8 @@ class Engine
 	
 	public function new(width:Int, height:Int, highQualityScale:Bool = false, useBackbuffer:Bool = true, ?fps:Null<Int>):Void
 	{
+		instance = this;
+
 		active = true;
 		this.highQualityScale = highQualityScale;		
 		

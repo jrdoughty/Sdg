@@ -44,7 +44,7 @@ import sdg.Graphic.ImageType;
 	var lineHeight:Int;
 	var spaceWidth:Int;
 	var region:Region;
-	var letters:Map<Int, BitmapLetter>;
+	var letters:Array<BitmapLetter>;
 }
 
 typedef BitmapLetter = {
@@ -153,6 +153,8 @@ class BitmapText extends Graphic
 			scaleX = 1;
 			scaleY = 1;
 			flip = new Vector2b();
+
+			lines = new Array<Line>();
 			
 			// As update is called before render
 			// the value for boxHeight will be available in render
@@ -191,11 +193,15 @@ class BitmapText extends Graphic
 			return;
 
 		// Array of lines that will be returned.
-		lines = new Array<Line>();
+		//lines = new Array<Line>();
 
 		if (boxWidth <= 0)
 		{
-			lines.push({ text: text, width: getStringWidth(text, font) });
+			lines[0] = { text: text, width: 0 };
+
+			if (lines.length > 1)
+				lines.splice(1, lines.length - 1);
+
 			return;
 		}
 
@@ -246,6 +252,7 @@ class BitmapText extends Graphic
 		var i = 0;
 		var len = words.length;
 		var lastLetterPadding = 0;
+		var indexNextLine = 0;
 
 		while (i < words.length)
 		{
@@ -288,7 +295,7 @@ class BitmapText extends Graphic
 					charCode = Utf8.charCodeAt(char, 0);
 
 					// Get letter data based on the charCode key
-					letter = font.letters.get(charCode);
+					letter = font.letters[charCode];
 
 					// If the letter data exists, append it to the current word.
 					// Then add the letter's padding to the overall word width.
@@ -335,10 +342,12 @@ class BitmapText extends Graphic
 				currLineWidth += lastLetterPadding;
 
 				// Add current line (sans current word) to array
-				lines.push({
+				lines[indexNextLine] = {
 					text: currLineText,
 					width: currLineWidth
-				});
+				};
+
+				indexNextLine++;
 
 				// If this isn't the last word, then begin the next
 				// line with the current word.
@@ -364,10 +373,12 @@ class BitmapText extends Graphic
 				{
 					// If this is the last word, then just push it
 					// to the next line and finish up.
-					lines.push({
+					lines[indexNextLine] = {
 						text: currWord,
 						width: currWordWidth
-					});
+					};
+
+					indexNextLine++;
 				}
 
 				// trim the text at start and end of the last line
@@ -395,10 +406,12 @@ class BitmapText extends Graphic
 				// add current line to array, whether it has already
 				// previously been broken to new line or not.
 
-				lines.push({
+				lines[indexNextLine] = {
 					text: currLineText,
 					width: currLineWidth
-				});
+				};
+
+				indexNextLine++;
 
 				// Start next line afresh.
 				currLineText = '';
@@ -414,6 +427,9 @@ class BitmapText extends Graphic
 			// Move to next iterator.
 			i++;
 		}
+
+		if ((lines.length - 1) >= indexNextLine)
+			lines.splice(indexNextLine, lines.length - indexNextLine);
 		
 		textProcessed = true;
 		boxHeight = Std.int(lines.length * ((font.lineHeight * scaleY) + lineSpacing));
@@ -433,7 +449,7 @@ class BitmapText extends Graphic
 			if (char != ' ')
 			{
 				charCode = Utf8.charCodeAt(char, 0);
-				letter = font.letters.get(charCode);
+				letter = font.letters[charCode];
 
 				if (letter != null)				
 					textWidth += letter.xadvance;
@@ -480,7 +496,7 @@ class BitmapText extends Graphic
 					case TextAlign.Right: cursor.x = boxWidth - line.width;
 					case TextAlign.Center: cursor.x = Std.int((boxWidth * 0.5) - (line.width * 0.5));
 				}
-			}						
+			}		
 
 			var lineText:String = line.text;
 			var lineTextLen:Int = lineText.length;
@@ -489,7 +505,7 @@ class BitmapText extends Graphic
 			{
 				var char = lineText.charAt(i); // get letter
 				var charCode = Utf8.charCodeAt(char, 0); // get letter id
-				var letter = font.letters.get(charCode); // get letter data
+				var letter = font.letters[charCode]; // get letter data
 
 				// If the letter data exists, then we will render it.
 				if (letter != null)
@@ -520,8 +536,8 @@ class BitmapText extends Graphic
 							var charCodeNext = Utf8.charCodeAt(charNext, 0);
 
 							// If kerning data exists, adjust the cursor position.
-							_kerningSize = letter.kernings.get(charCodeNext);
-							if (_kerningSize != null)
+							if (letter.kernings != null && (_kerningSize = letter.kernings.get(charCodeNext)) != null)
+							//if (_kerningSize != null)
 								cursor.x += _kerningSize * scaleX;
 						}
 
@@ -562,7 +578,12 @@ class BitmapText extends Graphic
 	public function getLineWidth(index:Int = 0):Int
 	{
 		if (lines[index] != null)
-			return lines[index].width;
+		{
+			if (lines[index].width == 0)
+				lines[index].width = getStringWidth(lines[index].text, font);
+
+			return lines[index].width;			 
+		}
 		else
 			return 0;
 	}
@@ -593,7 +614,7 @@ class BitmapText extends Graphic
 	 * Do this first before creating a new BitmapText, because we
 	 * need to process the font data before using.
 	 */
-	public static function loadFont(fontName:String, sourceImage:ImageType, fontData:Blob):Void
+	public static function loadFont(fontName:String, sourceImage:ImageType, fontData:Blob, loadKerning:Bool = false):Void
 	{
 		var region:Region = null;
 
@@ -610,7 +631,7 @@ class BitmapText extends Graphic
 		}		
 		
 		// We'll store each letter's data into a dictionary here later.
-		var letters = new Map<Int, BitmapLetter>();
+		var letters = new Array<BitmapLetter>();
 
 		var blobString:String = fontData.toString();
 		var fullXml:Xml = Xml.parse(blobString);
@@ -634,8 +655,11 @@ class BitmapText extends Graphic
 				xoffset: Std.parseInt(char.att.xoffset),
 				yoffset: Std.parseInt(char.att.yoffset),
 				xadvance: Std.parseInt(char.att.xadvance),
-				kernings: new Map<Int, Int>()
-			}
+				kernings: null
+			};
+
+			if (loadKerning)
+				letter.kernings = new Map<Int, Int>();
 
 			// NOTE on xadvance:
 			// http://www.angelcode.com/products/bmfont/doc/file_format.html
@@ -647,14 +671,22 @@ class BitmapText extends Graphic
 				spaceWidth = letter.xadvance;
 
 			// Save the letter's data into the dictioanry
-			letters.set(letter.id, letter);
+			letters[letter.id] = letter;
+			
+			/*if (letter.id > letters.length)
+			{
+				while (letter.id != letters.length)
+					letters.set(letters.length, null);
+			}
+
+			letters.set(letter.id, letter);*/
 		}
 
 		// If this fnt XML has kerning data for each letter,
 		// process them here. Kernings are UNIQUE padding
 		// between each letter to create a pleasing visual.
 		// As an idea, Bevan.ttf has about 1000+ kerning data.
-		if (data.hasNode.kernings)
+		if (loadKerning && data.hasNode.kernings)
 		{
 			var kernings = data.node.kernings;
 			var letter:BitmapLetter;
@@ -664,7 +696,7 @@ class BitmapText extends Graphic
 				var secondId = Std.parseInt(kerning.att.second);
 				var amount = Std.parseInt(kerning.att.amount);
 
-				letter = letters.get(firstId);
+				letter = letters[firstId];
 				letter.kernings.set(secondId, amount);
 			}
 		}
