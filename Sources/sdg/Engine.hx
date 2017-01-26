@@ -2,11 +2,11 @@ package sdg;
 
 import kha.Color;
 import kha.Image;
-import kha.Scheduler;
 import kha.System;
 import kha.Scaler;
+import kha.Canvas;
+import kha.Scheduler;
 import kha.Framebuffer;
-import kha.graphics2.Graphics;
 import kha.graphics2.ImageScaleQuality;
 import sdg.manager.Manager;
 
@@ -22,8 +22,8 @@ class Engine
 	
 	var managers:Array<Manager>;
 	
-	public var backgroundRender:Graphics->Void;
-	public var persistentRender:Graphics->Void;
+	public var backgroundRender:Canvas->Void;
+	public var persistentRender:Canvas->Void;
 
 	public var highQualityScale:Bool;
 	var useBackbuffer:Bool;
@@ -147,35 +147,35 @@ class Engine
 		managers.push(manager);
 	}
 	
-	function renderGame(g2:Graphics):Void
+	function renderGame(canvas:Canvas):Void
 	{
 		if (Sdg.screen != null)
 		{			
-			g2.begin(true, Sdg.screen.bgColor);
-			Sdg.screen.render(g2);
+			canvas.g2.begin(true, Sdg.screen.bgColor);
+			Sdg.screen.render(canvas);
 		}
 		else
-			g2.begin(true, Color.Black);				
+			canvas.g2.begin(true, Color.Black);				
             
 		#if debug
         if (Sdg.editor != null && Sdg.editor.active)
-            Sdg.editor.render(g2);
+            Sdg.editor.render(canvas);
         #end
 
 		if (persistentRender != null)
-			persistentRender(g2);
+			persistentRender(canvas);
 
 		if (!active && backgroundRender != null)
-			backgroundRender(g2);		
+			backgroundRender(canvas);
         	
-		g2.end();
+		canvas.g2.end();
 	}
 
 	public function render(framebuffer:Framebuffer):Void
 	{
 		if (useBackbuffer)
 		{
-			renderGame(backbuffer.g2);
+			renderGame(backbuffer);
 
 			framebuffer.g2.begin();
 
@@ -188,7 +188,7 @@ class Engine
 		else
 		{
 			framebuffer.g2.begin();
-			renderGame(framebuffer.g2);
+			renderGame(framebuffer);
 			framebuffer.g2.end();
 		}
 	}

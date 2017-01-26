@@ -2,11 +2,12 @@ package sdg;
 
 import kha.Color;
 import kha.Image;
+import kha.Canvas;
 import kha.FastFloat;
-import kha.graphics2.Graphics;
 import kha.math.Vector2;
 import kha.math.Vector2i;
 import sdg.math.Rectangle;
+import kha.graphics2.Graphics;
 import sdg.atlas.Region;
 import sdg.ds.ThreeOptions;
 
@@ -86,45 +87,45 @@ class Graphic
 	 */
 	public function update():Void {}	 
 	 
-	inline function preRender(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	inline function preRender(g2:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		enableClipping(g);
+		enableClipping(g2);
 			
 		if (angle != 0)
-			g.pushRotation(angle, objectX + x + pivot.x - cameraX, objectY + y + pivot.y - cameraY);		
+			g2.pushRotation(angle, objectX + x + pivot.x - cameraX, objectY + y + pivot.y - cameraY);		
 			
 		if (alpha != 1) 
-			g.pushOpacity(alpha);
+			g2.pushOpacity(alpha);
 	}
 
-	inline function postRender(g:Graphics):Void
+	inline function postRender(g2:Graphics):Void
 	{
 		if (alpha != 1)
-			g.popOpacity();
+			g2.popOpacity();
 			
 		if (angle != 0)
-			g.popTransformation();
+			g2.popTransformation();
 
-		disableClipping(g);
+		disableClipping(g2);
 	}
 		 
-	function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void {}
+	function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void {}
 
-	inline public function renderTo(g:Graphics, x:Float, y:Float):Void
+	inline public function renderTo(canvas:Canvas, x:Float, y:Float):Void
 	{
-		render(g, x, y, 0, 0);
+		render(canvas, x, y, 0, 0);
 	}
 
-	inline function enableClipping(g:Graphics):Void
+	inline function enableClipping(g2:Graphics):Void
     {
         if (clipping != null)
-            g.scissor(Std.int(object.x + clipping.x), Std.int(object.y + clipping.y), Std.int(clipping.width), Std.int(clipping.height));
+            g2.scissor(Std.int(object.x + clipping.x), Std.int(object.y + clipping.y), Std.int(clipping.width), Std.int(clipping.height));
     }
     
-    inline function disableClipping(g:Graphics):Void
+    inline function disableClipping(g2:Graphics):Void
     {
         if (clipping != null)
-            g.disableScissor();
+            g2.disableScissor();
     }
 
 	/**

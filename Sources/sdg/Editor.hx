@@ -1,7 +1,7 @@
 #if debug
 package sdg;
 
-import kha.graphics2.Graphics;
+import kha.Canvas;
 import sdg.manager.Keyboard;
 
 class Editor
@@ -40,6 +40,6 @@ class Editor
     
     public function update():Void {}
     
-    public function render(g:Graphics):Void {}    
+    public function render(canvas:Canvas):Void {}    
 }
 #end

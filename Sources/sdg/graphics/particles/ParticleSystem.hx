@@ -1,9 +1,9 @@
 package sdg.graphics.particles;
 
 import kha.Color;
+import kha.Canvas;
 import kha.Scheduler;
 import kha.Shaders;
-import kha.graphics2.Graphics;
 import kha.graphics4.BlendingFactor;
 import kha.graphics4.PipelineState;
 import kha.graphics4.VertexData;
@@ -305,35 +305,35 @@ class ParticleSystem extends Graphic
             particleList[i].timeToLive = 0.0;        
     }
 	
-	override public function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override public function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{		
-        g.color = color;
+        canvas.g2.color = color;
 			
 		//if (angle != 0)
 		//	g.pushRotation(angle, object.x + x + pivot.x - cameraX, object.y + y + pivot.y - cameraY);
 			
 		if (alpha != 1) 
-			g.pushOpacity(alpha);
+			canvas.g2.pushOpacity(alpha);
 			
-		g.pipeline = shaderPipeline;
+		canvas.g2.pipeline = shaderPipeline;
 			
 		for (i in 0 ... particleCount)
 		{
 			particle = particleList[i];			
 			scale = particle.particleSize / region.w * particleScaleSize;			
 			//rotation = particle.rotation * 180.0 / Math.PI + 90.0;			
-			g.color = Color.fromFloats(particle.color.r, particle.color.g, particle.color.b, particle.color.a);
+			canvas.g2.color = Color.fromFloats(particle.color.r, particle.color.g, particle.color.b, particle.color.a);
 			
-			g.drawScaledSubImage(region.image, region.sx, region.sy, region.w, region.h,
+			canvas.g2.drawScaledSubImage(region.image, region.sx, region.sy, region.w, region.h,
 							 objectX + (particle.position.x * particleScaleX) - ((region.w * scale) * 0.5) - (!object.fixed.x ? cameraX : 0), 
 							 objectY + (particle.position.y * particleScaleY) - ((region.h * scale) * 0.5) - (!object.fixed.y ? cameraY : 0), 
 							 region.w * scale, region.h * scale);
 		}
 			
-		g.pipeline = null;
+		canvas.g2.pipeline = null;
 		
 		if (alpha != 1)
-			g.popOpacity();
+			canvas.g2.popOpacity();
 			
 		//if (angle != 0)		
 		//	g.popTransformation();

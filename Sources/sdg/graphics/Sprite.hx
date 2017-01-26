@@ -1,9 +1,9 @@
 package sdg.graphics;
 
 import kha.Image;
+import kha.Canvas;
 import kha.math.Vector2i;
 import sdg.math.Vector2b;
-import kha.graphics2.Graphics;
 import sdg.atlas.Atlas;
 import sdg.atlas.Region;
 import sdg.Graphic.ImageType;
@@ -70,18 +70,18 @@ class Sprite extends Graphic
 		region = null;
 	}
 	
-	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		preRender(g, objectX, objectY, cameraX, cameraY);
+		preRender(canvas.g2, objectX, objectY, cameraX, cameraY);
 
-		g.color = color;
+		canvas.g2.color = color;
 			
-		g.drawScaledSubImage(region.image, region.sx, region.sy, region.w, region.h,
+		canvas.g2.drawScaledSubImage(region.image, region.sx, region.sy, region.w, region.h,
 							 objectX + x + (flip.x ? widthScaled : 0) - cameraX,
 							 objectY + y + (flip.y ? heightScaled : 0) - cameraY, 
 							 flip.x ? -widthScaled : widthScaled, flip.y ? -heightScaled : heightScaled);
 
-		postRender(g);		
+		postRender(canvas.g2);		
 	}    
 	
 	public function setScale(value:Float):Void

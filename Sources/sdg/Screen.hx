@@ -1,8 +1,8 @@
 package sdg;
 
 import kha.Color;
+import kha.Canvas;
 import kha.math.Vector2;
-import kha.graphics2.Graphics;
 import sdg.math.Rectangle;
 import sdg.util.Camera;
 
@@ -101,7 +101,7 @@ class Screen
 	 * If you override this to give your Scene render code, remember
 	 * to call super.render() or your Entities will not be rendered.
 	 */
-	public function render(g:Graphics):Void
+	public function render(canvas:Canvas):Void
 	{				
 		// render the entities in order of depth
 		for (layer in layerList)
@@ -112,10 +112,10 @@ class Screen
 			for (object in layers.get(layer))
 			{
 				if (object.graphic != null && object.graphic.visible)
-					object.render(g, !object.fixed.x ? camera.x : 0, !object.fixed.y ? camera.y : 0);				
+					object.render(canvas, !object.fixed.x ? camera.x : 0, !object.fixed.y ? camera.y : 0);				
 			}
-		}		
-	}    
+		}
+	}
 	
 	public function destroy():Void
 	{

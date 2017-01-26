@@ -1,12 +1,12 @@
 package sdg.graphics.text;
 
 import kha.Image;
-import kha.graphics2.Graphics;
+import kha.Canvas;
 import kha.math.Vector2i;
-import sdg.Object;
+import sdg.Graphic.ImageType;
 import sdg.atlas.Atlas;
 import sdg.atlas.Region;
-import sdg.Graphic.ImageType;
+import sdg.Object;
 
 class FixedBitmapText extends Graphic
 {    
@@ -36,11 +36,11 @@ class FixedBitmapText extends Graphic
         this.letterHeight = letterHeight;		
     }
     
-    override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+    override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-        preRender(g, objectX, objectY, cameraX, cameraY);
+        preRender(canvas.g2, objectX, objectY, cameraX, cameraY);
 
-        g.color = color;
+        canvas.g2.color = color;
         
         var code:Int;
         var cursor = objectX + x;
@@ -57,14 +57,14 @@ class FixedBitmapText extends Graphic
                 else if (code > 122)
                     code -= 60;				
                 
-                g.drawScaledSubImage(region.image, region.sx + (code * letterWidth), region.sy, letterWidth, letterHeight,
+                canvas.g2.drawScaledSubImage(region.image, region.sx + (code * letterWidth), region.sy, letterWidth, letterHeight,
 							 cursor - cameraX, objectY + y - cameraY, letterWidth, letterHeight);
             }
             
             cursor += letterWidth;
         }
 
-        postRender(g);        				
+        postRender(canvas.g2);        				
 	}
 	
 	override public function getSize():Vector2i 

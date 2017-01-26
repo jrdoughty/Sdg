@@ -1,8 +1,8 @@
 package sdg.graphics;
 
 import kha.Image;
+import kha.Canvas;
 import kha.math.Vector2i;
-import kha.graphics2.Graphics;
 import sdg.atlas.Atlas;
 import sdg.atlas.Region;
 import sdg.Graphic.ImageType;
@@ -50,15 +50,15 @@ class NinePatch extends Graphic
 		this.height = height;				
 	}	
 
-	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
+	override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
 	{
-		preRender(g, objectX, objectY, cameraX, cameraY);
+		preRender(canvas.g2, objectX, objectY, cameraX, cameraY);
 
-		g.color = color;
+		canvas.g2.color = color;
 		
 		if (leftBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx, region.sy + topBorder,	// sxy
+			canvas.g2.drawScaledSubImage(region.image, region.sx, region.sy + topBorder,	// sxy
 				leftBorder, region.h - topBorder - bottomBorder,					// swh
 				objectX + x - cameraX, objectY + y + topBorder - cameraY,			// xy
 				leftBorder, innerHeight);											// wh
@@ -66,7 +66,7 @@ class NinePatch extends Graphic
 
 		if (rightBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy + topBorder,
+			canvas.g2.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy + topBorder,
 				rightBorder, region.h - topBorder - bottomBorder,
 				objectX + x + leftBorder + innerWidth - cameraX, objectY + y + topBorder - cameraY,
 				rightBorder, innerHeight);
@@ -74,7 +74,7 @@ class NinePatch extends Graphic
 
 		if (topBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy,
+			canvas.g2.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy,
 				region.w - leftBorder - rightBorder, topBorder,
 				objectX + x + leftBorder - cameraX, object.y + y - cameraY,
 				innerWidth, topBorder);
@@ -82,7 +82,7 @@ class NinePatch extends Graphic
 
 		if (bottomBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy + region.h - bottomBorder,
+			canvas.g2.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy + region.h - bottomBorder,
 				region.w - leftBorder - rightBorder, bottomBorder,
 				objectX + x + leftBorder - cameraX, objectY + y + topBorder + innerHeight - cameraY,
 				innerWidth, bottomBorder);
@@ -90,7 +90,7 @@ class NinePatch extends Graphic
 
 		if (leftBorder > 0 && topBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx, region.sy, 
+			canvas.g2.drawScaledSubImage(region.image, region.sx, region.sy, 
 				leftBorder, topBorder,
 				objectX + x - cameraX, objectY + y - cameraY, 
 				leftBorder, topBorder);
@@ -98,7 +98,7 @@ class NinePatch extends Graphic
 
 		if (rightBorder > 0 && topBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy, 
+			canvas.g2.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy, 
 				rightBorder, topBorder,
 				objectX + x + leftBorder + innerWidth - cameraX,	objectY + y - cameraY,
 				rightBorder, topBorder);
@@ -106,7 +106,7 @@ class NinePatch extends Graphic
 
 		if (leftBorder > 0 && bottomBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx, region.sy + region.h - bottomBorder,
+			canvas.g2.drawScaledSubImage(region.image, region.sx, region.sy + region.h - bottomBorder,
 				leftBorder, bottomBorder,
 				objectX + x - cameraX, objectY + y + topBorder + innerHeight - cameraY,
 				leftBorder, bottomBorder);
@@ -114,18 +114,18 @@ class NinePatch extends Graphic
 
 		if (rightBorder > 0 && bottomBorder > 0)
 		{
-			g.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy + region.h - bottomBorder,
+			canvas.g2.drawScaledSubImage(region.image, region.sx + region.w - rightBorder, region.sy + region.h - bottomBorder,
 				rightBorder, bottomBorder,
 				objectX + x + leftBorder + innerWidth - cameraX, objectY + y + topBorder + innerHeight - cameraY,
 				rightBorder, bottomBorder);
 		}
 
-		g.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy + topBorder,
+		canvas.g2.drawScaledSubImage(region.image, region.sx + leftBorder, region.sy + topBorder,
 			region.w - leftBorder - rightBorder, region.h - topBorder - bottomBorder,
 			objectX + x + leftBorder - cameraX, objectY + y + topBorder - cameraY,
 			innerWidth, innerHeight);
 
-		postRender(g);
+		postRender(canvas.g2);
 	}
 
 	inline function set_width(value:Int):Int

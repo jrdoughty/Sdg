@@ -1,8 +1,8 @@
 package sdg.graphics.text;
 
-import kha.graphics2.Graphics;
-import kha.math.FastVector2;
+import kha.Canvas;
 import kha.Font;
+import kha.math.FastVector2;
 import kha.math.Vector2i;
 import sdg.Object;
 
@@ -323,14 +323,14 @@ class Text extends Graphic
 		super.destroy();
 	}
 
-	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		preRender(g, objectX, objectY, cameraX, cameraY);
+		preRender(canvas.g2, objectX, objectY, cameraX, cameraY);
 
-		g.color = color;
+		canvas.g2.color = color;
 		
-		g.font = font;
-		g.fontSize = fontSize;
+		canvas.g2.font = font;
+		canvas.g2.fontSize = fontSize;
 
 		// Reset cursor position
 		cursor.x = 0;
@@ -352,14 +352,14 @@ class Text extends Graphic
 				}
 			}						
 						
-			g.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);  							
+			canvas.g2.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);  							
 
 			// After we finish rendering this line,
 			// move on to the next line.			
 			cursor.y += fontHeight + lineSpacing;
 		}
 
-		postRender(g);		
+		postRender(canvas.g2);		
 	}
 	
 	override public function getSize():Vector2i 

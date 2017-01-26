@@ -1,8 +1,8 @@
 package sdg.graphics;
 
 import kha.Image;
+import kha.Canvas;
 import kha.math.Vector2;
-import kha.graphics2.Graphics;
 import kha.math.Vector2i;
 import sdg.atlas.Atlas;
 import sdg.atlas.Region;
@@ -99,9 +99,9 @@ class TileSprite extends Graphic
         cursor.y = 0;
     }
     
-    override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+    override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-        preRender(g, objectX, objectY, cameraX, cameraY);
+        preRender(canvas.g2, objectX, objectY, cameraX, cameraY);
 
         var currTileX = 0.0;
         var currTileY = 0.0;
@@ -114,7 +114,7 @@ class TileSprite extends Graphic
         var w:Int;
         var h:Int;
 
-        g.color = color;
+        canvas.g2.color = color;
 
         for (i in 0...tileInfo.length)
         {
@@ -169,11 +169,11 @@ class TileSprite extends Graphic
                 }                    
             }
                         
-            g.drawScaledSubImage(region.image, sx, sy, w, h,
+            canvas.g2.drawScaledSubImage(region.image, sx, sy, w, h,
                 currTileX - cameraX, currTileY - cameraY, w, h);                        
         }
 
-        postRender(g);
+        postRender(canvas.g2);
 	}
     
     override public function getSize():Vector2i 
