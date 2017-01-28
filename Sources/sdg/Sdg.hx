@@ -79,7 +79,9 @@ class Sdg
 		if (screenSwitched != null)
 		{			
 			screen = screenSwitched;
-			screenSwitched.init();
+			Engine.instance.chooseRenderFunction(screen.filter);
+
+			screen.init();
 
 			return true;
 		}

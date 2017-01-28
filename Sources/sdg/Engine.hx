@@ -9,6 +9,7 @@ import kha.Scheduler;
 import kha.Framebuffer;
 import kha.graphics2.ImageScaleQuality;
 import sdg.manager.Manager;
+import sdg.filters.Filter;
 
 class Engine
 {
@@ -25,8 +26,10 @@ class Engine
 	public var backgroundRender:Canvas->Void;
 	public var persistentRender:Canvas->Void;
 
+	public var render:Framebuffer->Void;
+
 	public var highQualityScale:Bool;
-	var useBackbuffer:Bool;
+	public var useBackbuffer(default, null):Bool;
 	
 	public function new(width:Int, height:Int, highQualityScale:Bool = false, useBackbuffer:Bool = true, ?fps:Null<Int>):Void
 	{
@@ -46,12 +49,14 @@ class Engine
 
         if (useBackbuffer)
 		{
-			backbuffer = Image.createRenderTarget(width, height);			
+			backbuffer = Image.createRenderTarget(width, height);
 
 			Sdg.gameWidth = backbuffer.width;
         	Sdg.halfGameWidth = Std.int(backbuffer.width / 2);
 			Sdg.gameHeight = backbuffer.height;
         	Sdg.halfGameHeight = Std.int(backbuffer.height / 2);
+
+			render = renderWithBackbuffer;
 		}
 		else
 		{
@@ -59,6 +64,8 @@ class Engine
         	Sdg.halfGameWidth = Sdg.halfWinWidth;
 			Sdg.gameHeight = Sdg.windowHeight;
         	Sdg.halfGameHeight = Sdg.halfWinHeight;
+
+			render = renderWithFramebuffer;
 		}
 
 		if (fps != null)
@@ -148,14 +155,9 @@ class Engine
 	}
 	
 	function renderGame(canvas:Canvas):Void
-	{
-		if (Sdg.screen != null)
-		{			
-			canvas.g2.begin(true, Sdg.screen.bgColor);
-			Sdg.screen.render(canvas);
-		}
-		else
-			canvas.g2.begin(true, Color.Black);				
+	{							
+		canvas.g2.begin(true, Sdg.screen.bgColor);
+		Sdg.screen.render(canvas);					
             
 		#if debug
         if (Sdg.editor != null && Sdg.editor.active)
@@ -171,27 +173,50 @@ class Engine
 		canvas.g2.end();
 	}
 
-	public function render(framebuffer:Framebuffer):Void
+	function renderWithBackbuffer(framebuffer:Framebuffer):Void
 	{
-		if (useBackbuffer)
+		if (Sdg.screen != null)
 		{
 			renderGame(backbuffer);
-
-			framebuffer.g2.begin();
-
-			if (highQualityScale)
-				framebuffer.g2.imageScaleQuality = ImageScaleQuality.High;
-				
-			Scaler.scale(backbuffer, framebuffer, System.screenRotation);
-			framebuffer.g2.end();
-		}
-		else
-		{
-			framebuffer.g2.begin();
-			renderGame(framebuffer);
-			framebuffer.g2.end();
+			applyBackbufferToFramebuffer(framebuffer);			
 		}
 	}
+
+	function renderWithBackbufferAndFilter(framebuffer:Framebuffer):Void
+	{
+		if (Sdg.screen != null)
+		{
+			renderGame(Filter.texture);
+			Sdg.screen.filter.apply(backbuffer);
+			applyBackbufferToFramebuffer(framebuffer);
+		}
+	}
+
+	inline function applyBackbufferToFramebuffer(framebuffer:Framebuffer):Void
+	{
+		framebuffer.g2.begin();
+
+		if (highQualityScale)
+			framebuffer.g2.imageScaleQuality = ImageScaleQuality.High;
+			
+		Scaler.scale(backbuffer, framebuffer, System.screenRotation);
+		framebuffer.g2.end();
+	}
+
+	function renderWithFramebuffer(framebuffer:Framebuffer):Void
+	{
+		if (Sdg.screen != null)
+			renderGame(framebuffer);
+	}
+
+	function renderWithFramebufferAndFilter(framebuffer:Framebuffer):Void
+	{
+		if (Sdg.screen != null)
+		{
+			renderGame(Filter.texture);
+			Sdg.screen.filter.apply(framebuffer);
+		}
+	}	
 
 	public function updateGameSize(newWidth:Int, newHeight:Int):Void
 	{
@@ -229,5 +254,28 @@ class Engine
 			System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
 		else
 			System.notifyOnApplicationState(null, null, null, null, null);
+	}
+
+	@:allow(sdg.Sdg)
+	@:allow(sdg.Screen)
+	@:allow(sdg.filters.Filter)
+	function chooseRenderFunction(filter:Filter):Void
+	{
+		var isUsingFilter = (filter != null && filter.enabled);
+		
+		if (useBackbuffer)
+		{
+			if (isUsingFilter)
+				render = renderWithBackbufferAndFilter;
+			else
+				render = renderWithBackbuffer;
+		}
+		else
+		{
+			if (isUsingFilter)
+				render = renderWithFramebufferAndFilter;
+			else
+				render = renderWithFramebuffer;
+		}
 	}
 }

@@ -5,6 +5,7 @@ import kha.Canvas;
 import kha.math.Vector2;
 import sdg.math.Rectangle;
 import sdg.util.Camera;
+import sdg.filters.Filter;
 
 class Screen
 {
@@ -31,6 +32,8 @@ class Screen
 
 	public var worldWidth:Int;
 	public var worldHeight:Int;
+
+	public var filter(default, set):Filter;
 	
 	public function new():Void
 	{
@@ -413,4 +416,12 @@ class Screen
 	 * by engine.updateGameSize()
 	 */
 	public function gameSizeUpdated(newWidth:Int, newHeight:Int):Void {}
+
+	function set_filter(value:Filter):Filter
+	{
+		filter = value;
+		Engine.instance.chooseRenderFunction(filter);
+
+		return filter;		
+	}
 }
