@@ -147,11 +147,29 @@ class Engine
 					m.update();
 			}
 		}		
-	}
-	
-	public function addManager(manager:Manager):Void
+	}	
+
+	/**
+	 * Enable managers to be updated by the engine
+	 */
+	public function enable(options:Int):Void
 	{
-		managers.push(manager);
+		if (options & Manager.KEYBOARD == Manager.KEYBOARD)
+			managers.push(new sdg.manager.Keyboard());
+
+		if (options & Manager.MOUSE == Manager.MOUSE)
+			managers.push(new sdg.manager.Mouse());
+
+		if (options & Manager.TOUCH == Manager.TOUCH)
+			managers.push(new sdg.manager.Touch());	
+
+		if (options & Manager.GAMEPAD == Manager.GAMEPAD)
+			managers.push(sdg.manager.GamePad.getManager());
+		
+		#if Delta
+		if (options & Manager.DELTA == Manager.DELTA)
+			managers.push(new sdg.manager.TweenDelta());		
+		#end
 	}
 	
 	function renderGame(canvas:Canvas):Void
