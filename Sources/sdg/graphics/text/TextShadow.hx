@@ -2,7 +2,7 @@ package sdg.graphics.text;
 
 import kha.Font;
 import kha.Color;
-import kha.graphics2.Graphics;
+import kha.Canvas;
 import sdg.graphics.text.Text.TextOptions;
 import sdg.graphics.text.Text.TextAlign;
 
@@ -26,18 +26,18 @@ class TextShadow extends Text
 		shadowAlpha = 0.3;
 	}	
 
-	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
 		cursor.x = 0;
 		cursor.y = shadowY;
 
-		g.font = font;
-		g.fontSize = fontSize;
+		canvas.g2.font = font;
+		canvas.g2.fontSize = fontSize;
 
-		g.color = shadowColor;
+		canvas.g2.color = shadowColor;
 
 		if (shadowAlpha != 1)
-			g.pushOpacity(shadowAlpha);		
+			canvas.g2.pushOpacity(shadowAlpha);		
 
 		for (line in lines)
 		{			
@@ -53,21 +53,21 @@ class TextShadow extends Text
 			else
 				cursor.x = shadowX;
 			
-			g.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);
+			canvas.g2.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);
 						
 			cursor.y += fontHeight + lineSpacing;
 		}
 
 		if (shadowAlpha != 1)
-			g.popOpacity();
+			canvas.g2.popOpacity();
 		
 		cursor.x = 0;
 		cursor.y = 0;
 
-		g.color = color;
+		canvas.g2.color = color;
 
 		if (alpha != 1)
-			g.pushOpacity(alpha);
+			canvas.g2.pushOpacity(alpha);
 
 		for (line in lines)
 		{			
@@ -81,12 +81,12 @@ class TextShadow extends Text
 				}
 			}
 			
-			g.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);
+			canvas.g2.drawString(line.text, objectX + x + cursor.x - cameraX, objectY + y + cursor.y - cameraY);
 						
 			cursor.y += fontHeight + lineSpacing;
 		}
 
 		if (alpha != 1)
-			g.popOpacity();			
+			canvas.g2.popOpacity();			
 	}
 }

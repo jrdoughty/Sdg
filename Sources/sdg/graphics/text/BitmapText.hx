@@ -1,22 +1,22 @@
 package sdg.graphics.text;
 
-import haxe.xml.Fast;
 import haxe.Utf8;
+import haxe.xml.Fast;
 import kha.Image;
+import kha.Canvas;
 import kha.Color;
 import kha.Assets;
 import kha.Blob;
 import kha.math.FastVector2;
-import kha.graphics2.Graphics;
 import kha.math.Vector2i;
-import sdg.Object;
-import sdg.math.Vector2b;
 import sdg.graphics.text.Text.TextAlign;
 import sdg.graphics.text.Text.TextOptions;
 import sdg.graphics.text.Text.Line;
+import sdg.Graphic.ImageType;
+import sdg.math.Vector2b;
 import sdg.atlas.Region;
 import sdg.atlas.Atlas;
-import sdg.Graphic.ImageType;
+import sdg.Object;
 
 /**
 	Tip on how to generate Bitmap font, for Windows AND Mac:
@@ -472,11 +472,11 @@ class BitmapText extends Graphic
 		super.destroy();
 	}
 	
-	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		preRender(g, objectX, objectY, cameraX, cameraY);
+		preRender(canvas.g2, objectX, objectY, cameraX, cameraY);
 
-		g.color = color;
+		canvas.g2.color = color;
 		
 		// Reset cursor position
 		cursor.x = 0;
@@ -516,7 +516,7 @@ class BitmapText extends Graphic
 						letterWidthScaled = letter.width * scaleX;
 						letterHeightScaled = letter.height * scaleY;
 						
-						g.drawScaledSubImage(
+						canvas.g2.drawScaledSubImage(
 							font.region.image,
 							font.region.sx + letter.x,
 							font.region.sy + letter.y,
@@ -558,7 +558,7 @@ class BitmapText extends Graphic
 			cursor.y += (font.lineHeight * scaleY) + lineSpacing;
 		}
 
-		postRender(g);		
+		postRender(canvas.g2);
 	}
 	
 	public function setScale(value:Float):Void

@@ -1,9 +1,9 @@
 package sdg.graphics;
 
 import kha.Image;
+import kha.Canvas;
 import kha.math.Vector2i;
 import sdg.math.Vector2b;
-import kha.graphics2.Graphics;
 import sdg.atlas.Atlas;
 import sdg.atlas.Region;
 import sdg.Graphic.ImageType;
@@ -13,7 +13,15 @@ class Sprite extends Graphic
 	/**
 	 * The region inside the image that is rendered
 	 */
-	public var region(default, set):Region;	
+	public var region(default, set):Region;
+	/**
+	 * A shortcut for the width of the region
+	 */
+	public var width(get, never):Int;
+	/**
+	 * A shortcut for the height of the region
+	 */
+	public var height(get, never):Int;
 	/**
 	 * A scale in x to render the region
 	 */
@@ -25,11 +33,11 @@ class Sprite extends Graphic
 	/**
 	 * The width of the region with the scale applied
 	 */
-	var widthRegScaled(default, null):Int;
+	public var widthScaled(default, null):Int;
 	/**
 	 * The height of the region with the scale applied
 	 */		
-	var heightRegScaled(default, null):Int;
+	public var heightScaled(default, null):Int;
 	/**
 	 * If the sprite should be rendered flipped
 	 */
@@ -62,18 +70,18 @@ class Sprite extends Graphic
 		region = null;
 	}
 	
-	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		preRender(g, objectX, objectY, cameraX, cameraY);
+		preRender(canvas.g2, objectX, objectY, cameraX, cameraY);
 
-		g.color = color;
+		canvas.g2.color = color;
 			
-		g.drawScaledSubImage(region.image, region.sx, region.sy, region.w, region.h,
-							 objectX + x + (flip.x ? widthRegScaled : 0) - cameraX,
-							 objectY + y + (flip.y ? heightRegScaled : 0) - cameraY, 
-							 flip.x ? -widthRegScaled : widthRegScaled, flip.y ? -heightRegScaled : heightRegScaled);
+		canvas.g2.drawScaledSubImage(region.image, region.sx, region.sy, region.w, region.h,
+							 objectX + x + (flip.x ? widthScaled : 0) - cameraX,
+							 objectY + y + (flip.y ? heightScaled : 0) - cameraY, 
+							 flip.x ? -widthScaled : widthScaled, flip.y ? -heightScaled : heightScaled);
 
-		postRender(g);		
+		postRender(canvas.g2);		
 	}    
 	
 	public function setScale(value:Float):Void
@@ -90,30 +98,40 @@ class Sprite extends Graphic
 	
 	override public function getSize():Vector2i
 	{
-		return new Vector2i(region.w, region.h);
+		return new Vector2i(widthScaled, heightScaled);
 	}
 	
 	public function set_region(value:Region):Region
 	{
 		if (value != null)
         {
-            widthRegScaled = Std.int(value.w * scaleX);
-		    heightRegScaled = Std.int(value.h * scaleY);    
+            widthScaled = Std.int(value.w * scaleX);
+		    heightScaled = Std.int(value.h * scaleY);    
         }
         		
 		return region = value;
 	}
+
+	inline public function get_width():Int
+	{
+		return region.w;
+	}
+
+	inline public function get_height():Int
+	{
+		return region.h;
+	}
 		
 	public function set_scaleX(value:Float):Float
 	{		
-		widthRegScaled = Std.int(region.w * value);
+		widthScaled = Std.int(region.w * value);
 		
 		return scaleX = value;
 	}	
 	
 	public function set_scaleY(value:Float):Float
 	{
-		heightRegScaled = Std.int(region.h * value);
+		heightScaled = Std.int(region.h * value);
 		
 		return scaleY = value;
 	}

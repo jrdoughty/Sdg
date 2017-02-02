@@ -1,7 +1,7 @@
 package sdg.graphics.tiles;
 
 import kha.Blob;
-import kha.graphics2.Graphics;
+import kha.Canvas;
 import kha.math.Vector2i;
 import sdg.Object;
 
@@ -189,9 +189,9 @@ class Tilemap extends Graphic
 		return maps;
 	}
 	
-	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+	override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-		g.color = color;
+		canvas.g2.color = color;
 		
 		if 	(((x + widthInPixels) < cameraX) || (x > (cameraX + Sdg.gameWidth)) ||
 			((y + heightInPixels) < cameraY) || (y > (cameraY + Sdg.gameHeight)))
@@ -218,7 +218,7 @@ class Tilemap extends Graphic
 					_px = objectX + x + (c * tileset.tileWidth) - cameraX;
 					_py = objectY + y + (r * tileset.tileHeight) - cameraY;
 					
-					tileset.render(g, tile, _px, _py);
+					tileset.render(canvas.g2, tile, _px, _py);
 				}
 			}
 		}

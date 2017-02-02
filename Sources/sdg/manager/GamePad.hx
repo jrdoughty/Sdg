@@ -2,24 +2,46 @@ package sdg.manager;
 
 import kha.math.Vector2;
 
-class GPad
+@:allow(sdg.manager.GamePadMan)
+class GamePad
 {
+	static var manager:GamePadMan;
+
+	public static inline var A_X:Int = 0;
+	public static inline var B_CIRCLE:Int = 1;
+	public static inline var X_SQUARE:Int = 2;
+	public static inline var Y_TRIANGLE:Int = 3;
+	public static inline var LBL1:Int = 4;
+	public static inline var RBR1:Int = 5;
+	public static inline var LEFT_ANALOG_PRESS:Int = 6;
+	public static inline var RIGHT_ANALOG_PRESS:Int = 7;
+	public static inline var START:Int = 8;
+	public static inline var BACK_SELECT:Int = 9;
+	public static inline var HOME:Int = 10;
+	public static inline var DUP:Int = 11;
+	public static inline var DDOWN:Int = 12;
+	public static inline var DLEFT:Int = 13;
+	public static inline var DRIGHT:Int = 14;
+
 	public var id:Int;
+	public var active(default, null):Bool;
+
 	public var leftAnalog:Vector2;
 	public var rightAnalog:Vector2;
 	public var leftTrigger:Float = 0;
 	public var rightTrigger:Float = 0;
-	public var buttonsPressed:Map<Int, Bool>;
-	public var buttonsHeld:Map<Int, Bool>;
-	public var buttonsUp:Map<Int, Bool>;
-	public var buttonsCount:Int;
-	public var buttonsJustPressed:Bool;	
 	
-	public function new(id:Int)
+	var buttonsPressed:Map<Int, Bool>;
+	var buttonsHeld:Map<Int, Bool>;
+	var buttonsUp:Map<Int, Bool>;
+	var buttonsCount:Int;
+	var buttonsJustPressed:Bool;	
+	
+	function new(id:Int)
 	{
 		this.id = id;
-		leftAnalog = new Vector2(0,0);
-		rightAnalog = new Vector2(0,0);
+		leftAnalog = new Vector2(0, 0);
+		rightAnalog = new Vector2(0, 0);
 		leftTrigger = 0;
 		rightTrigger = 0;
 		buttonsPressed = new Map<Int, Bool>();
@@ -29,7 +51,20 @@ class GPad
 		buttonsJustPressed = false;	
 	}
 
-	public function update():Void
+	public static function getManager():GamePadMan
+	{
+		if (manager == null)
+			manager = new GamePadMan();
+
+		return manager;
+	}
+
+	public static function get(i:Int = 0):GamePad
+	{
+		return GamePadMan.gamePads.get(i);
+	}
+
+	function update():Void
 	{
 		for (key in buttonsUp.keys())
 			buttonsUp.remove(key);
@@ -42,7 +77,6 @@ class GPad
 
 	public function reset():Void
 	{
-
 		for (key in buttonsUp.keys())
 			buttonsUp.remove(key);
 
@@ -51,12 +85,11 @@ class GPad
 
 		for (key in buttonsHeld.keys())
 			buttonsHeld.remove(key);
-
 	}
 
-	public function onGamepadAxis(axis:Int, value:Float):Void 
+	function onGamepadAxis(axis:Int, value:Float):Void 
 	{
-		if(value < .1  &&value > -.1)
+		if(value < 0.1 && value > -0.1)
 			value = 0;
 
 		if (axis == 0)
@@ -71,39 +104,30 @@ class GPad
 			leftTrigger = value;
 		else if (axis == 5)
 			rightTrigger = value;
-		else if (axis == 6)//Dpad comes in as an axis vs a button even though it only is -1,0, or 1
+		else if (axis == 6) //Dpad comes in as an axis vs a button even though it only is -1, 0, or 1
 		{
-			if(value>0)
-			{
-				onGamepadButton(GamePads.DRIGHT,1);
-			}
-			else if(value<0)
-			{
-				onGamepadButton(GamePads.DLEFT, 1);
-			}
+			if (value > 0)			
+				onGamepadButton(GamePad.DRIGHT, 1);
+			else if (value < 0)			
+				onGamepadButton(GamePad.DLEFT, 1);			
 			else
 			{
-				onGamepadButton(GamePads.DLEFT, 0);
-				onGamepadButton(GamePads.DRIGHT, 0);
+				onGamepadButton(GamePad.DLEFT, 0);
+				onGamepadButton(GamePad.DRIGHT, 0);
 			}
 		}
 		else if (axis == 7)
 		{
-			if(value>0)
-			{
-				onGamepadButton(GamePads.DUP,1);
-			}
-			else if(value<0)
-			{
-				onGamepadButton(GamePads.DDOWN, 1);
-			}
+			if (value > 0)			
+				onGamepadButton(GamePad.DUP, 1);
+			else if (value < 0)			
+				onGamepadButton(GamePad.DDOWN, 1);			
 			else
 			{
-				onGamepadButton(GamePads.DUP, 0);
-				onGamepadButton(GamePads.DDOWN, 0);
+				onGamepadButton(GamePad.DUP, 0);
+				onGamepadButton(GamePad.DDOWN, 0);
 			}
-		}
-			
+		}			
 		
 		//Debug
 		/*
@@ -159,10 +183,9 @@ class GPad
 		*/
 	}
 	
-	public function onGamepadButton(button:Int, value:Float):Void 
+	function onGamepadButton(button:Int, value:Float):Void 
 	{
-
-		if(value > 0)
+		if (value > 0)
 		{
 			buttonsJustPressed = true;
 			buttonsPressed.set(button, true);
@@ -173,6 +196,7 @@ class GPad
 			buttonsHeld.set(button, false);
 			buttonsUp.set(button, true);
 		}
+
 		/*
 		//Debug
 		trace(button);
@@ -222,4 +246,28 @@ class GPad
 		*/
 	}
 
+	inline public function isPressed(button:Int):Bool
+	{
+		return buttonsPressed.exists(button);
+	}
+
+	inline public function isHeld(button:Int):Bool
+	{
+		return buttonsHeld.get(button);
+	}
+
+	inline public function isUp(button:Int):Bool
+	{
+		return buttonsUp.exists(button);
+	}
+
+	inline public function isAnyHeld():Bool
+	{
+		return (buttonsCount > 0);
+	}
+
+	inline public function isAnyPressed():Bool
+	{
+		return buttonsJustPressed;
+	}
 }

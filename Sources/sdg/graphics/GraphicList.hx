@@ -1,6 +1,6 @@
 package sdg.graphics;
 
-import kha.graphics2.Graphics;
+import kha.Canvas;
 import kha.math.Vector2i;
 
 class GraphicList extends Graphic
@@ -47,12 +47,12 @@ class GraphicList extends Graphic
 			graphic.update();		
 	}
 
-	override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
+	override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void
 	{
 		for (graphic in graphics)
 		{
 			if (graphic.visible)
-				graphic.render(g, objectX + x, objectY + y, cameraX, cameraY);
+				graphic.render(canvas, objectX + x, objectY + y, cameraX, cameraY);
 		}
 	}
 	

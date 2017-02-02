@@ -1,16 +1,19 @@
 package sdg.graphics;
 
 import kha.Image;
+import kha.Canvas;
 import kha.math.Vector2;
-import kha.graphics2.Graphics;
 import kha.math.Vector2i;
+import sdg.atlas.Atlas;
 import sdg.atlas.Region;
 import sdg.Graphic.ImageType;
 
-class TileSprite extends Sprite
+class TileSprite extends Graphic
 {
-    public var widthArea:Int;
-    public var heightArea:Int;
+    public var region(default, set):Region;
+
+    public var width:Int;
+    public var height:Int;
 
     var tileInfo:Array<Float>;
     var numTiles:Int;
@@ -20,36 +23,31 @@ class TileSprite extends Sprite
 
     var cursor:Vector2;
     
-    public function new(source:ImageType, widthArea:Int, heightArea:Int, scrollX:Float = 0, scrollY:Float = 0):Void
+    public function new(source:ImageType, width:Int, height:Int, scrollX:Float = 0, scrollY:Float = 0):Void
     {
-        super(source);
+        super();
 
-        this.widthArea = widthArea;
-        this.heightArea = heightArea;        
+        cursor = new Vector2();
+
+        switch (source.type)
+		{
+			case First(image):
+				this.region = new Region(image, 0, 0, image.width, image.height);
+			
+			case Second(region):
+				this.region = region;
+
+			case Third(regionName):
+				this.region = Atlas.getRegion(regionName); 
+		}
+
+        this.width = width;
+        this.height = height;
         
         this.scrollX = scrollX;
         this.scrollY = scrollY;
         
-        cursor = new Vector2(-region.w, -region.h);
-        tileInfo = new Array<Float>();
-
-        while(cursor.y <= heightArea)
-        {
-            while(cursor.x <= widthArea)
-            {
-                tileInfo.push(cursor.x);
-                tileInfo.push(cursor.y);
-
-                cursor.x += region.w;
-                numTiles++;
-            }
-
-            cursor.x = -region.w;
-            cursor.y += region.h;
-        }
-
-        cursor.x = 0;
-        cursor.y = 0;
+        updateTileInfo();
     }
 
     override function update():Void
@@ -74,10 +72,36 @@ class TileSprite extends Sprite
                 cursor.y = region.h;
         }
     }
+
+    function updateTileInfo():Void
+    {
+        cursor.x = -region.w;
+        cursor.y = -region.h;
+
+        tileInfo = new Array<Float>();
+
+        while(cursor.y <= height)
+        {
+            while(cursor.x <= width)
+            {
+                tileInfo.push(cursor.x);
+                tileInfo.push(cursor.y);
+
+                cursor.x += region.w;
+                numTiles++;
+            }
+
+            cursor.x = -region.w;
+            cursor.y += region.h;
+        }
+
+        cursor.x = 0;
+        cursor.y = 0;
+    }
     
-    override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+    override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
 	{
-        preRender(g, objectX, objectY, cameraX, cameraY);
+        preRender(canvas.g2, objectX, objectY, cameraX, cameraY);
 
         var currTileX = 0.0;
         var currTileY = 0.0;
@@ -90,7 +114,7 @@ class TileSprite extends Sprite
         var w:Int;
         var h:Int;
 
-        g.color = color;
+        canvas.g2.color = color;
 
         for (i in 0...tileInfo.length)
         {
@@ -102,7 +126,7 @@ class TileSprite extends Sprite
             w = region.w;
             h = region.h;            
 
-            if ((tileInfo[posX] + cursor.x > widthArea) || (tileInfo[posY] + cursor.y > heightArea))
+            if ((tileInfo[posX] + cursor.x > width) || (tileInfo[posY] + cursor.y > height))
                 continue;
             else
             {
@@ -110,17 +134,17 @@ class TileSprite extends Sprite
                 {
                     sx = region.sx + region.w - cursor.x;
 
-                    if (cursor.x < widthArea)
+                    if (cursor.x < width)
                         w = Std.int(cursor.x);
                     else
-                        w = widthArea;
+                        w = width;
 
                     currTileX = objectX + x;
                 }
                 else 
                 {
-                    if (tileInfo[posX] + region.w + cursor.x > widthArea)                    
-                        w = Std.int(widthArea - (tileInfo[posX] + cursor.x));
+                    if (tileInfo[posX] + region.w + cursor.x > width)                    
+                        w = Std.int(width - (tileInfo[posX] + cursor.x));
                     
                     currTileX = objectX + x + tileInfo[posX] + cursor.x;
                 }
@@ -129,31 +153,39 @@ class TileSprite extends Sprite
                 {
                     sy = region.sy + region.h - cursor.y;
 
-                    if (cursor.y < heightArea)
+                    if (cursor.y < height)
                         h = Std.int(cursor.y);
                     else
-                        h = heightArea;
+                        h = height;
                         
                     currTileY = objectY + y;
                 }
                 else 
                 {
-                    if (tileInfo[posY] + region.h + cursor.y > heightArea)                    
-                        h = Std.int(heightArea - (tileInfo[posY] + cursor.y));
+                    if (tileInfo[posY] + region.h + cursor.y > height)                    
+                        h = Std.int(height - (tileInfo[posY] + cursor.y));
 
                     currTileY = objectY + y + tileInfo[posY] + cursor.y;
                 }                    
             }
                         
-            g.drawScaledSubImage(region.image, sx, sy, w, h,
+            canvas.g2.drawScaledSubImage(region.image, sx, sy, w, h,
                 currTileX - cameraX, currTileY - cameraY, w, h);                        
         }
 
-        postRender(g);
+        postRender(canvas.g2);
 	}
     
     override public function getSize():Vector2i 
     {
-        return new Vector2i(widthArea, heightArea);
-    }    
+        return new Vector2i(width, height);
+    }
+
+    function set_region(value:Region):Region
+    {
+        region = value;
+        updateTileInfo();
+
+        return value;
+    }
 }

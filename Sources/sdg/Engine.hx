@@ -2,13 +2,14 @@ package sdg;
 
 import kha.Color;
 import kha.Image;
-import kha.Scheduler;
 import kha.System;
 import kha.Scaler;
+import kha.Canvas;
+import kha.Scheduler;
 import kha.Framebuffer;
-import kha.graphics2.Graphics;
 import kha.graphics2.ImageScaleQuality;
 import sdg.manager.Manager;
+import sdg.filters.Filter;
 
 class Engine
 {
@@ -22,11 +23,13 @@ class Engine
 	
 	var managers:Array<Manager>;
 	
-	public var backgroundRender:Graphics->Void;
-	public var persistentRender:Graphics->Void;
+	public var backgroundRender:Canvas->Void;
+	public var persistentRender:Canvas->Void;
+
+	public var render:Framebuffer->Void;
 
 	public var highQualityScale:Bool;
-	var useBackbuffer:Bool;
+	public var useBackbuffer(default, null):Bool;
 	
 	public function new(width:Int, height:Int, highQualityScale:Bool = false, useBackbuffer:Bool = true, ?fps:Null<Int>):Void
 	{
@@ -46,12 +49,14 @@ class Engine
 
         if (useBackbuffer)
 		{
-			backbuffer = Image.createRenderTarget(width, height);			
+			backbuffer = Image.createRenderTarget(width, height);
 
 			Sdg.gameWidth = backbuffer.width;
         	Sdg.halfGameWidth = Std.int(backbuffer.width / 2);
 			Sdg.gameHeight = backbuffer.height;
         	Sdg.halfGameHeight = Std.int(backbuffer.height / 2);
+
+			render = renderWithBackbuffer;
 		}
 		else
 		{
@@ -59,6 +64,8 @@ class Engine
         	Sdg.halfGameWidth = Sdg.halfWinWidth;
 			Sdg.gameHeight = Sdg.windowHeight;
         	Sdg.halfGameHeight = Sdg.halfWinHeight;
+
+			render = renderWithFramebuffer;
 		}
 
 		if (fps != null)
@@ -140,58 +147,94 @@ class Engine
 					m.update();
 			}
 		}		
+	}	
+
+	/**
+	 * Enable managers to be updated by the engine
+	 */
+	public function enable(options:Int):Void
+	{
+		if (options & Manager.KEYBOARD == Manager.KEYBOARD)
+			managers.push(new sdg.manager.Keyboard());
+
+		if (options & Manager.MOUSE == Manager.MOUSE)
+			managers.push(new sdg.manager.Mouse());
+
+		if (options & Manager.TOUCH == Manager.TOUCH)
+			managers.push(new sdg.manager.Touch());	
+
+		if (options & Manager.GAMEPAD == Manager.GAMEPAD)
+			managers.push(sdg.manager.GamePad.getManager());
+		
+		#if Delta
+		if (options & Manager.DELTA == Manager.DELTA)
+			managers.push(new sdg.manager.TweenDelta());		
+		#end
 	}
 	
-	public function addManager(manager:Manager):Void
-	{
-		managers.push(manager);
-	}
-	
-	function renderGame(g2:Graphics):Void
-	{
-		if (Sdg.screen != null)
-		{			
-			g2.begin(true, Sdg.screen.bgColor);
-			Sdg.screen.render(g2);
-		}
-		else
-			g2.begin(true, Color.Black);				
+	function renderGame(canvas:Canvas):Void
+	{							
+		canvas.g2.begin(true, Sdg.screen.bgColor);
+		Sdg.screen.render(canvas);					
             
 		#if debug
         if (Sdg.editor != null && Sdg.editor.active)
-            Sdg.editor.render(g2);
+            Sdg.editor.render(canvas);
         #end
 
 		if (persistentRender != null)
-			persistentRender(g2);
+			persistentRender(canvas);
 
 		if (!active && backgroundRender != null)
-			backgroundRender(g2);		
+			backgroundRender(canvas);
         	
-		g2.end();
+		canvas.g2.end();
 	}
 
-	public function render(framebuffer:Framebuffer):Void
+	function renderWithBackbuffer(framebuffer:Framebuffer):Void
 	{
-		if (useBackbuffer)
+		if (Sdg.screen != null)
 		{
-			renderGame(backbuffer.g2);
-
-			framebuffer.g2.begin();
-
-			if (highQualityScale)
-				framebuffer.g2.imageScaleQuality = ImageScaleQuality.High;
-				
-			Scaler.scale(backbuffer, framebuffer, System.screenRotation);
-			framebuffer.g2.end();
-		}
-		else
-		{
-			framebuffer.g2.begin();
-			renderGame(framebuffer.g2);
-			framebuffer.g2.end();
+			renderGame(backbuffer);
+			applyBackbufferToFramebuffer(framebuffer);			
 		}
 	}
+
+	function renderWithBackbufferAndFilter(framebuffer:Framebuffer):Void
+	{
+		if (Sdg.screen != null)
+		{
+			renderGame(Filter.texture);
+			Sdg.screen.filter.apply(backbuffer);
+			applyBackbufferToFramebuffer(framebuffer);
+		}
+	}
+
+	inline function applyBackbufferToFramebuffer(framebuffer:Framebuffer):Void
+	{
+		framebuffer.g2.begin();
+
+		if (highQualityScale)
+			framebuffer.g2.imageScaleQuality = ImageScaleQuality.High;
+			
+		Scaler.scale(backbuffer, framebuffer, System.screenRotation);
+		framebuffer.g2.end();
+	}
+
+	function renderWithFramebuffer(framebuffer:Framebuffer):Void
+	{
+		if (Sdg.screen != null)
+			renderGame(framebuffer);
+	}
+
+	function renderWithFramebufferAndFilter(framebuffer:Framebuffer):Void
+	{
+		if (Sdg.screen != null)
+		{
+			renderGame(Filter.texture);
+			Sdg.screen.filter.apply(framebuffer);
+		}
+	}	
 
 	public function updateGameSize(newWidth:Int, newHeight:Int):Void
 	{
@@ -229,5 +272,28 @@ class Engine
 			System.notifyOnApplicationState(onForeground, null, null, onBackground, null);
 		else
 			System.notifyOnApplicationState(null, null, null, null, null);
+	}
+
+	@:allow(sdg.Sdg)
+	@:allow(sdg.Screen)
+	@:allow(sdg.filters.Filter)
+	function chooseRenderFunction(filter:Filter):Void
+	{
+		var isUsingFilter = (filter != null && filter.enabled);
+		
+		if (useBackbuffer)
+		{
+			if (isUsingFilter)
+				render = renderWithBackbufferAndFilter;
+			else
+				render = renderWithBackbuffer;
+		}
+		else
+		{
+			if (isUsingFilter)
+				render = renderWithFramebufferAndFilter;
+			else
+				render = renderWithFramebuffer;
+		}
 	}
 }

@@ -1,9 +1,9 @@
 package sdg;
 
 import kha.Color;
+import kha.Canvas;
 import kha.FastFloat;
 import kha.math.Vector2;
-import kha.graphics2.Graphics;
 import sdg.components.Component;
 import sdg.math.Vector2b;
 
@@ -183,9 +183,9 @@ class Object
 			comp.init();
 	}
 	
-	public function render(g:Graphics, cameraX:Float, cameraY:Float):Void 
+	public function render(canvas:Canvas, cameraX:Float, cameraY:Float):Void 
 	{		
-		graphic.render(g, x, y, cameraX, cameraY);		
+		graphic.render(canvas, x, y, cameraX, cameraY);		
 	}
 	
 	/**

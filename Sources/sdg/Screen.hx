@@ -1,10 +1,11 @@
 package sdg;
 
 import kha.Color;
+import kha.Canvas;
 import kha.math.Vector2;
-import kha.graphics2.Graphics;
 import sdg.math.Rectangle;
 import sdg.util.Camera;
+import sdg.filters.Filter;
 
 class Screen
 {
@@ -31,6 +32,8 @@ class Screen
 
 	public var worldWidth:Int;
 	public var worldHeight:Int;
+
+	public var filter(default, set):Filter;
 	
 	public function new():Void
 	{
@@ -101,7 +104,7 @@ class Screen
 	 * If you override this to give your Scene render code, remember
 	 * to call super.render() or your Entities will not be rendered.
 	 */
-	public function render(g:Graphics):Void
+	public function render(canvas:Canvas):Void
 	{				
 		// render the entities in order of depth
 		for (layer in layerList)
@@ -112,10 +115,10 @@ class Screen
 			for (object in layers.get(layer))
 			{
 				if (object.graphic != null && object.graphic.visible)
-					object.render(g, !object.fixed.x ? camera.x : 0, !object.fixed.y ? camera.y : 0);				
+					object.render(canvas, !object.fixed.x ? camera.x : 0, !object.fixed.y ? camera.y : 0);				
 			}
-		}		
-	}    
+		}
+	}
 	
 	public function destroy():Void
 	{
@@ -413,4 +416,12 @@ class Screen
 	 * by engine.updateGameSize()
 	 */
 	public function gameSizeUpdated(newWidth:Int, newHeight:Int):Void {}
+
+	function set_filter(value:Filter):Filter
+	{
+		filter = value;
+		Engine.instance.chooseRenderFunction(filter);
+
+		return filter;		
+	}
 }

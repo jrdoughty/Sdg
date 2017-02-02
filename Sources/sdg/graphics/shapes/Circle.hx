@@ -1,8 +1,8 @@
 package sdg.graphics.shapes;
 
 import kha.Color;
+import kha.Canvas;
 import kha.math.Vector2;
-import kha.graphics2.Graphics;
 import kha.math.Vector2i;
 
 using kha.graphics2.GraphicsExtension;
@@ -20,18 +20,18 @@ class Circle extends ShapeBase
         segments = 0;
     }
     
-    override function render(g:Graphics, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
+    override function render(canvas:Canvas, objectX:Float, objectY:Float, cameraX:Float, cameraY:Float):Void 
     {
-        preRender(g, objectX, objectY, cameraX, cameraY);
+        preRender(canvas.g2, objectX, objectY, cameraX, cameraY);
 
-        g.color = color;
+        canvas.g2.color = color;
         
         if (filled)
-            g.fillCircle(objectX + x + radius - cameraX, objectY + y + radius - cameraY, radius, segments);
+            canvas.g2.fillCircle(objectX + x + radius - cameraX, objectY + y + radius - cameraY, radius, segments);
         else
-            g.drawCircle(objectX + x + radius - cameraX, objectY + y + radius - cameraY, radius, strength, segments);
+            canvas.g2.drawCircle(objectX + x + radius - cameraX, objectY + y + radius - cameraY, radius, strength, segments);
 
-        postRender(g);
+        postRender(canvas.g2);
     }
 	
 	override public function getSize():Vector2i 
