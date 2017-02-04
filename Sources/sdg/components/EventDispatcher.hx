@@ -77,7 +77,7 @@ class EventDispatcher extends Component implements IEventDispatcher
 		{
 			eventObject = new EventObject();
 		}
-		if (listeners.exists(name))
+		if (listeners.exists(name) && !eventObject.bubble) 
 		{
 			for (func in listeners[name])
 			{
