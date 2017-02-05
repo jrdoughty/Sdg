@@ -319,7 +319,7 @@ class Hitbox
 					{
 						if ((e = collideLists(solidType, object.x + sign, object.y)) != null)
 						{
-							if (object.moveCollideX(e)) 
+  							if (object.moveCollideX(e)) 
 								break;
 							else 
 								object.x += sign;
@@ -393,5 +393,13 @@ class Hitbox
 			point.normalizeThickness(amount);
 		
 		moveBy(point.x, point.y, solidType, sweep);
+	}
+
+	public function destroy()
+	{
+		for(i in lists.keys())
+		{
+			lists[i].remove(this);
+		}
 	}
 }
