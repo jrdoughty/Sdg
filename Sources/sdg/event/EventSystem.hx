@@ -39,7 +39,7 @@ class EventSystem
 
 	public function dispatch(name:String, eventObject:EventObject)
 	{
-		if(dispatchMap.exists(name))
+  		if(dispatchMap.exists(name))
 		{
 			for(i in dispatchMap.get(name))
 			{
