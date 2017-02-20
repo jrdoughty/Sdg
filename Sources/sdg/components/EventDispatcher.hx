@@ -15,6 +15,7 @@ class EventDispatcher extends Component implements IEventDispatcher
 	public override function init():Void 
 	{
 		super.init();
+		object.eventDispatcher = this;
 	}
 
 	/**
@@ -77,7 +78,7 @@ class EventDispatcher extends Component implements IEventDispatcher
 		{
 			eventObject = new EventObject();
 		}
-		if (listeners.exists(name) && !eventObject.bubble) 
+		if (listeners.exists(name) && !eventObject.bubble)
 		{
 			for (func in listeners[name])
 			{
@@ -87,6 +88,15 @@ class EventDispatcher extends Component implements IEventDispatcher
 		if(eventObject.bubble)
 		{
 			EventSystem.get().dispatch(name, eventObject);
+		}
+	}
+
+	public override function destroy():Void	
+	{
+		for(i in listeners.keys())
+		{
+			EventSystem.get().removeEvent(i, this);
+			listeners.remove(i);
 		}
 	}
 }

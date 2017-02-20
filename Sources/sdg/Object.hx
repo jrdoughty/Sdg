@@ -6,6 +6,7 @@ import kha.FastFloat;
 import kha.math.Vector2;
 import sdg.components.Component;
 import sdg.math.Vector2b;
+import sdg.event.IEventDispatcher;
 
 @:allow(sdg.Screen)
 class Object
@@ -74,6 +75,10 @@ class Object
 	 * Components that updates and affect the object
 	 */
 	public var components:Array<Component>;
+	/**
+	 * Components that updates and affect the object
+	 */
+	public var eventDispatcher:IEventDispatcher;
 	/**
 	 * The graphic used by this object
 	 */

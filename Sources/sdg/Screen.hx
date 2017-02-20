@@ -298,8 +298,10 @@ class Screen
         if (destroyList.length > 0)
         {
             for (object in destroyList)
+			{
+				object.destroy();
                 object = null;
-                
+			}   
             Sdg.clear(destroyList);
         }
 
