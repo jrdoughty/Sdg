@@ -1,10 +1,12 @@
 package sdg.manager;
 
+import kha.input.KeyCode;
+
 class Keyboard extends Manager
 {
-	static var keysPressed:Map<Int, Bool>;
-	static var keysHeld:Map<Int, Bool>;
-	static var keysUp:Map<Int, Bool>;
+	static var keysPressed:Map<KeyCode, Bool>;
+	static var keysHeld:Map<KeyCode, Bool>;
+	static var keysUp:Map<KeyCode, Bool>;
 	static var keysCount:Int = 0;
 	static var keysJustPressed:Bool = false;	
 
@@ -14,9 +16,9 @@ class Keyboard extends Manager
 
 		kha.input.Keyboard.get().notify(onKeyDown, onKeyUp);
 
-		keysPressed = new Map<Int, Bool>();
-		keysHeld = new Map<Int, Bool>();
-		keysUp = new Map<Int, Bool>();		
+		keysPressed = new Map<KeyCode, Bool>();
+		keysHeld = new Map<KeyCode, Bool>();
+		keysUp = new Map<KeyCode, Bool>();		
 	}
 
 	override public function update():Void
@@ -44,7 +46,7 @@ class Keyboard extends Manager
 			keysUp.remove(key);
 	}
 
-	function onKeyDown(key:Int):Void
+	function onKeyDown(key:KeyCode):Void
 	{
 		keysPressed.set(key, true);
 		keysHeld.set(key, true);				            									        		
@@ -53,7 +55,7 @@ class Keyboard extends Manager
 		keysJustPressed = true;
 	}
 
-	function onKeyUp(key:Int):Void
+	function onKeyUp(key:KeyCode):Void
 	{		
 		keysUp.set(key, true);
 		keysHeld.set(key, false);																					
@@ -61,17 +63,17 @@ class Keyboard extends Manager
 		keysCount--;
 	}
 
-	inline public static function isPressed(key:Int):Bool
+	inline public static function isPressed(key:KeyCode):Bool
 	{
 		return keysPressed.exists(key);
 	}
 
-	inline public static function isHeld(key:Int):Bool
+	inline public static function isHeld(key:KeyCode):Bool
 	{
 		return keysHeld.get(key);
 	}
 
-	inline public static function isUp(key:Int):Bool
+	inline public static function isUp(key:KeyCode):Bool
 	{
 		return keysUp.exists(key);
 	}
