@@ -7,9 +7,9 @@ import sdg.manager.Keyboard;
 class Editor
 {
     public var active:Bool;
-    var activationKey:String;
+    var activationKey:Int;
     
-    public function new(activationKey:String):Void
+    public function new(activationKey:Int):Void
     {
         active = false;
         this.activationKey = activationKey;
