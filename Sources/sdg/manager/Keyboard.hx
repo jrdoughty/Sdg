@@ -1,12 +1,12 @@
 package sdg.manager;
 
-import kha.input.KeyCode;
+import kha.Key;
 
 class Keyboard extends Manager
 {
-	static var keysPressed:Map<Int, Bool>;
-	static var keysHeld:Map<Int, Bool>;
-	static var keysUp:Map<Int, Bool>;
+	static var keysPressed:Map<String, Bool>;
+	static var keysHeld:Map<String, Bool>;
+	static var keysUp:Map<String, Bool>;
 	static var keysCount:Int = 0;
 	static var keysJustPressed:Bool = false;	
 
@@ -16,9 +16,9 @@ class Keyboard extends Manager
 
 		kha.input.Keyboard.get().notify(onKeyDown, onKeyUp);
 
-		keysPressed = new Map<Int, Bool>();
-		keysHeld = new Map<Int, Bool>();
-		keysUp = new Map<Int, Bool>();		
+		keysPressed = new Map<String, Bool>();
+		keysHeld = new Map<String, Bool>();
+		keysUp = new Map<String, Bool>();		
 	}
 
 	override public function update():Void
@@ -46,36 +46,51 @@ class Keyboard extends Manager
 			keysUp.remove(key);
 	}
 
-	function onKeyDown(key:KeyCode):Void
+	function onKeyDown(key:Key, char:String):Void
 	{
-		              
-		keysPressed.set(key, true);
-		keysHeld.set(key, true);
+		if (key == Key.CHAR)
+		{            
+			keysPressed.set(char, true);
+			keysHeld.set(char, true);
+		}
+		else
+		{                  
+			keysPressed.set(key.getName().toLowerCase(), true);
+			keysHeld.set(key.getName().toLowerCase(), true);
+		}
 
 		keysCount++;
 
 		keysJustPressed = true;
 	}
 
-	function onKeyUp(key:KeyCode):Void
+	function onKeyUp(key:Key, char:String):Void
 	{		
-		keysUp.set(key, true);
-		keysHeld.set(key, false);
+		if (key == Key.CHAR)
+		{
+			keysUp.set(char, true);
+			keysHeld.set(char, false);
+		}
+		else
+		{
+			keysUp.set(key.getName().toLowerCase(), true);
+			keysHeld.set(key.getName().toLowerCase(), false);
+		}
 
 		keysCount--;
 	}
 
-	inline public static function isPressed(key:Int):Bool
+	inline public static function isPressed(key:String):Bool
 	{
 		return keysPressed.exists(key);
 	}
 
-	inline public static function isHeld(key:Int):Bool
+	inline public static function isHeld(key:String):Bool
 	{
 		return keysHeld.get(key);
 	}
 
-	inline public static function isUp(key:Int):Bool
+	inline public static function isUp(key:String):Bool
 	{
 		return keysUp.exists(key);
 	}
