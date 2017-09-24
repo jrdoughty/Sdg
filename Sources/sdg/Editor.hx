@@ -2,14 +2,15 @@
 package sdg;
 
 import kha.Canvas;
+import kha.input.KeyCode;
 import sdg.manager.Keyboard;
 
 class Editor
 {
     public var active:Bool;
-    var activationKey:String;
+    var activationKey:KeyCode;
     
-    public function new(activationKey:String):Void
+    public function new(activationKey:KeyCode):Void
     {
         active = false;
         this.activationKey = activationKey;
