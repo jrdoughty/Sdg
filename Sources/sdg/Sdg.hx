@@ -99,7 +99,7 @@ class Sdg
 		return timeTasks[timeTasks.length - 1];
 	}
 	
-	public static function removeTimeTasks(id:Int):Void
+	public static function removeTimeTask(id:Int):Void
 	{
 		if (timeTasks != null)
 		{
