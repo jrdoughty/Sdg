@@ -83,6 +83,18 @@ class Engine
     {        
         Sdg.gameScale.x = Sdg.windowWidth / Sdg.gameWidth;
         Sdg.gameScale.y = Sdg.windowHeight / Sdg.gameHeight;
+		trace("x: "+Sdg.gameScale.x + " y: " + Sdg.gameScale.y);
+		Sdg.gameOffset.x = 0;
+		Sdg.gameOffset.y = 0;
+		if (Sdg.gameScale.x > Sdg.gameScale.y)
+		{
+			Sdg.gameOffset.x = (Sdg.windowWidth - Sdg.windowWidth / Sdg.gameScale.x * Sdg.gameScale.y)/2;
+			trace("w:"+Sdg.windowWidth + " x:" + Sdg.gameScale.x + " y:" + Sdg.gameScale.y + " o:" +Sdg.gameOffset.x);
+		}
+		else if(Sdg.gameScale.x < Sdg.gameScale.y)
+		{
+			Sdg.gameOffset.y = Sdg.windowWidth / Sdg.gameScale.y * Sdg.gameScale.x;
+		}
     }
 	
 	function onForeground()

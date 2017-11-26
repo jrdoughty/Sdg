@@ -26,7 +26,8 @@ class Sdg
 	public static var screen:Screen;
 	static var screens:Map<String, Screen>;
 	
-	public static var gameScale:Point = new Point(1,1);
+	public static var gameScale:Vector2 = new Vector2(1,1);
+	public static var gameOffset:Vector2 = new Vector2(0,0);
     
     /** Convert a radian value into a degree value. */
 	public static var DEG(get, never):Float;

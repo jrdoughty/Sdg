@@ -136,7 +136,8 @@ class Mouse extends Manager
 	{
 		Mouse.rawX = x;
 		Mouse.rawY = y;
-		Mouse.x = Std.int(x / Sdg.gameScale.x);
+		Mouse.x = Std.int((x -Sdg.gameOffset.x)  / Math.sqrt(Sdg.gameScale.x));
+		//trace("mx: " + Mouse.x + " x:" +x + " s:"+ Sdg.gameScale);
 		Mouse.y = Std.int(y / Sdg.gameScale.y);
 		Mouse.dx = Std.int(dx / Sdg.gameScale.x);
 		Mouse.dy = Std.int(dy / Sdg.gameScale.y);
