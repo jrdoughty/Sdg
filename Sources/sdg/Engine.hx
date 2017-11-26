@@ -81,7 +81,8 @@ class Engine
     
     inline function calcGameScale():Void
     {        
-        Sdg.gameScale = Sdg.windowWidth / Sdg.gameWidth;
+        Sdg.gameScale.x = Sdg.windowWidth / Sdg.gameWidth;
+        Sdg.gameScale.y = Sdg.windowHeight / Sdg.gameHeight;
     }
 	
 	function onForeground()

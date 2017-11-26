@@ -101,8 +101,9 @@ class Mouse extends Manager
 	{
 		updateMouseData(x, y, 0, 0);
 
-		Mouse.sx = Std.int(x * Sdg.gameScale);
-		Mouse.sy = Std.int(y * Sdg.gameScale);
+		Mouse.sx = Std.int(x * Sdg.gameScale.x);
+		Mouse.sy = Std.int(y * Sdg.gameScale.y);
+		trace(Sdg.gameScale);
 
 		mousePressed.set(index, true);
 		mouseHeld.set(index, true);
@@ -135,15 +136,15 @@ class Mouse extends Manager
 	{
 		Mouse.rawX = x;
 		Mouse.rawY = y;
-		Mouse.x = Std.int(x / Sdg.gameScale);
-		Mouse.y = Std.int(y / Sdg.gameScale);
-		Mouse.dx = Std.int(dx / Sdg.gameScale);
-		Mouse.dy = Std.int(dy / Sdg.gameScale);
+		Mouse.x = Std.int(x / Sdg.gameScale.x);
+		Mouse.y = Std.int(y / Sdg.gameScale.y);
+		Mouse.dx = Std.int(dx / Sdg.gameScale.x);
+		Mouse.dy = Std.int(dy / Sdg.gameScale.y);
 		
 		if (Sdg.screen != null)
 		{
-			Mouse.wx = Std.int((x + Sdg.screen.camera.x) / Sdg.gameScale);
-			Mouse.wy = Std.int((y + Sdg.screen.camera.y) / Sdg.gameScale);
+			Mouse.wx = Std.int((x + Sdg.screen.camera.x) / Sdg.gameScale.x);
+			Mouse.wy = Std.int((y + Sdg.screen.camera.y) / Sdg.gameScale.y);
 		}
 	}
 
