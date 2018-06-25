@@ -124,7 +124,6 @@ class Screen
 	{
 		layerList = null;
 		addList = null;
-		removeList = null;
 		layerDisplay = null;
 		layers = null;		
 		objectNames = null;
@@ -132,6 +131,7 @@ class Screen
 		for (object in updateList)
 			object.destroy();
 			
+		removeList = null;
 		updateList = null;
 	}	
 	

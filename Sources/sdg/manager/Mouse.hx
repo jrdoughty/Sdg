@@ -2,6 +2,7 @@ package sdg.manager;
 
 import kha.input.Mouse;
 import kha.math.Vector2;
+import kha.System;
 import sdg.Sdg;
 
 class Mouse extends Manager
@@ -135,6 +136,37 @@ class Mouse extends Manager
 	{
 		Mouse.rawX = x;
 		Mouse.rawY = y;
+
+		var sysW = System.windowWidth();
+		var sysH = System.windowHeight();
+		var ratio = Sdg.gameWidth / Sdg.gameHeight;
+		var sysRatio = sysW / sysH;
+
+		var effW;
+		var effH;
+		if(sysRatio > ratio)
+		{
+			effW = Std.int(sysH * ratio);
+			effH = sysH;
+		}
+		else
+		{
+			effH = Std.int(sysW / ratio);
+			effW = sysW;
+		}
+		var diff = (sysW - effW)/2;
+
+		x = Std.int(x - diff);
+		x = Std.int(x/effW * Sdg.windowWidth);
+		if(x < 0) x = 0;
+		if(x > Sdg.windowWidth) x = Sdg.windowWidth;
+
+		diff = (sysH - effH)/2;
+		y = Std.int(y - diff);
+		y = Std.int(y / effH  * Sdg.windowHeight);
+		if(y < 0) y = 0;
+		if(y > Sdg.windowHeight) y = Sdg.windowHeight;
+
 		Mouse.x = Std.int(x / Sdg.gameScale);
 		Mouse.y = Std.int(y / Sdg.gameScale);
 		Mouse.dx = Std.int(dx / Sdg.gameScale);
