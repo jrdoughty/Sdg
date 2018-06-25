@@ -7,11 +7,9 @@ import kha.math.Vector2;
 import sdg.components.Component;
 import sdg.math.Vector2b;
 import sdg.event.IEventDispatcher;
-import kha.network.Entity;
-import kha.network.Sync;
 
 @:allow(sdg.Screen)
-class Object implements Entity implements Sync
+class Object
 {	
 	/**
 	 * A id to be used by the developer. 
@@ -25,24 +23,20 @@ class Object implements Entity implements Sync
 	/**
 	 * The x position 
 	 */
-	// @replicated
 	public var x:Float;
 	/** 
 	 * the y position 
 	 */
-	// @replicated
 	public var y:Float;
 	/**
 	 * The object width. This doesn't influence collision but some parts in the class uses it. 
 	 * Call setSizeAuto() to set the width/height from the graphic.
 	 */
-	// @replicated
 	public var width:Int;
 	/**
 	 * The object height. This doesn't influence collision but some parts in the class uses it.
 	 * Call setSizeAuto() to set the width/height from the graphic.
 	 */
-	// @replicated
 	public var height:Int;
 	/**
 	 * The x position in the right side (x + width)
@@ -59,7 +53,6 @@ class Object implements Entity implements Sync
 	/**
 	 * If the object can update 
 	 */ 
-	// @replicated
 	public var active:Bool;		
 	/**
 	 * If the object should render
