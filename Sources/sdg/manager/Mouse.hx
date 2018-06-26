@@ -142,28 +142,29 @@ class Mouse extends Manager
 		var ratio = Sdg.gameWidth / Sdg.gameHeight;
 		var sysRatio = sysW / sysH;
 
-		var effW;
-		var effH;
+		var effectiveWidth;//the width of the game in the window
+		var effectiveHeight;//the height of the game in the window
+
 		if(sysRatio > ratio)
 		{
-			effW = Std.int(sysH * ratio);
-			effH = sysH;
+			effectiveWidth = Std.int(sysH * ratio);
+			effectiveHeight = sysH;
 		}
 		else
 		{
-			effH = Std.int(sysW / ratio);
-			effW = sysW;
+			effectiveHeight = Std.int(sysW / ratio);
+			effectiveWidth = sysW;
 		}
-		var diff = (sysW - effW)/2;
+		var diff = (sysW - effectiveWidth)/2;
 
 		x = Std.int(x - diff);
-		x = Std.int(x/effW * Sdg.windowWidth);
+		x = Std.int(x/effectiveWidth * Sdg.windowWidth);
 		if(x < 0) x = 0;
 		if(x > Sdg.windowWidth) x = Sdg.windowWidth;
 
-		diff = (sysH - effH)/2;
+		diff = (sysH - effectiveHeight)/2;
 		y = Std.int(y - diff);
-		y = Std.int(y / effH  * Sdg.windowHeight);
+		y = Std.int(y / effectiveHeight  * Sdg.windowHeight);
 		if(y < 0) y = 0;
 		if(y > Sdg.windowHeight) y = Sdg.windowHeight;
 
