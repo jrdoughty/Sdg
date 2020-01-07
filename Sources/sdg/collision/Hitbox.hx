@@ -12,7 +12,7 @@ import sdg.math.Point;
 abstract SolidType(Either<String, Array<String>>)
 {
 	@:dox(hide) public inline function new(e:Either<String, Array<String>>) this = e;
-	@:dox(hide) public var type(get,never):Either<String, Array<String>>;
+	@:dox(hide) public var type(get,null):Either<String, Array<String>>;
 	@:to inline function get_type() return this;
 	@:from static function fromLeft(v:String) return new SolidType(Left(v));
 	@:from static function fromRight(v:Array<String>) return new SolidType(Right(v));

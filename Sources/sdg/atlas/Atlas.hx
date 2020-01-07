@@ -1,6 +1,6 @@
 package sdg.atlas;
 
-import haxe.xml.Fast;
+import haxe.xml.Access;
 import haxe.Json;
 import kha.Image;
 import kha.Blob;
@@ -144,7 +144,7 @@ class Atlas
 		var blobString:String = xml.toString();
 		var fullXml:Xml = Xml.parse(blobString);
 		var firstNode:Xml = fullXml.firstElement(); // <TextureAtlas>
-		var data = new Fast(firstNode);		
+		var data = new Access(firstNode);		
 		
 		for (st in data.nodes.SubTexture)
 		{
