@@ -170,6 +170,11 @@ class Engine
 		if (options & Manager.DELTA == Manager.DELTA)
 			managers.push(new sdg.manager.TweenDelta());		
 		#end
+		
+		if (options & Manager.AUDIO == Manager.AUDIO)
+			managers.push(new sdg.manager.AudioManager());	
+
+
 	}
 	
 	function renderGame(canvas:Canvas):Void

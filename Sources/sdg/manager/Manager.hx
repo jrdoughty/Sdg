@@ -7,6 +7,7 @@ class Manager
 	public inline static var TOUCH:Int = 4;
 	public inline static var GAMEPAD:Int = 8;
 	public inline static var DELTA:Int = 16;
+	public inline static var AUDIO:Int = 32;
 
 	public var active:Bool = true;
 	

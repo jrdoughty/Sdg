@@ -75,12 +75,13 @@ class Sdg
 	public static function switchScreen(name:String):Bool
 	{
 		var screenSwitched = screens.get(name);
-
+		
 		if (screenSwitched != null)
-		{			
+		{		
+			if(screen != null)
+				screen.close();
 			screen = screenSwitched;
 			Engine.instance.chooseRenderFunction(screen.filter);
-
 			screen.init();
 
 			return true;
@@ -97,6 +98,11 @@ class Sdg
 		timeTasks.push(Scheduler.addTimeTask(task, start, period, duration));
 		
 		return timeTasks[timeTasks.length - 1];
+	}
+	
+	public static function time():Float
+	{
+		return Scheduler.time();
 	}
 	
 	public static function removeTimeTask(id:Int):Void
@@ -380,7 +386,7 @@ class Sdg
 			case 0x0307:	return BlendingFactor.InverseDestinationColor;
 			default:
 				trace('(getBlendingMode) BlendingFactor not found');
-				return null;
+				return BlendingFactor.BlendZero;
 		}
 	}
 	#end
