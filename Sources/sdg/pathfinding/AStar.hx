@@ -23,6 +23,10 @@ class AStar
 	 */
 	private static var closedList:Array<INode> = [];
 	/**
+	 * INodes that have been looked into
+	 */
+	private static var touchedNodes:Array<INode> = [];
+	/**
 	 * Path estimate
 	 */
 	private static var pathHeiristic:Int;
@@ -38,8 +42,7 @@ class AStar
 	 */
 	public static function newPath(start:INode, endNode:INode):Array<INode>
 	{
-		cleanParentNodes();//ensure everying this ready
-		cleanUp();
+		//cleanUp();
 		
 		path = [];
 		end = endNode;
@@ -48,7 +51,7 @@ class AStar
 		openList.push(start);
 		if (calculate() && start != endNode)
 		{
-			cleanUp();
+			//cleanUp();
 			path.push(end);
 			var curNode = end;
 			while (curNode.parentNode != null)
@@ -62,32 +65,22 @@ class AStar
 			path = [];
 		}
 		
-		cleanParentNodes();
+		cleanUp();
 		return path;
 	}
-	/**
-	 * resets Node Parents before a new calculation can start
-	 */
-	private static function cleanParentNodes()
-	{
-		var i:Int;
-		for (i in 0...activeLevel.activeNodes.length)
-		{
-			activeLevel.activeNodes[i].parentNode = null;
-		}
-	}
-	
 	/**
 	 * cleans up vars for new calculation
 	 */
 	private static function cleanUp()
 	{
 		var i:Int;
-		for (i in 0...activeLevel.activeNodes.length)
-		{
-			activeLevel.activeNodes[i].g = -1;
-			activeLevel.activeNodes[i].heiristic = -1;
-		}
+        for (i in touchedNodes)
+        {
+            i.parentNode = null;
+			i.g = -1;
+			i.heiristic = -1;
+        }
+        touchedNodes = [];
 		closedList = [];
 		openList = [];
 	}
@@ -153,7 +146,7 @@ class AStar
         var prospectiveG:Int;
 
         childNode.heiristic = calculateHeiristic(childNode, end);
-
+        touchedNodes.push(childNode);
 
         if (childNode.heiristic == 0) 
 		{
